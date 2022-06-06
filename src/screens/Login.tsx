@@ -1,7 +1,10 @@
 import { SubmitHandler, useForm } from "react-hook-form";
+import { useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { logUserIn } from "../apollo";
 import { useLoginMutation } from "../generated/graphql";
+import { routes } from "../sharedData";
+import { SignUpState } from "./SignUp";
 
 const Container = styled.div`
 	display: flex;
@@ -13,20 +16,30 @@ const Container = styled.div`
 const Wrapper = styled.div`
 	max-width: 350px;
 	width: 100%;
+	form {
+		flex-direction: column;
+		input {
+			border: 1px solid black;
+			padding: 10px;
+			width: 100%;
+		}
+	}
 `;
 
-interface ILoginFormValues {
+interface LoginFormValues {
 	username: string;
 	password: string;
 	result: string;
 }
 export default function Login() {
+	const location = useLocation();
+	const state = location.state as SignUpState;
 	const {
 		register,
 		handleSubmit,
 		setError,
 		formState: { errors },
-	} = useForm<ILoginFormValues>({ mode: "onChange" });
+	} = useForm<LoginFormValues>({ mode: "onChange" });
 	const [loginMutation, { loading }] = useLoginMutation({
 		onCompleted: (data) => {
 			if (!data?.login) return;
@@ -40,13 +53,14 @@ export default function Login() {
 			}
 		},
 	});
-	const onValid: SubmitHandler<ILoginFormValues> = (data) => {
+	const onValid: SubmitHandler<LoginFormValues> = (data) => {
 		if (loading) return;
 		loginMutation({ variables: { ...data } });
 	};
 	return (
 		<Container>
 			<Wrapper>
+				<span>{state.message}</span>
 				<form onSubmit={handleSubmit(onValid)}>
 					<input
 						{...register("username", { required: "username is required" })}
@@ -68,6 +82,12 @@ export default function Login() {
 					/>
 					<span>{errors.result?.message}</span>
 				</form>
+				<span>
+					Don't you have account?
+					<a href={routes.signUp} style={{ color: "blue" }}>
+						Sign Up
+					</a>
+				</span>
 			</Wrapper>
 		</Container>
 	);

@@ -10,4 +10,20 @@ gql`
 			error
 		}
 	}
+	mutation CreateAccount(
+		$name: String!
+		$username: String!
+		$email: String!
+		$password: String!
+	) {
+		createAccount(
+			name: $name
+			username: $username
+			email: $email
+			password: $password
+		) {
+			ok
+			error
+		}
+	}
 `;
