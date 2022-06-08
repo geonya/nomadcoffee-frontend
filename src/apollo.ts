@@ -1,10 +1,8 @@
-import {
-	ApolloClient,
-	createHttpLink,
-	InMemoryCache,
-	makeVar,
-} from "@apollo/client";
-import { DARK_MODE, TOKEN } from "./sharedData";
+import { ApolloClient, InMemoryCache, makeVar } from '@apollo/client';
+import { DARK_MODE, TOKEN } from './sharedData';
+import { createUploadLink } from 'apollo-upload-client';
+import { setContext } from '@apollo/client/link/context';
+import { onError } from '@apollo/client/link/error';
 
 export const isLoggedInVar = makeVar(Boolean(localStorage.getItem(TOKEN)));
 export const darkModeVar = makeVar(Boolean(localStorage.getItem(DARK_MODE)));
@@ -20,7 +18,7 @@ export const logUserOut = () => {
 
 export const toggleDarkMode = (isDarkMode: boolean) => {
 	if (!isDarkMode) {
-		localStorage.setItem(DARK_MODE, "true");
+		localStorage.setItem(DARK_MODE, 'true');
 		darkModeVar(true);
 	} else {
 		localStorage.removeItem(DARK_MODE);
@@ -28,9 +26,28 @@ export const toggleDarkMode = (isDarkMode: boolean) => {
 	}
 };
 
-const httpLink = createHttpLink({
-	uri: "https://nomadcoffee-backend-geony.herokuapp.com/graphql",
+const uploadHttpLink = createUploadLink({
+	uri: 'https://nomadcoffee-backend-geony.herokuapp.com/graphql',
 });
+const authLink = setContext((_, { headers }) => {
+	return {
+		headers: {
+			...headers,
+			token: localStorage.getItem(TOKEN),
+		},
+	};
+});
+
+const onErrorLink = onError(({ graphQLErrors, networkError }) => {
+	if (graphQLErrors) {
+		console.log(graphQLErrors);
+	}
+	if (networkError) {
+		console.log(networkError);
+	}
+});
+
+const httpLink = authLink.concat(onErrorLink).concat(uploadHttpLink);
 
 export const client = new ApolloClient({
 	link: httpLink,

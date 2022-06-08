@@ -16,3 +16,16 @@
 - In our Nomad Coffee the coffee shop owner will have a web admin panel.
 
 - [x] Your task is to implement sign up and login!
+
+### Day 17
+
+- [x] Make a CRUD of Coffee Shops.
+- [x] /: show the user all the coffee shops that they have created.
+- [x] /add: show the user a form to create a shop.
+- [x] /shop/:id: show the user a form to edit a shop, or a button to delete the shop.
+
+### Additional
+
+- [x] Category Menu
+- [ ] Pick Shop Location with Map API
+- [ ] Additional Upload Photos and Delete Previous Photos
