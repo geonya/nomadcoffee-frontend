@@ -1,31 +1,36 @@
-import { createGlobalStyle, DefaultTheme } from "styled-components";
-import reset from "styled-reset";
+import { createGlobalStyle, DefaultTheme } from 'styled-components';
+import reset from 'styled-reset';
 
 export const lightTheme: DefaultTheme = {
-	fontColor: "#2c2c2c",
-	bgColor: "#FAFAFA",
+	maxWidth: '385px',
+	borderColor: '#2c2c2c',
+	fontColor: '#2c2c2c',
+	bgColor: '#FAFAFA',
 };
 export const darkTheme: DefaultTheme = {
-	fontColor: "#FAFAFA",
-	bgColor: "#2c2c2c",
+	maxWidth: '385px',
+	borderColor: '#FAFAFA',
+	fontColor: '#FAFAFA',
+	bgColor: '#2c2c2c',
 };
 
 export const GlobalStyles = createGlobalStyle`
-${reset}
-input {
-    all:unset;
-  }
-  * {
-    box-sizing: border-box;
-  }
+  ${reset}
+  input {
+      all:unset;
+      box-sizing: border-box;
+    }
   body {
     background-color: ${(props) => props.theme.bgColor};
     color:${(props) => props.theme.fontColor};
-    font-size:14px;
+    font-size: 14px;
     font-family: 'Open Sans', sans-serif;
   }
   a {
     text-decoration: none;
     color:inherit;
+  }
+  * {
+    box-sizing: border-box;
   }
 `;

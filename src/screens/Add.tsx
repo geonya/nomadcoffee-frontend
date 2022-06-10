@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 import Layout from '../components/Layout';
 import { createCategoryObj } from '../components/sharedFunc';
 import {
@@ -8,6 +9,87 @@ import {
 	useSeeCategoriesQuery,
 } from '../generated/graphql';
 import { routes } from '../sharedData';
+
+const Wrapper = styled.div`
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+`;
+
+const ShopForm = styled.form`
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	input {
+		padding: 5px;
+		border: 1px solid ${(props) => props.theme.borderColor};
+	}
+`;
+
+const CategoryListBox = styled.div`
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: space-between;
+	border: 1px solid ${(props) => props.theme.borderColor};
+`;
+const CategoryList = styled.div`
+	display: flex;
+`;
+const CategoryItem = styled.span<{ picked: boolean }>`
+	margin: 0 5px;
+	cursor: pointer;
+	padding: 3px;
+	background-color: ${(props) => (props.picked ? 'blue' : '')};
+	color: ${(props) => (props.picked ? 'white' : '')};
+	border: 1px solid ${(props) => props.theme.borderColor};
+	border-radius: 10px;
+`;
+const CategoryAddButton = styled.div`
+	margin-top: 20px;
+	cursor: pointer;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 40px;
+	height: 40px;
+	padding: 5px;
+	border: 1px solid ${(props) => props.theme.borderColor};
+	border-radius: 10px;
+`;
+const ModalBackground = styled.div`
+	background-color: rgba(0, 0, 0, 0.5);
+	position: absolute;
+	width: 100%;
+	height: 100%;
+`;
+const CategoryAddModal = styled.div`
+	position: absolute;
+	top: 50%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	border-radius: 30px;
+	background-color: white;
+	width: 200px;
+	height: 100px;
+	form {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		input {
+			font-size: 18px;
+			padding: 10px;
+			text-align: center;
+		}
+	}
+`;
+const CategoryTitle = styled.div`
+	padding: 10px 0;
+	font-size: 15px;
+`;
 
 interface AddFormValues {
 	name: string;
@@ -79,71 +161,69 @@ const Add = () => {
 
 	return (
 		<Layout>
-			<form onSubmit={handleSubmit(onSubmitValid)}>
-				<input type='file' accept='image/*' {...register('files')} multiple />
-				<span>Photo</span>
-				<input
-					type='text'
-					placeholder='Name'
-					{...register('name', { required: true })}
-				/>
-				<input
-					type='text'
-					placeholder='latitude'
-					{...register('latitude', { required: true })}
-				/>
-				<input
-					type='text'
-					placeholder='longitude'
-					{...register('longitude', { required: true })}
-				/>
-				<span>Pick Categories</span>
-				<div>
-					{categoryList.map((name, i) => (
-						<span
-							key={i}
-							style={{
-								backgroundColor: `${
-									pickCategories.includes(name) ? 'red' : 'blue'
-								}`,
-								color: 'white',
-								padding: 2,
-							}}
-							onClick={() =>
-								setPickCategories((prev) =>
-									!pickCategories.includes(name)
-										? [...prev, name]
-										: [...prev.filter((item) => item !== name!)]
-								)
-							}
-						>
-							{name}
-						</span>
-					))}
-					<span onClick={() => setAddCategoryModal((prev) => !prev)}>+</span>
-				</div>
-				<input type='submit' value='Create' />
-				<span>{errors.result?.message}</span>
-			</form>
-			{addCategoryModal ? (
-				<div
-					style={{
-						position: 'absolute',
-						width: 200,
-						height: 200,
-						margin: 'auto auto',
-					}}
-				>
-					<form onSubmit={categoryHandleSubmit(onCategorySubmitValid)}>
-						<input
-							{...categoryRegister('name')}
-							type='text'
-							placeholder='name'
-						/>
-						<input type='submit' value='Add Category' />
-					</form>
-				</div>
-			) : null}
+			<Wrapper>
+				<ShopForm onSubmit={handleSubmit(onSubmitValid)}>
+					<input type='file' accept='image/*' {...register('files')} multiple />
+					<span>Photo</span>
+					<input
+						type='text'
+						placeholder='Name'
+						{...register('name', { required: true })}
+					/>
+					<input
+						type='text'
+						placeholder='latitude'
+						{...register('latitude', { required: true })}
+					/>
+					<input
+						type='text'
+						placeholder='longitude'
+						{...register('longitude', { required: true })}
+					/>
+					<CategoryListBox>
+						<CategoryTitle>
+							<span>Categories</span>
+						</CategoryTitle>
+						<CategoryList>
+							{categoryList.map((name, i) => (
+								<CategoryItem
+									key={i}
+									onClick={() =>
+										setPickCategories((prev) =>
+											!pickCategories.includes(name)
+												? [...prev, name]
+												: [...prev.filter((item) => item !== name!)]
+										)
+									}
+									picked={pickCategories.includes(name)}
+								>
+									{name}
+								</CategoryItem>
+							))}
+						</CategoryList>
+						<CategoryAddButton onClick={() => setAddCategoryModal(true)}>
+							ADD
+						</CategoryAddButton>
+					</CategoryListBox>
+					<input type='submit' value='Create' />
+					<span>{errors.result?.message}</span>
+				</ShopForm>
+				{addCategoryModal ? (
+					<>
+						<ModalBackground onClick={() => setAddCategoryModal(false)} />
+						<CategoryAddModal>
+							<form onSubmit={categoryHandleSubmit(onCategorySubmitValid)}>
+								<input
+									{...categoryRegister('name', { required: true })}
+									type='text'
+									placeholder='name'
+								/>
+								<input type='submit' value='Add' />
+							</form>
+						</CategoryAddModal>
+					</>
+				) : null}
+			</Wrapper>
 		</Layout>
 	);
 };

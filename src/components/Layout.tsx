@@ -1,24 +1,38 @@
+import { useReactiveVar } from '@apollo/client';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { darkModeVar, logUserOut, toggleDarkMode } from '../apollo';
+import { routes } from '../sharedData';
 
 const Container = styled.div`
-	padding: 50px 0;
+	max-width: ${(props) => props.theme.maxWidth};
+	width: 100%;
+	height: 100vh;
+	margin: 0 auto;
 	display: flex;
-	justify-content: center;
+	justify-content: space-between;
+	align-items: center;
+	flex-direction: column;
+	border: 1px solid ${(props) => props.theme.borderColor};
+`;
+const Header = styled.div`
+	width: 100%;
+	padding: 10px 10px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+`;
+const Content = styled.div`
+	width: 100%;
+	height: 100%;
+	display: flex;
+	justify-content: flex-start;
 	align-items: center;
 	flex-direction: column;
 `;
-const Wrapper = styled.div`
-	max-width: 350px;
-	width: 100%;
-	form {
-		flex-direction: column;
-		input {
-			border: 1px solid black;
-			padding: 10px;
-			width: 100%;
-		}
-	}
+const HeaderTitle = styled.span`
+	font-size: 30px;
+	font-weight: 600;
 `;
 
 interface ILayout {
@@ -27,28 +41,31 @@ interface ILayout {
 
 const Layout = ({ children }: ILayout) => {
 	const navigation = useNavigate();
+	const navigate = useNavigate();
+	const darkMode = useReactiveVar(darkModeVar);
 	return (
 		<Container>
-			<Wrapper>
-				<div
-					style={{
-						width: '100%',
-						marginBottom: 30,
-						position: 'relative',
-						display: 'flex',
-						justifyContent: 'center',
-					}}
-				>
-					<button
-						onClick={() => navigation('..', { replace: true })}
-						style={{ position: 'absolute', left: 0 }}
-					>
-						Back
-					</button>
-					<span style={{ fontSize: '20px' }}>Nomad Coffee</span>
+			<Header>
+				<div>
+					<HeaderTitle>Nomad Coffee</HeaderTitle>
 				</div>
-				{children}
-			</Wrapper>
+				<div>
+					<div>
+						<button onClick={() => navigation('..', { replace: true })}>
+							Back
+						</button>
+					</div>
+
+					<div>
+						<button onClick={() => toggleDarkMode(darkMode)}>
+							{darkMode ? 'Light Mode' : 'Dark Mode'}
+						</button>
+						<button onClick={() => navigate(routes.add)}>Add</button>
+						<button onClick={logUserOut}>Log Out</button>
+					</div>
+				</div>
+			</Header>
+			<Content>{children}</Content>
 		</Container>
 	);
 };

@@ -1,7 +1,7 @@
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useLocation } from 'react-router-dom';
 import { logUserIn } from '../apollo';
-import Layout from '../components/Layout';
+import AuthLayout from '../components/auth/AuthLayout';
 import { useLoginMutation } from '../generated/graphql';
 import { routes } from '../sharedData';
 import { SignUpState } from './SignUp';
@@ -39,7 +39,7 @@ export default function Login() {
 		loginMutation({ variables: { ...data } });
 	};
 	return (
-		<Layout>
+		<AuthLayout>
 			<h1>{state?.message || 'Welcome to Nomad Coffee'}</h1>
 			<form onSubmit={handleSubmit(onValid)}>
 				<input
@@ -68,6 +68,6 @@ export default function Login() {
 					Sign Up
 				</a>
 			</span>
-		</Layout>
+		</AuthLayout>
 	);
 }

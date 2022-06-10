@@ -1,6 +1,6 @@
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import Layout from '../components/Layout';
+import AuthLayout from '../components/auth/AuthLayout';
 import { useCreateAccountMutation } from '../generated/graphql';
 import { routes } from '../sharedData';
 
@@ -64,7 +64,8 @@ export default function SignUp() {
 		});
 	};
 	return (
-		<Layout>
+		<AuthLayout>
+			<h1>Create Account</h1>
 			<form onSubmit={handleSubmit(onValid)}>
 				<input
 					{...register('name', {
@@ -157,6 +158,6 @@ export default function SignUp() {
 					Login
 				</a>
 			</span>
-		</Layout>
+		</AuthLayout>
 	);
 }
