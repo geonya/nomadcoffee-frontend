@@ -214,19 +214,21 @@ export type CreateCoffeeShopResult = {
   ok: Scalars['Boolean'];
 };
 
+export type CoffeeShopFragmentFragment = { __typename?: 'CoffeeShop', id: number, name: string, latitude?: string | null, longitude?: string | null, photos?: Array<{ __typename?: 'CoffeeShopPhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string } };
+
 export type SeeCoffeeShopsQueryVariables = Exact<{
   page: Scalars['Int'];
 }>;
 
 
-export type SeeCoffeeShopsQuery = { __typename?: 'Query', seeCoffeeShops?: Array<{ __typename?: 'CoffeeShop', id: number, name: string, latitude?: string | null, longitude?: string | null, photos?: Array<{ __typename?: 'CoffeeShopPhoto', url: string } | null> | null, user: { __typename?: 'User', username: string } } | null> | null };
+export type SeeCoffeeShopsQuery = { __typename?: 'Query', seeCoffeeShops?: Array<{ __typename?: 'CoffeeShop', id: number, name: string, latitude?: string | null, longitude?: string | null, photos?: Array<{ __typename?: 'CoffeeShopPhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string } } | null> | null };
 
 export type SeeCoffeeShopQueryVariables = Exact<{
   shopId: Scalars['Int'];
 }>;
 
 
-export type SeeCoffeeShopQuery = { __typename?: 'Query', seeCoffeeShop?: { __typename?: 'CoffeeShop', id: number, name: string, latitude?: string | null, longitude?: string | null, user: { __typename?: 'User', username: string }, photos?: Array<{ __typename?: 'CoffeeShopPhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string, slug: string } | null> | null } | null };
+export type SeeCoffeeShopQuery = { __typename?: 'Query', seeCoffeeShop?: { __typename?: 'CoffeeShop', id: number, name: string, latitude?: string | null, longitude?: string | null, photos?: Array<{ __typename?: 'CoffeeShopPhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string } } | null };
 
 export type SeeMyProfileQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -265,7 +267,7 @@ export type CreateCoffeeShopMutationVariables = Exact<{
 }>;
 
 
-export type CreateCoffeeShopMutation = { __typename?: 'Mutation', createCoffeeShop: { __typename?: 'createCoffeeShopResult', ok: boolean, error?: string | null, coffeeShop?: { __typename?: 'CoffeeShop', id: number, name: string, latitude?: string | null, longitude?: string | null, description?: string | null, user: { __typename?: 'User', username: string }, photos?: Array<{ __typename?: 'CoffeeShopPhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null } | null } };
+export type CreateCoffeeShopMutation = { __typename?: 'Mutation', createCoffeeShop: { __typename?: 'createCoffeeShopResult', ok: boolean, error?: string | null, coffeeShop?: { __typename?: 'CoffeeShop', id: number, name: string, latitude?: string | null, longitude?: string | null, photos?: Array<{ __typename?: 'CoffeeShopPhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string } } | null } };
 
 export type EditCoffeeShopMutationVariables = Exact<{
   shopId: Scalars['Int'];
@@ -284,7 +286,7 @@ export type DeleteCoffeeShopMutationVariables = Exact<{
 }>;
 
 
-export type DeleteCoffeeShopMutation = { __typename?: 'Mutation', deleteCoffeeShop: { __typename?: 'DeleteCoffeeShopResult', ok: boolean, error?: string | null, coffeeShop?: { __typename?: 'CoffeeShop', id: number } | null } };
+export type DeleteCoffeeShopMutation = { __typename?: 'Mutation', deleteCoffeeShop: { __typename?: 'DeleteCoffeeShopResult', ok: boolean, error?: string | null } };
 
 export type CreateCategoryMutationVariables = Exact<{
   name: Scalars['String'];
@@ -294,23 +296,30 @@ export type CreateCategoryMutationVariables = Exact<{
 
 export type CreateCategoryMutation = { __typename?: 'Mutation', createCategory: { __typename?: 'MutationResponse', ok: boolean, error?: string | null } };
 
-
-export const SeeCoffeeShopsDocument = gql`
-    query SeeCoffeeShops($page: Int!) {
-  seeCoffeeShops(page: $page) {
-    id
+export const CoffeeShopFragmentFragmentDoc = gql`
+    fragment CoffeeShopFragment on CoffeeShop {
+  id
+  name
+  latitude
+  longitude
+  photos {
+    url
+  }
+  categories {
     name
-    latitude
-    longitude
-    photos {
-      url
-    }
-    user {
-      username
-    }
+  }
+  user {
+    username
   }
 }
     `;
+export const SeeCoffeeShopsDocument = gql`
+    query SeeCoffeeShops($page: Int!) {
+  seeCoffeeShops(page: $page) {
+    ...CoffeeShopFragment
+  }
+}
+    ${CoffeeShopFragmentFragmentDoc}`;
 
 /**
  * __useSeeCoffeeShopsQuery__
@@ -342,23 +351,10 @@ export type SeeCoffeeShopsQueryResult = Apollo.QueryResult<SeeCoffeeShopsQuery, 
 export const SeeCoffeeShopDocument = gql`
     query SeeCoffeeShop($shopId: Int!) {
   seeCoffeeShop(id: $shopId) {
-    id
-    name
-    user {
-      username
-    }
-    photos {
-      url
-    }
-    categories {
-      name
-      slug
-    }
-    latitude
-    longitude
+    ...CoffeeShopFragment
   }
 }
-    `;
+    ${CoffeeShopFragmentFragmentDoc}`;
 
 /**
  * __useSeeCoffeeShopQuery__
@@ -550,24 +546,11 @@ export const CreateCoffeeShopDocument = gql`
     ok
     error
     coffeeShop {
-      id
-      name
-      latitude
-      longitude
-      description
-      user {
-        username
-      }
-      photos {
-        url
-      }
-      categories {
-        name
-      }
+      ...CoffeeShopFragment
     }
   }
 }
-    `;
+    ${CoffeeShopFragmentFragmentDoc}`;
 export type CreateCoffeeShopMutationFn = Apollo.MutationFunction<CreateCoffeeShopMutation, CreateCoffeeShopMutationVariables>;
 
 /**
@@ -649,9 +632,6 @@ export const DeleteCoffeeShopDocument = gql`
   deleteCoffeeShop(id: $shopId) {
     ok
     error
-    coffeeShop {
-      id
-    }
   }
 }
     `;

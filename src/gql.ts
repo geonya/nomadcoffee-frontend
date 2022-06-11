@@ -1,39 +1,37 @@
 import { gql } from '@apollo/client';
 
+export const COFFEESHOP_FRAGMENT = gql`
+	fragment CoffeeShopFragment on CoffeeShop {
+		id
+		name
+		latitude
+		longitude
+		photos {
+			url
+		}
+		categories {
+			name
+		}
+		user {
+			username
+		}
+	}
+`;
+
 // query
 
 gql`
 	query SeeCoffeeShops($page: Int!) {
 		seeCoffeeShops(page: $page) {
-			id
-			name
-			latitude
-			longitude
-			photos {
-				url
-			}
-			user {
-				username
-			}
+			...CoffeeShopFragment
 		}
+		${COFFEESHOP_FRAGMENT}
 	}
 	query SeeCoffeeShop($shopId: Int!) {
 		seeCoffeeShop(id: $shopId) {
-			id
-			name
-			user {
-				username
-			}
-			photos {
-				url
-			}
-			categories {
-				name
-				slug
-			}
-			latitude
-			longitude
+			...CoffeeShopFragment
 		}
+		${COFFEESHOP_FRAGMENT}
 	}
 	query SeeMyProfile {
 		seeMyProfile {
@@ -94,22 +92,10 @@ gql`
 			ok
 			error
 			coffeeShop {
-				id
-				name
-				latitude
-				longitude
-				description
-				user {
-					username
-				}
-				photos {
-					url
-				}
-				categories {
-					name
-				}
+				...CoffeeShopFragment
 			}
 		}
+		${COFFEESHOP_FRAGMENT}
 	}
 	mutation EditCoffeeShop(
 		$shopId: Int!
@@ -135,9 +121,6 @@ gql`
 		deleteCoffeeShop(id: $shopId) {
 			ok
 			error
-			coffeeShop {
-				id
-			}
 		}
 	}
 	mutation CreateCategory($name: String!, $slug: String!) {

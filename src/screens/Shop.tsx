@@ -5,7 +5,6 @@ import styled from 'styled-components';
 import Layout from '../components/Layout';
 import { createCategoryObj } from '../components/sharedFunc';
 import {
-	CoffeeShop,
 	useDeleteCoffeeShopMutation,
 	useEditCoffeeShopMutation,
 	useSeeCoffeeShopQuery,
@@ -130,10 +129,11 @@ const Shop = () => {
 		onCompleted: (data) => {
 			if (!data.seeCoffeeShop) return;
 			data.seeCoffeeShop?.categories?.forEach((category) => {
-				setCategoryList((prev) => (category ? [...prev, category.name] : prev));
-				setPickCategories((prev) =>
-					category ? [...prev, category.name] : prev
-				);
+				if (!category) return;
+				if (!categoryList.includes(category.name)) {
+					setCategoryList((prev) => [...prev, category.name]);
+					setPickCategories((prev) => [...prev, category.name]);
+				}
 			});
 		},
 	});
@@ -151,6 +151,9 @@ const Shop = () => {
 			},
 			update: (cache, result) => {
 				if (!result.data?.editCoffeeShop.ok) return;
+				const categories = pickCategories.map((name) =>
+					createCategoryObj(name)
+				);
 				cache.modify({
 					id: `CoffeeShop:${shopId}`,
 					fields: {
@@ -158,6 +161,7 @@ const Shop = () => {
 						latitude: () => getValues().latitude,
 						longitude: () => getValues().longitude,
 						files: () => getValues().files,
+						categories: (prev) => [...categories],
 					},
 				});
 			},
@@ -189,7 +193,7 @@ const Shop = () => {
 				cache.modify({
 					id: 'ROOT_QUERY',
 					fields: {
-						seeCoffeeShops: (prev, { DELETE }) => DELETE,
+						seeCoffeeShops: (_, { DELETE }) => DELETE,
 					},
 				});
 				navigation(routes.home);

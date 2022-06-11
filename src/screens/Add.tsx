@@ -143,7 +143,7 @@ const Add = () => {
 			} = result;
 			if (coffeeShop.id) {
 				cache.modify({
-					id: 'ROOT_QUERY',
+					id: `ROOT_QUERY`,
 					fields: {
 						seeCoffeeShops: (prev) => [coffeeShop, ...prev],
 					},
