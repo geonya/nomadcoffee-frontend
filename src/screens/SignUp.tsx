@@ -11,6 +11,7 @@ interface SignUpFormValues {
 	email: string;
 	result: string;
 }
+
 export interface SignUpState {
 	username: string;
 	password: string;
