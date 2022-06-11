@@ -31,5 +31,7 @@
 ### Additional
 
 - [x] Category Menu
+- [x] CRUD Cache Update
+- [ ] Layout Design
 - [ ] Pick Shop Location with Map API
-- [ ] Additional Upload Photos and Delete Previous Photos
+- [ ] Multiple Upload Photo

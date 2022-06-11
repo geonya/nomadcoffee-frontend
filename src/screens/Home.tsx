@@ -1,37 +1,44 @@
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Layout from '../components/Layout';
+import ShopBox from '../components/ShopBox';
 import { useSeeCoffeeShopsQuery } from '../generated/graphql';
+import { routes } from '../sharedData';
 
-const ShopBox = styled.div`
-	width: 100%;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	padding: 15px 10px;
-	img {
-		width: 300px;
-		height: 300px;
+const AddBtn = styled.button`
+	background-color: ${(props) => props.theme.pointColor};
+	border-radius: 50%;
+	position: absolute;
+	right: 10px;
+	bottom: 60px;
+	width: 50px;
+	height: 50px;
+	box-shadow: ${(props) => props.theme.boxShadow};
+	svg {
+		color: white;
 	}
 `;
-
 export default function Home() {
+	const navigation = useNavigate();
 	const { data, loading } = useSeeCoffeeShopsQuery({ variables: { page: 1 } });
 	return (
 		<Layout>
 			{loading
 				? 'loading...'
-				: data?.seeCoffeeShops?.map((shop, i) => (
-						<ShopBox key={i}>
-							<Link to={`/shop/${shop?.id}`}>
-								{shop?.photos ? (
-									<img src={shop?.photos[0]?.url} alt={shop?.name} />
-								) : null}
-								<h1>{shop?.name}</h1>
-								<h3>{shop?.user.username}</h3>
-							</Link>
-						</ShopBox>
-				  ))}
+				: data?.seeCoffeeShops?.map((shop, i) => <ShopBox {...shop} key={i} />)}
+			<AddBtn onClick={() => navigation(routes.add)}>
+				<svg
+					fill='currentColor'
+					viewBox='0 0 20 20'
+					xmlns='http://www.w3.org/2000/svg'
+				>
+					<path
+						fill-rule='evenodd'
+						d='M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z'
+						clip-rule='evenodd'
+					/>
+				</svg>
+			</AddBtn>
 		</Layout>
 	);
 }

@@ -7,4 +7,6 @@ export const routes = {
 	add: '/add',
 	shop: '/shop/:id',
 	category: '/category/:name',
+	user: 'users/:username',
+	search: 'search',
 };
