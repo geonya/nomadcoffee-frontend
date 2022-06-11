@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import Layout from '../components/Layout';
 import { createCategoryObj } from '../components/sharedFunc';
 import {
+	CoffeeShop,
 	useDeleteCoffeeShopMutation,
 	useEditCoffeeShopMutation,
 	useSeeCoffeeShopQuery,
@@ -113,11 +114,11 @@ const Shop = () => {
 		handleSubmit,
 		setValue,
 		setError,
+		getValues,
 		formState: { errors },
 	} = useForm<EditFormValues>({ mode: 'onChange' });
 	const { register: categoryRegister, handleSubmit: categoryHandleSubmit } =
 		useForm<CategoryAddFormValues>();
-
 	const onCategorySubmitValid: SubmitHandler<CategoryAddFormValues> = (
 		data
 	) => {
@@ -148,6 +149,18 @@ const Shop = () => {
 					setError('result', { message: error! });
 				}
 			},
+			update: (cache, result) => {
+				if (!result.data?.editCoffeeShop.ok) return;
+				cache.modify({
+					id: `CoffeeShop:${shopId}`,
+					fields: {
+						name: () => getValues().name,
+						latitude: () => getValues().latitude,
+						longitude: () => getValues().longitude,
+						files: () => getValues().files,
+					},
+				});
+			},
 		});
 	const onSubmitValid: SubmitHandler<EditFormValues> = (data) => {
 		if (loading) return;
@@ -170,6 +183,15 @@ const Shop = () => {
 				if (!ok) {
 					setError('result', { message: error! });
 				}
+			},
+			update: (cache, result) => {
+				if (!result.data?.deleteCoffeeShop?.ok) return;
+				cache.modify({
+					id: 'ROOT_QUERY',
+					fields: {
+						seeCoffeeShops: (prev, { DELETE }) => DELETE,
+					},
+				});
 				navigation(routes.home);
 			},
 		});

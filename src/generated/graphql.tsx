@@ -49,6 +49,13 @@ export type CoffeeShopPhoto = {
   url: Scalars['String'];
 };
 
+export type DeleteCoffeeShopResult = {
+  __typename?: 'DeleteCoffeeShopResult';
+  coffeeShop?: Maybe<CoffeeShop>;
+  error?: Maybe<Scalars['String']>;
+  ok: Scalars['Boolean'];
+};
+
 export type LoginResult = {
   __typename?: 'LoginResult';
   error?: Maybe<Scalars['String']>;
@@ -60,9 +67,9 @@ export type Mutation = {
   __typename?: 'Mutation';
   createAccount?: Maybe<MutationResponse>;
   createCategory: MutationResponse;
-  createCoffeeShop?: Maybe<MutationResponse>;
-  deleteCoffeeShop: MutationResponse;
-  editCoffeeShop?: Maybe<MutationResponse>;
+  createCoffeeShop: CreateCoffeeShopResult;
+  deleteCoffeeShop: DeleteCoffeeShopResult;
+  editCoffeeShop: MutationResponse;
   editProfile?: Maybe<MutationResponse>;
   login?: Maybe<LoginResult>;
   toggleFollow?: Maybe<MutationResponse>;
@@ -200,6 +207,13 @@ export type User = {
   username: Scalars['String'];
 };
 
+export type CreateCoffeeShopResult = {
+  __typename?: 'createCoffeeShopResult';
+  coffeeShop?: Maybe<CoffeeShop>;
+  error?: Maybe<Scalars['String']>;
+  ok: Scalars['Boolean'];
+};
+
 export type SeeCoffeeShopsQueryVariables = Exact<{
   page: Scalars['Int'];
 }>;
@@ -212,7 +226,7 @@ export type SeeCoffeeShopQueryVariables = Exact<{
 }>;
 
 
-export type SeeCoffeeShopQuery = { __typename?: 'Query', seeCoffeeShop?: { __typename?: 'CoffeeShop', name: string, latitude?: string | null, longitude?: string | null, user: { __typename?: 'User', username: string }, photos?: Array<{ __typename?: 'CoffeeShopPhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string, slug: string } | null> | null } | null };
+export type SeeCoffeeShopQuery = { __typename?: 'Query', seeCoffeeShop?: { __typename?: 'CoffeeShop', id: number, name: string, latitude?: string | null, longitude?: string | null, user: { __typename?: 'User', username: string }, photos?: Array<{ __typename?: 'CoffeeShopPhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string, slug: string } | null> | null } | null };
 
 export type SeeMyProfileQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -251,7 +265,7 @@ export type CreateCoffeeShopMutationVariables = Exact<{
 }>;
 
 
-export type CreateCoffeeShopMutation = { __typename?: 'Mutation', createCoffeeShop?: { __typename?: 'MutationResponse', ok: boolean, error?: string | null } | null };
+export type CreateCoffeeShopMutation = { __typename?: 'Mutation', createCoffeeShop: { __typename?: 'createCoffeeShopResult', ok: boolean, error?: string | null, coffeeShop?: { __typename?: 'CoffeeShop', id: number, name: string, latitude?: string | null, longitude?: string | null, description?: string | null, user: { __typename?: 'User', username: string }, photos?: Array<{ __typename?: 'CoffeeShopPhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null } | null } };
 
 export type EditCoffeeShopMutationVariables = Exact<{
   shopId: Scalars['Int'];
@@ -263,14 +277,14 @@ export type EditCoffeeShopMutationVariables = Exact<{
 }>;
 
 
-export type EditCoffeeShopMutation = { __typename?: 'Mutation', editCoffeeShop?: { __typename?: 'MutationResponse', ok: boolean, error?: string | null } | null };
+export type EditCoffeeShopMutation = { __typename?: 'Mutation', editCoffeeShop: { __typename?: 'MutationResponse', ok: boolean, error?: string | null } };
 
 export type DeleteCoffeeShopMutationVariables = Exact<{
   shopId: Scalars['Int'];
 }>;
 
 
-export type DeleteCoffeeShopMutation = { __typename?: 'Mutation', deleteCoffeeShop: { __typename?: 'MutationResponse', ok: boolean, error?: string | null } };
+export type DeleteCoffeeShopMutation = { __typename?: 'Mutation', deleteCoffeeShop: { __typename?: 'DeleteCoffeeShopResult', ok: boolean, error?: string | null, coffeeShop?: { __typename?: 'CoffeeShop', id: number } | null } };
 
 export type CreateCategoryMutationVariables = Exact<{
   name: Scalars['String'];
@@ -328,6 +342,7 @@ export type SeeCoffeeShopsQueryResult = Apollo.QueryResult<SeeCoffeeShopsQuery, 
 export const SeeCoffeeShopDocument = gql`
     query SeeCoffeeShop($shopId: Int!) {
   seeCoffeeShop(id: $shopId) {
+    id
     name
     user {
       username
@@ -534,6 +549,22 @@ export const CreateCoffeeShopDocument = gql`
   ) {
     ok
     error
+    coffeeShop {
+      id
+      name
+      latitude
+      longitude
+      description
+      user {
+        username
+      }
+      photos {
+        url
+      }
+      categories {
+        name
+      }
+    }
   }
 }
     `;
@@ -618,6 +649,9 @@ export const DeleteCoffeeShopDocument = gql`
   deleteCoffeeShop(id: $shopId) {
     ok
     error
+    coffeeShop {
+      id
+    }
   }
 }
     `;

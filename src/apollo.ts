@@ -54,5 +54,23 @@ const httpLink = authLink.concat(onErrorLink).concat(uploadHttpLink);
 
 export const client = new ApolloClient({
 	link: httpLink,
-	cache: new InMemoryCache(),
+	cache: new InMemoryCache({
+		typePolicies: {
+			CoffeeShop: {
+				keyFields: (obj) => `CoffeeShop:${obj.id}`,
+				fields: {
+					photos: {
+						merge(existing, incoming) {
+							return incoming;
+						},
+					},
+					categories: {
+						merge(existing, incoming) {
+							return incoming;
+						},
+					},
+				},
+			},
+		},
+	}),
 });

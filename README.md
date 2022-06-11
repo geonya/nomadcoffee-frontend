@@ -24,6 +24,10 @@
 - [x] /add: show the user a form to create a shop.
 - [x] /shop/:id: show the user a form to edit a shop, or a button to delete the shop.
 
+### Day 19
+
+- [x] Deploy in Netlify
+
 ### Additional
 
 - [x] Category Menu

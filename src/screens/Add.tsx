@@ -133,6 +133,22 @@ const Add = () => {
 				setError('result', { message: error! });
 				return;
 			}
+		},
+		update: (cache, result) => {
+			if (!result.data?.createCoffeeShop.coffeeShop) return;
+			const {
+				data: {
+					createCoffeeShop: { coffeeShop },
+				},
+			} = result;
+			if (coffeeShop.id) {
+				cache.modify({
+					id: 'ROOT_QUERY',
+					fields: {
+						seeCoffeeShops: (prev) => [coffeeShop, ...prev],
+					},
+				});
+			}
 			navigation(routes.home);
 		},
 	});
@@ -140,7 +156,6 @@ const Add = () => {
 		if (loading) return;
 		const files = Array.from(data.files);
 		const categories = pickCategories.map((name) => createCategoryObj(name));
-		console.log(categories);
 		CreateCoffeeShopMutation({
 			variables: {
 				...data,

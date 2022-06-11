@@ -6,6 +6,7 @@ import { routes } from '../sharedData';
 
 const Container = styled.div`
 	max-width: ${(props) => props.theme.maxWidth};
+	padding: 10px;
 	width: 100%;
 	height: 100vh;
 	margin: 0 auto;
@@ -23,6 +24,7 @@ const Header = styled.div`
 	align-items: center;
 `;
 const Content = styled.div`
+	overflow: scroll;
 	width: 100%;
 	height: 100%;
 	display: flex;

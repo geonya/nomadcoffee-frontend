@@ -22,8 +22,8 @@ export default function Home() {
 			{loading
 				? 'loading...'
 				: data?.seeCoffeeShops?.map((shop, i) => (
-						<ShopBox>
-							<Link key={i} to={`/shop/${shop?.id}`}>
+						<ShopBox key={i}>
+							<Link to={`/shop/${shop?.id}`}>
 								{shop?.photos ? (
 									<img src={shop?.photos[0]?.url} alt={shop?.name} />
 								) : null}

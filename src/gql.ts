@@ -19,6 +19,7 @@ gql`
 	}
 	query SeeCoffeeShop($shopId: Int!) {
 		seeCoffeeShop(id: $shopId) {
+			id
 			name
 			user {
 				username
@@ -92,6 +93,22 @@ gql`
 		) {
 			ok
 			error
+			coffeeShop {
+				id
+				name
+				latitude
+				longitude
+				description
+				user {
+					username
+				}
+				photos {
+					url
+				}
+				categories {
+					name
+				}
+			}
 		}
 	}
 	mutation EditCoffeeShop(
@@ -118,6 +135,9 @@ gql`
 		deleteCoffeeShop(id: $shopId) {
 			ok
 			error
+			coffeeShop {
+				id
+			}
 		}
 	}
 	mutation CreateCategory($name: String!, $slug: String!) {
