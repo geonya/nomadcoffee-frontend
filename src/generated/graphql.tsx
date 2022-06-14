@@ -252,7 +252,7 @@ export type SeeCafeQuery = { __typename?: 'Query', seeCafe?: { __typename?: 'Caf
 export type SeeMyProfileQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SeeMyProfileQuery = { __typename?: 'Query', seeMyProfile: { __typename?: 'User', id: number, username: string, avatarUrl?: string | null, email: string, countCafes: number, givenLikes: number } };
+export type SeeMyProfileQuery = { __typename?: 'Query', seeMyProfile: { __typename?: 'User', id: number, username: string, avatarUrl?: string | null, email: string, countCafes: number, givenLikes: number, cafes?: Array<{ __typename?: 'Cafe', id: number, name: string, latitude?: string | null, longitude?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } } | null> | null } };
 
 export type SeeCategoriesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -426,9 +426,13 @@ export const SeeMyProfileDocument = gql`
     query SeeMyProfile {
   seeMyProfile {
     ...UserFragment
+    cafes {
+      ...CafeFragment
+    }
   }
 }
-    ${UserFragmentFragmentDoc}`;
+    ${UserFragmentFragmentDoc}
+${CafeFragmentFragmentDoc}`;
 
 /**
  * __useSeeMyProfileQuery__

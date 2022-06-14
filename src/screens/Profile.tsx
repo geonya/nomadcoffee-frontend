@@ -1,8 +1,9 @@
-import { useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { logUserOut } from '../apollo';
 import Avatar from '../components/Avatar';
 import PointButton from '../components/buttons/PointButton';
+import { useSeeMyProfileHook } from '../components/hooks/useUser';
 import Layout from '../components/Layout';
 
 const Container = styled.div`
@@ -11,6 +12,7 @@ const Container = styled.div`
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	padding: 10px;
 `;
 const ProfileBox = styled.div`
 	width: 100%;
@@ -51,28 +53,30 @@ const AvatarBox = styled.div`
 	}
 `;
 
-interface IState {
-	seeMyProfile: {
-		username: string;
-		email: string;
-		avatarUrl: string;
-		countCafes: number;
-		givenLikes: number;
-	};
-}
+const PhotoGrid = styled.div`
+	margin-top: 30px;
+	width: 100%;
+	display: grid;
+	grid-auto-rows: 100px;
+	grid-template-columns: repeat(4, 1fr);
+`;
+const Photo = styled.div<{ url: string | undefined }>`
+	background-image: url(${(props) => props.url});
+	background-size: cover;
+	position: relative;
+	cursor: pointer;
+`;
 
 export default function Profile() {
-	const location = useLocation();
-	const {
-		seeMyProfile: { username, email, avatarUrl, countCafes, givenLikes },
-	} = location.state as IState;
+	const navigate = useNavigate();
+	const { data } = useSeeMyProfileHook();
 	return (
 		<Layout>
 			<Container>
 				<ProfileBox>
 					<AvatarBox>
-						<Avatar source={avatarUrl} size={60} />
-						<h1>{username}</h1>
+						<Avatar source={data?.seeMyProfile.avatarUrl!} size={60} />
+						<h1>{data?.seeMyProfile.username}</h1>
 					</AvatarBox>
 					<CountBox>
 						<div>
@@ -85,15 +89,25 @@ export default function Profile() {
 						</div>
 						<div>
 							<h1>Total Cafes</h1>
-							<span>{countCafes}</span>
+							<span>{data?.seeMyProfile.countCafes}</span>
 						</div>
 						<div>
 							<h1>Given Likes</h1>
-							<span>{givenLikes}</span>
+							<span>{data?.seeMyProfile.givenLikes}</span>
 						</div>
 					</CountBox>
 				</ProfileBox>
-				<PointButton onClick={() => logUserOut()}>Log Out</PointButton>
+				<PointButton onClick={() => true}>Edit Profile</PointButton>
+				<PointButton onClick={() => logUserOut(navigate)}>Log Out</PointButton>
+				<PhotoGrid>
+					{data?.seeMyProfile.cafes?.map((cafe, i) => (
+						<Photo
+							url={cafe?.photos ? cafe?.photos[0]?.url : undefined}
+							key={i}
+							onClick={() => navigate(`/cafe/${cafe?.id}`)}
+						/>
+					))}
+				</PhotoGrid>
 			</Container>
 		</Layout>
 	);

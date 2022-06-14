@@ -38,6 +38,7 @@
 - [x] Front : Like Button and Function
 - [x] Change Name : CoffeeShop -> Cafe
 - [ ] My Profile Page
+  - [ ] Photo Grid
 - [ ] Notification Page
 
 - [ ] Pick Shop Location with Map API

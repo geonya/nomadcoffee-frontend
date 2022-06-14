@@ -1,9 +1,9 @@
 import { useReactiveVar } from '@apollo/client';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { darkModeVar, isLoggedInVar, toggleDarkMode } from '../apollo';
+import { darkModeVar, toggleDarkMode } from '../apollo';
 import { routes } from '../sharedData';
-import { useSeeMyProfileHook } from './sharedFunc';
+import { useSeeMyProfileHook } from './hooks/useUser';
 
 const Container = styled.div`
 	max-width: ${(props) => props.theme.maxWidth};
@@ -124,11 +124,7 @@ interface ILayout {
 const Layout = ({ children, hasHeader = true, hasFooter = true }: ILayout) => {
 	const navigate = useNavigate();
 	const darkMode = useReactiveVar(darkModeVar);
-	const myProfileData = useSeeMyProfileHook();
-	const isLoggedIn = useReactiveVar(isLoggedInVar);
-	if (!isLoggedIn) {
-		navigate(routes.home);
-	}
+	const { data } = useSeeMyProfileHook();
 	return (
 		<Container>
 			{hasHeader && (
@@ -212,11 +208,7 @@ const Layout = ({ children, hasHeader = true, hasFooter = true }: ILayout) => {
 						</svg>
 					</IconBtn>
 					<IconBtn
-						onClick={() =>
-							navigate(`/users/${myProfileData?.seeMyProfile?.username}`, {
-								state: { ...myProfileData },
-							})
-						}
+						onClick={() => navigate(`/users/${data?.seeMyProfile.username}`)}
 					>
 						{/* user */}
 						<svg

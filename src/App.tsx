@@ -35,7 +35,10 @@ function App() {
 						<Route path={routes.search} element={<Search />} />
 						<Route path={routes.notification} element={<Notification />} />
 						<Route path={routes.category} element={<Category />} />
-						<Route path={routes.user} element={<Profile />} />
+						<Route
+							path={routes.user}
+							element={isLoggedIn ? <Profile /> : <Login />}
+						/>
 						<Route path={'*'} element={<>Page Not found</>} />
 					</Routes>
 				</BrowserRouter>

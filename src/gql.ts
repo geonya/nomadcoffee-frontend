@@ -50,8 +50,12 @@ gql`
 	query SeeMyProfile {
 		seeMyProfile {
 			...UserFragment
+			cafes {
+			...CafeFragment
+			}
 		}
 		${USER_FRAGMENT}
+		${CAFE_FRAGMENT}
 	}
 	query SeeCategories {
 		seeCategories {

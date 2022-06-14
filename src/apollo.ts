@@ -1,8 +1,9 @@
 import { ApolloClient, InMemoryCache, makeVar } from '@apollo/client';
-import { DARK_MODE, TOKEN } from './sharedData';
+import { DARK_MODE, routes, TOKEN } from './sharedData';
 import { createUploadLink } from 'apollo-upload-client';
 import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
+import { NavigateFunction } from 'react-router-dom';
 
 export const isLoggedInVar = makeVar(Boolean(localStorage.getItem(TOKEN)));
 export const darkModeVar = makeVar(Boolean(localStorage.getItem(DARK_MODE)));
@@ -11,9 +12,10 @@ export const logUserIn = (token: string) => {
 	localStorage.setItem(TOKEN, token);
 	isLoggedInVar(true);
 };
-export const logUserOut = () => {
+export const logUserOut = (navigate: NavigateFunction) => {
 	localStorage.removeItem(TOKEN);
 	isLoggedInVar(false);
+	navigate(routes.home);
 };
 
 export const toggleDarkMode = (isDarkMode: boolean) => {
