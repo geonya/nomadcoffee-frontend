@@ -34,6 +34,9 @@
 - [x] CRUD Cache Update
 - [x] Layout Base Design
 - [x] DarkMode Button
+- [x] Backend : Like Model & toggleLikeMutation
+- [x] Front : Like Button and Function
+- [x] Change Name : CoffeeShop -> Cafe
 - [ ] My Profile Page
 - [ ] Notification Page
 

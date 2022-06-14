@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import Layout from '../components/Layout';
 import { createCategoryObj } from '../components/sharedFunc';
 import {
-	useCreateCoffeeShopMutation,
+	useCreateCafeMutation,
 	useSeeCategoriesQuery,
 } from '../generated/graphql';
 import { routes } from '../sharedData';
@@ -17,7 +17,7 @@ const Wrapper = styled.div`
 	align-items: center;
 `;
 
-const ShopForm = styled.form`
+const CafeForm = styled.form`
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
@@ -123,11 +123,11 @@ const Add = () => {
 		setcategoryList((prev) => [...prev, data.name]);
 		setAddCategoryModal(false);
 	};
-	const [CreateCoffeeShopMutation, { loading }] = useCreateCoffeeShopMutation({
+	const [createCafe, { loading }] = useCreateCafeMutation({
 		onCompleted: (data) => {
-			if (!data.createCoffeeShop) return;
+			if (!data.createCafe) return;
 			const {
-				createCoffeeShop: { ok, error },
+				createCafe: { ok, error },
 			} = data;
 			if (!ok) {
 				setError('result', { message: error! });
@@ -135,17 +135,17 @@ const Add = () => {
 			}
 		},
 		update: (cache, result) => {
-			if (!result.data?.createCoffeeShop.coffeeShop) return;
+			if (!result.data?.createCafe.cafe) return;
 			const {
 				data: {
-					createCoffeeShop: { coffeeShop },
+					createCafe: { cafe },
 				},
 			} = result;
-			if (coffeeShop.id) {
+			if (cafe?.id) {
 				cache.modify({
 					id: `ROOT_QUERY`,
 					fields: {
-						seeCoffeeShops: (prev) => [coffeeShop, ...prev],
+						seeCafes: (prev) => [cafe, ...prev],
 					},
 				});
 			}
@@ -156,7 +156,7 @@ const Add = () => {
 		if (loading) return;
 		const files = Array.from(data.files);
 		const categories = pickCategories.map((name) => createCategoryObj(name));
-		CreateCoffeeShopMutation({
+		createCafe({
 			variables: {
 				...data,
 				categories,
@@ -177,7 +177,7 @@ const Add = () => {
 	return (
 		<Layout>
 			<Wrapper>
-				<ShopForm onSubmit={handleSubmit(onSubmitValid)}>
+				<CafeForm onSubmit={handleSubmit(onSubmitValid)}>
 					<input type='file' accept='image/*' {...register('files')} multiple />
 					<span>Photo</span>
 					<input
@@ -222,7 +222,7 @@ const Add = () => {
 					</CategoryListBox>
 					<input type='submit' value='Create' />
 					<span>{errors.result?.message}</span>
-				</ShopForm>
+				</CafeForm>
 				{addCategoryModal ? (
 					<>
 						<ModalBackground onClick={() => setAddCategoryModal(false)} />

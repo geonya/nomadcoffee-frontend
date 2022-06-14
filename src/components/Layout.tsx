@@ -71,7 +71,7 @@ const HeaderBtnContainer = styled.div`
 const HeartBtn = styled(IconBtn)`
 	margin-right: 10px;
 	svg {
-		color: red;
+		color: ${(props) => props.theme.red};
 	}
 `;
 const DarkModeBtnContainer = styled.div`

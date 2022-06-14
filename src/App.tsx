@@ -8,7 +8,7 @@ import Add from './screens/Add';
 import SignUp from './screens/SignUp';
 import { routes } from './sharedData';
 import { darkTheme, GlobalStyles, lightTheme } from './styles';
-import Shop from './screens/Shop';
+import Cafe from './screens/Cafe';
 import Category from './screens/Category';
 import Search from './screens/Search';
 import Notification from './screens/Notification';
@@ -31,7 +31,7 @@ function App() {
 							<Route path={routes.signUp} element={<SignUp />} />
 						) : null}
 						<Route path={routes.add} element={<Add />} />
-						<Route path={routes.shop} element={<Shop />} />
+						<Route path={routes.cafe} element={<Cafe />} />
 						<Route path={routes.search} element={<Search />} />
 						<Route path={routes.notification} element={<Notification />} />
 						<Route path={routes.category} element={<Category />} />

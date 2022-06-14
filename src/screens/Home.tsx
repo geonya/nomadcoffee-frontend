@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Layout from '../components/Layout';
-import ShopBox from '../components/ShopBox';
-import { useSeeCoffeeShopsQuery } from '../generated/graphql';
+import { useSeeCafesQuery } from '../generated/graphql';
 import { routes } from '../sharedData';
+import CafeBox from '../components/CafeBox';
 
 const AddBtn = styled.button`
 	background-color: ${(props) => props.theme.pointColor};
@@ -20,12 +20,12 @@ const AddBtn = styled.button`
 `;
 export default function Home() {
 	const navigation = useNavigate();
-	const { data, loading } = useSeeCoffeeShopsQuery({ variables: { page: 1 } });
+	const { data, loading } = useSeeCafesQuery({ variables: { page: 1 } });
 	return (
 		<Layout>
 			{loading
 				? 'loading...'
-				: data?.seeCoffeeShops?.map((shop, i) => <ShopBox {...shop} key={i} />)}
+				: data?.seeCafes?.map((cafe, i) => <CafeBox {...cafe} key={i} />)}
 			<AddBtn onClick={() => navigation(routes.add)}>
 				<svg
 					fill='currentColor'

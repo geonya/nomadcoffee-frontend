@@ -5,7 +5,7 @@ export const routes = {
 	home: '/',
 	signUp: '/signup',
 	add: '/add',
-	shop: '/shop/:id',
+	cafe: '/cafe/:id',
 	category: '/category/:name',
 	user: '/users/:username',
 	search: '/search',

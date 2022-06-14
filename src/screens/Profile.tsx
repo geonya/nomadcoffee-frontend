@@ -2,6 +2,7 @@ import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { logUserOut } from '../apollo';
 import Avatar from '../components/Avatar';
+import PointButton from '../components/buttons/PointButton';
 import Layout from '../components/Layout';
 
 const Container = styled.div`
@@ -55,30 +56,25 @@ interface IState {
 		username: string;
 		email: string;
 		avatarUrl: string;
+		countCafes: number;
+		givenLikes: number;
 	};
 }
 
 export default function Profile() {
 	const location = useLocation();
-	const state = location.state as IState;
-	console.log(state);
+	const {
+		seeMyProfile: { username, email, avatarUrl, countCafes, givenLikes },
+	} = location.state as IState;
 	return (
 		<Layout>
 			<Container>
 				<ProfileBox>
 					<AvatarBox>
-						<Avatar source={state.seeMyProfile.avatarUrl} size={60} />
-						<h1>{state.seeMyProfile.username}</h1>
+						<Avatar source={avatarUrl} size={60} />
+						<h1>{username}</h1>
 					</AvatarBox>
 					<CountBox>
-						<div>
-							<h1>Total Cafes</h1>
-							<span>2343</span>
-						</div>
-						<div>
-							<h1>Given Likes</h1>
-							<span>12314</span>
-						</div>
 						<div>
 							<h1>Total Followers</h1>
 							<span>12314</span>
@@ -87,9 +83,17 @@ export default function Profile() {
 							<h1>Total Followings</h1>
 							<span>12314</span>
 						</div>
+						<div>
+							<h1>Total Cafes</h1>
+							<span>{countCafes}</span>
+						</div>
+						<div>
+							<h1>Given Likes</h1>
+							<span>{givenLikes}</span>
+						</div>
 					</CountBox>
 				</ProfileBox>
-				<button onClick={() => logUserOut()}>Log Out</button>
+				<PointButton onClick={() => logUserOut()}>Log Out</PointButton>
 			</Container>
 		</Layout>
 	);

@@ -8,6 +8,7 @@ export const lightTheme: DefaultTheme = {
 	bgColor: '#FAFAFA',
 	pointColor: '#8e44ad',
 	boxShadow: 'rgba(0, 0, 0, 0.16) 0px 10px 36px 0px',
+	red: 'tomato',
 };
 export const darkTheme: DefaultTheme = {
 	maxWidth: '385px',
@@ -16,6 +17,7 @@ export const darkTheme: DefaultTheme = {
 	bgColor: '#2c2c2c',
 	pointColor: '#8e44ad',
 	boxShadow: 'rgba(0, 0, 0, 0.06) 0px 0px 0px 1px',
+	red: 'tomato',
 };
 
 export const GlobalStyles = createGlobalStyle`

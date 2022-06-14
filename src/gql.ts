@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
-export const COFFEESHOP_FRAGMENT = gql`
-	fragment CoffeeShopFragment on CoffeeShop {
+export const CAFE_FRAGMENT = gql`
+	fragment CafeFragment on Cafe {
 		id
 		name
 		latitude
@@ -14,39 +14,50 @@ export const COFFEESHOP_FRAGMENT = gql`
 		}
 		user {
 			username
+			avatarUrl
 		}
+		countLikes
+		isLiked
+	}
+`;
+
+export const USER_FRAGMENT = gql`
+	fragment UserFragment on User {
+		id
+		username
+		avatarUrl
+		email
+		countCafes
+		givenLikes
 	}
 `;
 
 // query
 
 gql`
-	query SeeCoffeeShops($page: Int!) {
-		seeCoffeeShops(page: $page) {
-			...CoffeeShopFragment
+	query SeeCafes($page: Int!) {
+		seeCafes(page: $page) {
+			...CafeFragment
 		}
-		${COFFEESHOP_FRAGMENT}
+		${CAFE_FRAGMENT}
 	}
-	query SeeCoffeeShop($shopId: Int!) {
-		seeCoffeeShop(id: $shopId) {
-			...CoffeeShopFragment
+	query SeeCafe($cafeId: Int!) {
+		seeCafe(id: $cafeId) {
+			...CafeFragment
 		}
-		${COFFEESHOP_FRAGMENT}
+		${CAFE_FRAGMENT}
 	}
 	query SeeMyProfile {
 		seeMyProfile {
-			id
-			name
-			username
-			email
-			avatarUrl
+			...UserFragment
 		}
+		${USER_FRAGMENT}
 	}
 	query SeeCategories {
 		seeCategories {
 			name
 			slug
-			totalShops
+			totalCafes
 		}
 	}
 `;
@@ -76,14 +87,14 @@ gql`
 			error
 		}
 	}
-	mutation CreateCoffeeShop(
+	mutation CreateCafe(
 		$name: String!
 		$files: [Upload]!
 		$categories: [CategoryInput]!
 		$latitude: String
 		$longitude: String
 	) {
-		createCoffeeShop(
+		createCafe(
 			name: $name
 			files: $files
 			categories: $categories
@@ -92,22 +103,22 @@ gql`
 		) {
 			ok
 			error
-			coffeeShop {
-				...CoffeeShopFragment
+			cafe {
+				...CafeFragment
 			}
 		}
-		${COFFEESHOP_FRAGMENT}
+		${CAFE_FRAGMENT}
 	}
-	mutation EditCoffeeShop(
-		$shopId: Int!
+	mutation EditCafe(
+		$cafeId: Int!
 		$name: String
 		$files: [Upload]
 		$latitude: String
 		$longitude: String
 		$categories: [CategoryInput]
 	) {
-		editCoffeeShop(
-			id: $shopId
+		editCafe(
+			id: $cafeId
 			name: $name
 			files: $files
 			latitude: $latitude
@@ -118,8 +129,8 @@ gql`
 			error
 		}
 	}
-	mutation DeleteCoffeeShop($shopId: Int!) {
-		deleteCoffeeShop(id: $shopId) {
+	mutation DeleteCafe($cafeId: Int!) {
+		deleteCafe(id: $cafeId) {
 			ok
 			error
 		}
@@ -130,4 +141,10 @@ gql`
 			error
 		}
 	}
+	mutation ToggleLike($cafeId: Int!) {
+  toggleLike(id: $cafeId) {
+    ok
+    error
+  }
+}
 `;

@@ -56,8 +56,8 @@ export const client = new ApolloClient({
 	link: httpLink,
 	cache: new InMemoryCache({
 		typePolicies: {
-			CoffeeShop: {
-				keyFields: (obj) => `CoffeeShop:${obj.id}`,
+			Cafe: {
+				keyFields: (obj) => `Cafe:${obj.id}`,
 				fields: {
 					photos: {
 						merge(existing, incoming) {

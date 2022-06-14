@@ -5,9 +5,9 @@ import styled from 'styled-components';
 import Layout from '../components/Layout';
 import { createCategoryObj } from '../components/sharedFunc';
 import {
-	useDeleteCoffeeShopMutation,
-	useEditCoffeeShopMutation,
-	useSeeCoffeeShopQuery,
+	useDeleteCafeMutation,
+	useEditCafeMutation,
+	useSeeCafeQuery,
 } from '../generated/graphql';
 import { routes } from '../sharedData';
 import { useSeeMyProfile } from '../utils';
@@ -18,7 +18,7 @@ const Wrapper = styled.div`
 	flex-direction: column;
 	align-items: center;
 `;
-const ShopForm = styled.form`
+const CafeForm = styled.form`
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
@@ -101,13 +101,13 @@ interface EditFormValues {
 interface CategoryAddFormValues {
 	name: string;
 }
-const Shop = () => {
+export default function Cafe() {
 	const [categoryList, setCategoryList] = useState<string[]>([]);
 	const [pickCategories, setPickCategories] = useState<string[]>([]);
 	const [addCategoryModal, setAddCategoryModal] = useState(false);
 	const navigation = useNavigate();
 	const [isMe, setIsMe] = useState(false);
-	const { id: shopId } = useParams();
+	const { id: cafeId } = useParams();
 	const {
 		register,
 		handleSubmit,
@@ -124,11 +124,11 @@ const Shop = () => {
 		setCategoryList((prev) => [...prev, data.name]);
 		setAddCategoryModal(false);
 	};
-	const { data, loading } = useSeeCoffeeShopQuery({
-		variables: { shopId: +shopId! },
+	const { data, loading } = useSeeCafeQuery({
+		variables: { cafeId: +cafeId! },
 		onCompleted: (data) => {
-			if (!data.seeCoffeeShop) return;
-			data.seeCoffeeShop?.categories?.forEach((category) => {
+			if (!data.seeCafe) return;
+			data.seeCafe?.categories?.forEach((category) => {
 				if (!category) return;
 				if (!categoryList.includes(category.name)) {
 					setCategoryList((prev) => [...prev, category.name]);
@@ -138,78 +138,71 @@ const Shop = () => {
 		},
 	});
 	const { data: meData } = useSeeMyProfile();
-	const [editCoffeeshopMutation, { loading: editLoading }] =
-		useEditCoffeeShopMutation({
-			onCompleted: (data) => {
-				if (!data.editCoffeeShop) return;
-				const {
-					editCoffeeShop: { ok, error },
-				} = data;
-				if (!ok) {
-					setError('result', { message: error! });
-				}
-			},
-			update: (cache, result) => {
-				if (!result.data?.editCoffeeShop.ok) return;
-				const categories = pickCategories.map((name) =>
-					createCategoryObj(name)
-				);
-				cache.modify({
-					id: `CoffeeShop:${shopId}`,
-					fields: {
-						name: () => getValues().name,
-						latitude: () => getValues().latitude,
-						longitude: () => getValues().longitude,
-						files: () => getValues().files,
-						categories: (prev) => [...categories],
-					},
-				});
-			},
-		});
+	const [editCafe, { loading: editLoading }] = useEditCafeMutation({
+		onCompleted: (data) => {
+			if (!data.editCafe) return;
+			const {
+				editCafe: { ok, error },
+			} = data;
+			if (!ok) {
+				setError('result', { message: error! });
+			}
+		},
+		update: (cache, result) => {
+			if (!result.data?.editCafe.ok) return;
+			const categories = pickCategories.map((name) => createCategoryObj(name));
+			cache.modify({
+				id: `Cafe:${cafeId}`,
+				fields: {
+					name: () => getValues().name,
+					latitude: () => getValues().latitude,
+					longitude: () => getValues().longitude,
+					files: () => getValues().files,
+					categories: (prev) => [...categories],
+				},
+			});
+		},
+	});
 	const onSubmitValid: SubmitHandler<EditFormValues> = (data) => {
 		if (loading) return;
 		const categories = pickCategories.map((name) => createCategoryObj(name));
-		editCoffeeshopMutation({
+		editCafe({
 			variables: {
-				shopId: +shopId!,
+				cafeId: +cafeId!,
 				categories,
 				...data,
 			},
 		});
 	};
-	const [deleteCoffeeShopMutation, { loading: deleteLoading }] =
-		useDeleteCoffeeShopMutation({
-			onCompleted: (data) => {
-				if (!data.deleteCoffeeShop) return;
-				const {
-					deleteCoffeeShop: { ok, error },
-				} = data;
-				if (!ok) {
-					setError('result', { message: error! });
-				}
-			},
-			update: (cache, result) => {
-				if (!result.data?.deleteCoffeeShop?.ok) return;
-				cache.modify({
-					id: 'ROOT_QUERY',
-					fields: {
-						seeCoffeeShops: (_, { DELETE }) => DELETE,
-					},
-				});
-				navigation(routes.home);
-			},
-		});
+	const [deleteCafe, { loading: deleteLoading }] = useDeleteCafeMutation({
+		onCompleted: (data) => {
+			if (!data.deleteCafe) return;
+			const {
+				deleteCafe: { ok, error },
+			} = data;
+			if (!ok) {
+				setError('result', { message: error! });
+			}
+		},
+		update: (cache, result) => {
+			if (!result.data?.deleteCafe?.ok) return;
+			cache.modify({
+				id: 'ROOT_QUERY',
+				fields: {
+					seeCafes: (_, { DELETE }) => DELETE,
+				},
+			});
+			navigation(routes.home);
+		},
+	});
 	useEffect(() => {
-		if (data?.seeCoffeeShop?.name) setValue('name', data?.seeCoffeeShop?.name);
-		if (data?.seeCoffeeShop?.longitude)
-			setValue('longitude', data?.seeCoffeeShop?.longitude);
-		if (data?.seeCoffeeShop?.latitude)
-			setValue('latitude', data?.seeCoffeeShop?.latitude);
+		if (data?.seeCafe?.name) setValue('name', data?.seeCafe?.name);
+		if (data?.seeCafe?.longitude)
+			setValue('longitude', data?.seeCafe?.longitude);
+		if (data?.seeCafe?.latitude) setValue('latitude', data?.seeCafe?.latitude);
 	}, [data, setValue]);
 	useEffect(() => {
-		setIsMe(
-			data?.seeCoffeeShop?.user.username === meData?.seeMyProfile?.username
-		);
+		setIsMe(data?.seeCafe?.user.username === meData?.seeMyProfile?.username);
 	}, [data, meData]);
 	return (
 		<Layout>
@@ -218,15 +211,15 @@ const Shop = () => {
 					'loading...'
 				) : (
 					<>
-						{data?.seeCoffeeShop?.photos ? (
+						{data?.seeCafe?.photos ? (
 							<img
-								src={data?.seeCoffeeShop?.photos[0]?.url}
-								alt={data?.seeCoffeeShop?.name}
+								src={data?.seeCafe?.photos[0]?.url}
+								alt={data?.seeCafe?.name}
 								width={300}
 								height={300}
 							/>
 						) : null}
-						<ShopForm onSubmit={handleSubmit(onSubmitValid)}>
+						<CafeForm onSubmit={handleSubmit(onSubmitValid)}>
 							<input
 								type='file'
 								accept='image/*'
@@ -280,19 +273,19 @@ const Shop = () => {
 								</CategoryAddButton>
 							</CategoryListBox>
 							{isMe ? (
-								<button>{editLoading ? 'Loading...' : 'Edit Shop'}</button>
+								<button>{editLoading ? 'Loading...' : 'Edit Cafe'}</button>
 							) : null}
 							<span>{errors.result?.message}</span>
-						</ShopForm>
+						</CafeForm>
 						{isMe ? (
 							<button
 								onClick={() =>
-									deleteCoffeeShopMutation({
-										variables: { shopId: +shopId! },
+									deleteCafe({
+										variables: { cafeId: +cafeId! },
 									})
 								}
 							>
-								{deleteLoading ? 'Loading...' : 'Delete Shop'}
+								{deleteLoading ? 'Loading...' : 'Delete Cafe'}
 							</button>
 						) : null}
 					</>
@@ -315,6 +308,4 @@ const Shop = () => {
 			</Wrapper>
 		</Layout>
 	);
-};
-
-export default Shop;
+}

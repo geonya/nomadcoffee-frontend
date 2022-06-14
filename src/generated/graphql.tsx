@@ -16,13 +16,38 @@ export type Scalars = {
   Upload: any;
 };
 
+export type Cafe = {
+  __typename?: 'Cafe';
+  categories?: Maybe<Array<Maybe<Category>>>;
+  countLikes: Scalars['Int'];
+  createdAt: Scalars['String'];
+  description?: Maybe<Scalars['String']>;
+  id: Scalars['Int'];
+  isLiked: Scalars['Boolean'];
+  latitude?: Maybe<Scalars['String']>;
+  longitude?: Maybe<Scalars['String']>;
+  name: Scalars['String'];
+  photos?: Maybe<Array<Maybe<CafePhoto>>>;
+  updatedAt: Scalars['String'];
+  user: User;
+};
+
+export type CafePhoto = {
+  __typename?: 'CafePhoto';
+  cafe?: Maybe<Cafe>;
+  id: Scalars['Int'];
+  url: Scalars['String'];
+};
+
 export type Category = {
   __typename?: 'Category';
+  cafes?: Maybe<Array<Maybe<Cafe>>>;
+  createdAt: Scalars['String'];
   id: Scalars['Int'];
   name: Scalars['String'];
-  shops?: Maybe<Array<Maybe<CoffeeShop>>>;
   slug: Scalars['String'];
-  totalShops: Scalars['Int'];
+  totalCafes: Scalars['Int'];
+  updatedAt: Scalars['String'];
 };
 
 export type CategoryInput = {
@@ -30,23 +55,12 @@ export type CategoryInput = {
   slug: Scalars['String'];
 };
 
-export type CoffeeShop = {
-  __typename?: 'CoffeeShop';
-  categories?: Maybe<Array<Maybe<Category>>>;
-  description?: Maybe<Scalars['String']>;
+export type Like = {
+  __typename?: 'Like';
+  cafe: Cafe;
+  createdAt: Scalars['String'];
   id: Scalars['Int'];
-  latitude?: Maybe<Scalars['String']>;
-  longitude?: Maybe<Scalars['String']>;
-  name: Scalars['String'];
-  photos?: Maybe<Array<Maybe<CoffeeShopPhoto>>>;
-  user: User;
-};
-
-export type CoffeeShopPhoto = {
-  __typename?: 'CoffeeShopPhoto';
-  id: Scalars['Int'];
-  shop?: Maybe<CoffeeShop>;
-  url: Scalars['String'];
+  updatedAt: Scalars['String'];
 };
 
 export type LoginResult = {
@@ -59,13 +73,14 @@ export type LoginResult = {
 export type Mutation = {
   __typename?: 'Mutation';
   createAccount?: Maybe<MutationResponse>;
+  createCafe: CreateCafeResult;
   createCategory: MutationResponse;
-  createCoffeeShop: CreateCoffeeShopResult;
-  deleteCoffeeShop: MutationResponse;
-  editCoffeeShop: MutationResponse;
+  deleteCafe: MutationResponse;
+  editCafe: MutationResponse;
   editProfile?: Maybe<MutationResponse>;
   login?: Maybe<LoginResult>;
   toggleFollow?: Maybe<MutationResponse>;
+  toggleLike: MutationResponse;
 };
 
 
@@ -77,13 +92,7 @@ export type MutationCreateAccountArgs = {
 };
 
 
-export type MutationCreateCategoryArgs = {
-  name: Scalars['String'];
-  slug: Scalars['String'];
-};
-
-
-export type MutationCreateCoffeeShopArgs = {
+export type MutationCreateCafeArgs = {
   categories: Array<InputMaybe<CategoryInput>>;
   description?: InputMaybe<Scalars['String']>;
   files: Array<InputMaybe<Scalars['Upload']>>;
@@ -93,12 +102,18 @@ export type MutationCreateCoffeeShopArgs = {
 };
 
 
-export type MutationDeleteCoffeeShopArgs = {
+export type MutationCreateCategoryArgs = {
+  name: Scalars['String'];
+  slug: Scalars['String'];
+};
+
+
+export type MutationDeleteCafeArgs = {
   id: Scalars['Int'];
 };
 
 
-export type MutationEditCoffeeShopArgs = {
+export type MutationEditCafeArgs = {
   categories?: InputMaybe<Array<InputMaybe<CategoryInput>>>;
   description?: InputMaybe<Scalars['String']>;
   files?: InputMaybe<Array<InputMaybe<Scalars['Upload']>>>;
@@ -130,6 +145,11 @@ export type MutationToggleFollowArgs = {
   username: Scalars['String'];
 };
 
+
+export type MutationToggleLikeArgs = {
+  id: Scalars['Int'];
+};
+
 export type MutationResponse = {
   __typename?: 'MutationResponse';
   error?: Maybe<Scalars['String']>;
@@ -139,10 +159,10 @@ export type MutationResponse = {
 export type Query = {
   __typename?: 'Query';
   searchUsers?: Maybe<SearchUserResult>;
+  seeCafe?: Maybe<Cafe>;
+  seeCafes?: Maybe<Array<Maybe<Cafe>>>;
   seeCategories?: Maybe<Array<Maybe<Category>>>;
-  seeCategory?: Maybe<Array<Maybe<CoffeeShop>>>;
-  seeCoffeeShop?: Maybe<CoffeeShop>;
-  seeCoffeeShops?: Maybe<Array<Maybe<CoffeeShop>>>;
+  seeCategory?: Maybe<Array<Maybe<Cafe>>>;
   seeMyProfile: User;
   seeUser?: Maybe<User>;
 };
@@ -154,18 +174,18 @@ export type QuerySearchUsersArgs = {
 };
 
 
-export type QuerySeeCategoryArgs = {
-  name: Scalars['String'];
-  page: Scalars['Int'];
-};
-
-
-export type QuerySeeCoffeeShopArgs = {
+export type QuerySeeCafeArgs = {
   id: Scalars['Int'];
 };
 
 
-export type QuerySeeCoffeeShopsArgs = {
+export type QuerySeeCafesArgs = {
+  page: Scalars['Int'];
+};
+
+
+export type QuerySeeCategoryArgs = {
+  name: Scalars['String'];
   page: Scalars['Int'];
 };
 
@@ -185,53 +205,59 @@ export type SearchUserResult = {
 export type User = {
   __typename?: 'User';
   avatarUrl?: Maybe<Scalars['String']>;
+  cafes?: Maybe<Array<Maybe<Cafe>>>;
+  countCafes: Scalars['Int'];
   createdAt: Scalars['String'];
   email: Scalars['String'];
   followers?: Maybe<Array<Maybe<User>>>;
   following?: Maybe<Array<Maybe<User>>>;
   githubUsername?: Maybe<Scalars['String']>;
+  givenLikes: Scalars['Int'];
   id: Scalars['Int'];
   location?: Maybe<Scalars['String']>;
   name: Scalars['String'];
   password: Scalars['String'];
-  photos?: Maybe<Array<Maybe<CoffeeShopPhoto>>>;
-  shops?: Maybe<Array<Maybe<CoffeeShop>>>;
+  photos?: Maybe<Array<Maybe<CafePhoto>>>;
+  totalFollowers: Scalars['Int'];
+  totalFollowing: Scalars['Int'];
   updatedAt: Scalars['String'];
   username: Scalars['String'];
 };
 
-export type CreateCoffeeShopResult = {
-  __typename?: 'createCoffeeShopResult';
-  coffeeShop?: Maybe<CoffeeShop>;
+export type CreateCafeResult = {
+  __typename?: 'createCafeResult';
+  cafe?: Maybe<Cafe>;
   error?: Maybe<Scalars['String']>;
   ok: Scalars['Boolean'];
 };
 
-export type CoffeeShopFragmentFragment = { __typename?: 'CoffeeShop', id: number, name: string, latitude?: string | null, longitude?: string | null, photos?: Array<{ __typename?: 'CoffeeShopPhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string } };
+export type CafeFragmentFragment = { __typename?: 'Cafe', id: number, name: string, latitude?: string | null, longitude?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } };
 
-export type SeeCoffeeShopsQueryVariables = Exact<{
+export type UserFragmentFragment = { __typename?: 'User', id: number, username: string, avatarUrl?: string | null, email: string, countCafes: number, givenLikes: number };
+
+export type SeeCafesQueryVariables = Exact<{
   page: Scalars['Int'];
 }>;
 
 
-export type SeeCoffeeShopsQuery = { __typename?: 'Query', seeCoffeeShops?: Array<{ __typename?: 'CoffeeShop', id: number, name: string, latitude?: string | null, longitude?: string | null, photos?: Array<{ __typename?: 'CoffeeShopPhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string } } | null> | null };
+export type SeeCafesQuery = { __typename?: 'Query', seeCafes?: Array<{ __typename?: 'Cafe', id: number, name: string, latitude?: string | null, longitude?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } } | null> | null };
 
-export type SeeCoffeeShopQueryVariables = Exact<{
-  shopId: Scalars['Int'];
+export type SeeCafeQueryVariables = Exact<{
+  cafeId: Scalars['Int'];
 }>;
 
 
-export type SeeCoffeeShopQuery = { __typename?: 'Query', seeCoffeeShop?: { __typename?: 'CoffeeShop', id: number, name: string, latitude?: string | null, longitude?: string | null, photos?: Array<{ __typename?: 'CoffeeShopPhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string } } | null };
+export type SeeCafeQuery = { __typename?: 'Query', seeCafe?: { __typename?: 'Cafe', id: number, name: string, latitude?: string | null, longitude?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } } | null };
 
 export type SeeMyProfileQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SeeMyProfileQuery = { __typename?: 'Query', seeMyProfile: { __typename?: 'User', id: number, name: string, username: string, email: string, avatarUrl?: string | null } };
+export type SeeMyProfileQuery = { __typename?: 'Query', seeMyProfile: { __typename?: 'User', id: number, username: string, avatarUrl?: string | null, email: string, countCafes: number, givenLikes: number } };
 
 export type SeeCategoriesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SeeCategoriesQuery = { __typename?: 'Query', seeCategories?: Array<{ __typename?: 'Category', name: string, slug: string, totalShops: number } | null> | null };
+export type SeeCategoriesQuery = { __typename?: 'Query', seeCategories?: Array<{ __typename?: 'Category', name: string, slug: string, totalCafes: number } | null> | null };
 
 export type LoginMutationVariables = Exact<{
   username: Scalars['String'];
@@ -251,7 +277,7 @@ export type CreateAccountMutationVariables = Exact<{
 
 export type CreateAccountMutation = { __typename?: 'Mutation', createAccount?: { __typename?: 'MutationResponse', ok: boolean, error?: string | null } | null };
 
-export type CreateCoffeeShopMutationVariables = Exact<{
+export type CreateCafeMutationVariables = Exact<{
   name: Scalars['String'];
   files: Array<InputMaybe<Scalars['Upload']>> | InputMaybe<Scalars['Upload']>;
   categories: Array<InputMaybe<CategoryInput>> | InputMaybe<CategoryInput>;
@@ -260,10 +286,10 @@ export type CreateCoffeeShopMutationVariables = Exact<{
 }>;
 
 
-export type CreateCoffeeShopMutation = { __typename?: 'Mutation', createCoffeeShop: { __typename?: 'createCoffeeShopResult', ok: boolean, error?: string | null, coffeeShop?: { __typename?: 'CoffeeShop', id: number, name: string, latitude?: string | null, longitude?: string | null, photos?: Array<{ __typename?: 'CoffeeShopPhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string } } | null } };
+export type CreateCafeMutation = { __typename?: 'Mutation', createCafe: { __typename?: 'createCafeResult', ok: boolean, error?: string | null, cafe?: { __typename?: 'Cafe', id: number, name: string, latitude?: string | null, longitude?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } } | null } };
 
-export type EditCoffeeShopMutationVariables = Exact<{
-  shopId: Scalars['Int'];
+export type EditCafeMutationVariables = Exact<{
+  cafeId: Scalars['Int'];
   name?: InputMaybe<Scalars['String']>;
   files?: InputMaybe<Array<InputMaybe<Scalars['Upload']>> | InputMaybe<Scalars['Upload']>>;
   latitude?: InputMaybe<Scalars['String']>;
@@ -272,14 +298,14 @@ export type EditCoffeeShopMutationVariables = Exact<{
 }>;
 
 
-export type EditCoffeeShopMutation = { __typename?: 'Mutation', editCoffeeShop: { __typename?: 'MutationResponse', ok: boolean, error?: string | null } };
+export type EditCafeMutation = { __typename?: 'Mutation', editCafe: { __typename?: 'MutationResponse', ok: boolean, error?: string | null } };
 
-export type DeleteCoffeeShopMutationVariables = Exact<{
-  shopId: Scalars['Int'];
+export type DeleteCafeMutationVariables = Exact<{
+  cafeId: Scalars['Int'];
 }>;
 
 
-export type DeleteCoffeeShopMutation = { __typename?: 'Mutation', deleteCoffeeShop: { __typename?: 'MutationResponse', ok: boolean, error?: string | null } };
+export type DeleteCafeMutation = { __typename?: 'Mutation', deleteCafe: { __typename?: 'MutationResponse', ok: boolean, error?: string | null } };
 
 export type CreateCategoryMutationVariables = Exact<{
   name: Scalars['String'];
@@ -289,8 +315,15 @@ export type CreateCategoryMutationVariables = Exact<{
 
 export type CreateCategoryMutation = { __typename?: 'Mutation', createCategory: { __typename?: 'MutationResponse', ok: boolean, error?: string | null } };
 
-export const CoffeeShopFragmentFragmentDoc = gql`
-    fragment CoffeeShopFragment on CoffeeShop {
+export type ToggleLikeMutationVariables = Exact<{
+  cafeId: Scalars['Int'];
+}>;
+
+
+export type ToggleLikeMutation = { __typename?: 'Mutation', toggleLike: { __typename?: 'MutationResponse', ok: boolean, error?: string | null } };
+
+export const CafeFragmentFragmentDoc = gql`
+    fragment CafeFragment on Cafe {
   id
   name
   latitude
@@ -303,90 +336,99 @@ export const CoffeeShopFragmentFragmentDoc = gql`
   }
   user {
     username
+    avatarUrl
   }
+  countLikes
+  isLiked
 }
     `;
-export const SeeCoffeeShopsDocument = gql`
-    query SeeCoffeeShops($page: Int!) {
-  seeCoffeeShops(page: $page) {
-    ...CoffeeShopFragment
+export const UserFragmentFragmentDoc = gql`
+    fragment UserFragment on User {
+  id
+  username
+  avatarUrl
+  email
+  countCafes
+  givenLikes
+}
+    `;
+export const SeeCafesDocument = gql`
+    query SeeCafes($page: Int!) {
+  seeCafes(page: $page) {
+    ...CafeFragment
   }
 }
-    ${CoffeeShopFragmentFragmentDoc}`;
+    ${CafeFragmentFragmentDoc}`;
 
 /**
- * __useSeeCoffeeShopsQuery__
+ * __useSeeCafesQuery__
  *
- * To run a query within a React component, call `useSeeCoffeeShopsQuery` and pass it any options that fit your needs.
- * When your component renders, `useSeeCoffeeShopsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useSeeCafesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSeeCafesQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useSeeCoffeeShopsQuery({
+ * const { data, loading, error } = useSeeCafesQuery({
  *   variables: {
  *      page: // value for 'page'
  *   },
  * });
  */
-export function useSeeCoffeeShopsQuery(baseOptions: Apollo.QueryHookOptions<SeeCoffeeShopsQuery, SeeCoffeeShopsQueryVariables>) {
+export function useSeeCafesQuery(baseOptions: Apollo.QueryHookOptions<SeeCafesQuery, SeeCafesQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<SeeCoffeeShopsQuery, SeeCoffeeShopsQueryVariables>(SeeCoffeeShopsDocument, options);
+        return Apollo.useQuery<SeeCafesQuery, SeeCafesQueryVariables>(SeeCafesDocument, options);
       }
-export function useSeeCoffeeShopsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SeeCoffeeShopsQuery, SeeCoffeeShopsQueryVariables>) {
+export function useSeeCafesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SeeCafesQuery, SeeCafesQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<SeeCoffeeShopsQuery, SeeCoffeeShopsQueryVariables>(SeeCoffeeShopsDocument, options);
+          return Apollo.useLazyQuery<SeeCafesQuery, SeeCafesQueryVariables>(SeeCafesDocument, options);
         }
-export type SeeCoffeeShopsQueryHookResult = ReturnType<typeof useSeeCoffeeShopsQuery>;
-export type SeeCoffeeShopsLazyQueryHookResult = ReturnType<typeof useSeeCoffeeShopsLazyQuery>;
-export type SeeCoffeeShopsQueryResult = Apollo.QueryResult<SeeCoffeeShopsQuery, SeeCoffeeShopsQueryVariables>;
-export const SeeCoffeeShopDocument = gql`
-    query SeeCoffeeShop($shopId: Int!) {
-  seeCoffeeShop(id: $shopId) {
-    ...CoffeeShopFragment
+export type SeeCafesQueryHookResult = ReturnType<typeof useSeeCafesQuery>;
+export type SeeCafesLazyQueryHookResult = ReturnType<typeof useSeeCafesLazyQuery>;
+export type SeeCafesQueryResult = Apollo.QueryResult<SeeCafesQuery, SeeCafesQueryVariables>;
+export const SeeCafeDocument = gql`
+    query SeeCafe($cafeId: Int!) {
+  seeCafe(id: $cafeId) {
+    ...CafeFragment
   }
 }
-    ${CoffeeShopFragmentFragmentDoc}`;
+    ${CafeFragmentFragmentDoc}`;
 
 /**
- * __useSeeCoffeeShopQuery__
+ * __useSeeCafeQuery__
  *
- * To run a query within a React component, call `useSeeCoffeeShopQuery` and pass it any options that fit your needs.
- * When your component renders, `useSeeCoffeeShopQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useSeeCafeQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSeeCafeQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useSeeCoffeeShopQuery({
+ * const { data, loading, error } = useSeeCafeQuery({
  *   variables: {
- *      shopId: // value for 'shopId'
+ *      cafeId: // value for 'cafeId'
  *   },
  * });
  */
-export function useSeeCoffeeShopQuery(baseOptions: Apollo.QueryHookOptions<SeeCoffeeShopQuery, SeeCoffeeShopQueryVariables>) {
+export function useSeeCafeQuery(baseOptions: Apollo.QueryHookOptions<SeeCafeQuery, SeeCafeQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<SeeCoffeeShopQuery, SeeCoffeeShopQueryVariables>(SeeCoffeeShopDocument, options);
+        return Apollo.useQuery<SeeCafeQuery, SeeCafeQueryVariables>(SeeCafeDocument, options);
       }
-export function useSeeCoffeeShopLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SeeCoffeeShopQuery, SeeCoffeeShopQueryVariables>) {
+export function useSeeCafeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SeeCafeQuery, SeeCafeQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<SeeCoffeeShopQuery, SeeCoffeeShopQueryVariables>(SeeCoffeeShopDocument, options);
+          return Apollo.useLazyQuery<SeeCafeQuery, SeeCafeQueryVariables>(SeeCafeDocument, options);
         }
-export type SeeCoffeeShopQueryHookResult = ReturnType<typeof useSeeCoffeeShopQuery>;
-export type SeeCoffeeShopLazyQueryHookResult = ReturnType<typeof useSeeCoffeeShopLazyQuery>;
-export type SeeCoffeeShopQueryResult = Apollo.QueryResult<SeeCoffeeShopQuery, SeeCoffeeShopQueryVariables>;
+export type SeeCafeQueryHookResult = ReturnType<typeof useSeeCafeQuery>;
+export type SeeCafeLazyQueryHookResult = ReturnType<typeof useSeeCafeLazyQuery>;
+export type SeeCafeQueryResult = Apollo.QueryResult<SeeCafeQuery, SeeCafeQueryVariables>;
 export const SeeMyProfileDocument = gql`
     query SeeMyProfile {
   seeMyProfile {
-    id
-    name
-    username
-    email
-    avatarUrl
+    ...UserFragment
   }
 }
-    `;
+    ${UserFragmentFragmentDoc}`;
 
 /**
  * __useSeeMyProfileQuery__
@@ -419,7 +461,7 @@ export const SeeCategoriesDocument = gql`
   seeCategories {
     name
     slug
-    totalShops
+    totalCafes
   }
 }
     `;
@@ -528,9 +570,9 @@ export function useCreateAccountMutation(baseOptions?: Apollo.MutationHookOption
 export type CreateAccountMutationHookResult = ReturnType<typeof useCreateAccountMutation>;
 export type CreateAccountMutationResult = Apollo.MutationResult<CreateAccountMutation>;
 export type CreateAccountMutationOptions = Apollo.BaseMutationOptions<CreateAccountMutation, CreateAccountMutationVariables>;
-export const CreateCoffeeShopDocument = gql`
-    mutation CreateCoffeeShop($name: String!, $files: [Upload]!, $categories: [CategoryInput]!, $latitude: String, $longitude: String) {
-  createCoffeeShop(
+export const CreateCafeDocument = gql`
+    mutation CreateCafe($name: String!, $files: [Upload]!, $categories: [CategoryInput]!, $latitude: String, $longitude: String) {
+  createCafe(
     name: $name
     files: $files
     categories: $categories
@@ -539,26 +581,26 @@ export const CreateCoffeeShopDocument = gql`
   ) {
     ok
     error
-    coffeeShop {
-      ...CoffeeShopFragment
+    cafe {
+      ...CafeFragment
     }
   }
 }
-    ${CoffeeShopFragmentFragmentDoc}`;
-export type CreateCoffeeShopMutationFn = Apollo.MutationFunction<CreateCoffeeShopMutation, CreateCoffeeShopMutationVariables>;
+    ${CafeFragmentFragmentDoc}`;
+export type CreateCafeMutationFn = Apollo.MutationFunction<CreateCafeMutation, CreateCafeMutationVariables>;
 
 /**
- * __useCreateCoffeeShopMutation__
+ * __useCreateCafeMutation__
  *
- * To run a mutation, you first call `useCreateCoffeeShopMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreateCoffeeShopMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useCreateCafeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCafeMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [createCoffeeShopMutation, { data, loading, error }] = useCreateCoffeeShopMutation({
+ * const [createCafeMutation, { data, loading, error }] = useCreateCafeMutation({
  *   variables: {
  *      name: // value for 'name'
  *      files: // value for 'files'
@@ -568,17 +610,17 @@ export type CreateCoffeeShopMutationFn = Apollo.MutationFunction<CreateCoffeeSho
  *   },
  * });
  */
-export function useCreateCoffeeShopMutation(baseOptions?: Apollo.MutationHookOptions<CreateCoffeeShopMutation, CreateCoffeeShopMutationVariables>) {
+export function useCreateCafeMutation(baseOptions?: Apollo.MutationHookOptions<CreateCafeMutation, CreateCafeMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreateCoffeeShopMutation, CreateCoffeeShopMutationVariables>(CreateCoffeeShopDocument, options);
+        return Apollo.useMutation<CreateCafeMutation, CreateCafeMutationVariables>(CreateCafeDocument, options);
       }
-export type CreateCoffeeShopMutationHookResult = ReturnType<typeof useCreateCoffeeShopMutation>;
-export type CreateCoffeeShopMutationResult = Apollo.MutationResult<CreateCoffeeShopMutation>;
-export type CreateCoffeeShopMutationOptions = Apollo.BaseMutationOptions<CreateCoffeeShopMutation, CreateCoffeeShopMutationVariables>;
-export const EditCoffeeShopDocument = gql`
-    mutation EditCoffeeShop($shopId: Int!, $name: String, $files: [Upload], $latitude: String, $longitude: String, $categories: [CategoryInput]) {
-  editCoffeeShop(
-    id: $shopId
+export type CreateCafeMutationHookResult = ReturnType<typeof useCreateCafeMutation>;
+export type CreateCafeMutationResult = Apollo.MutationResult<CreateCafeMutation>;
+export type CreateCafeMutationOptions = Apollo.BaseMutationOptions<CreateCafeMutation, CreateCafeMutationVariables>;
+export const EditCafeDocument = gql`
+    mutation EditCafe($cafeId: Int!, $name: String, $files: [Upload], $latitude: String, $longitude: String, $categories: [CategoryInput]) {
+  editCafe(
+    id: $cafeId
     name: $name
     files: $files
     latitude: $latitude
@@ -590,22 +632,22 @@ export const EditCoffeeShopDocument = gql`
   }
 }
     `;
-export type EditCoffeeShopMutationFn = Apollo.MutationFunction<EditCoffeeShopMutation, EditCoffeeShopMutationVariables>;
+export type EditCafeMutationFn = Apollo.MutationFunction<EditCafeMutation, EditCafeMutationVariables>;
 
 /**
- * __useEditCoffeeShopMutation__
+ * __useEditCafeMutation__
  *
- * To run a mutation, you first call `useEditCoffeeShopMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useEditCoffeeShopMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useEditCafeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useEditCafeMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [editCoffeeShopMutation, { data, loading, error }] = useEditCoffeeShopMutation({
+ * const [editCafeMutation, { data, loading, error }] = useEditCafeMutation({
  *   variables: {
- *      shopId: // value for 'shopId'
+ *      cafeId: // value for 'cafeId'
  *      name: // value for 'name'
  *      files: // value for 'files'
  *      latitude: // value for 'latitude'
@@ -614,47 +656,47 @@ export type EditCoffeeShopMutationFn = Apollo.MutationFunction<EditCoffeeShopMut
  *   },
  * });
  */
-export function useEditCoffeeShopMutation(baseOptions?: Apollo.MutationHookOptions<EditCoffeeShopMutation, EditCoffeeShopMutationVariables>) {
+export function useEditCafeMutation(baseOptions?: Apollo.MutationHookOptions<EditCafeMutation, EditCafeMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<EditCoffeeShopMutation, EditCoffeeShopMutationVariables>(EditCoffeeShopDocument, options);
+        return Apollo.useMutation<EditCafeMutation, EditCafeMutationVariables>(EditCafeDocument, options);
       }
-export type EditCoffeeShopMutationHookResult = ReturnType<typeof useEditCoffeeShopMutation>;
-export type EditCoffeeShopMutationResult = Apollo.MutationResult<EditCoffeeShopMutation>;
-export type EditCoffeeShopMutationOptions = Apollo.BaseMutationOptions<EditCoffeeShopMutation, EditCoffeeShopMutationVariables>;
-export const DeleteCoffeeShopDocument = gql`
-    mutation DeleteCoffeeShop($shopId: Int!) {
-  deleteCoffeeShop(id: $shopId) {
+export type EditCafeMutationHookResult = ReturnType<typeof useEditCafeMutation>;
+export type EditCafeMutationResult = Apollo.MutationResult<EditCafeMutation>;
+export type EditCafeMutationOptions = Apollo.BaseMutationOptions<EditCafeMutation, EditCafeMutationVariables>;
+export const DeleteCafeDocument = gql`
+    mutation DeleteCafe($cafeId: Int!) {
+  deleteCafe(id: $cafeId) {
     ok
     error
   }
 }
     `;
-export type DeleteCoffeeShopMutationFn = Apollo.MutationFunction<DeleteCoffeeShopMutation, DeleteCoffeeShopMutationVariables>;
+export type DeleteCafeMutationFn = Apollo.MutationFunction<DeleteCafeMutation, DeleteCafeMutationVariables>;
 
 /**
- * __useDeleteCoffeeShopMutation__
+ * __useDeleteCafeMutation__
  *
- * To run a mutation, you first call `useDeleteCoffeeShopMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeleteCoffeeShopMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useDeleteCafeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteCafeMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [deleteCoffeeShopMutation, { data, loading, error }] = useDeleteCoffeeShopMutation({
+ * const [deleteCafeMutation, { data, loading, error }] = useDeleteCafeMutation({
  *   variables: {
- *      shopId: // value for 'shopId'
+ *      cafeId: // value for 'cafeId'
  *   },
  * });
  */
-export function useDeleteCoffeeShopMutation(baseOptions?: Apollo.MutationHookOptions<DeleteCoffeeShopMutation, DeleteCoffeeShopMutationVariables>) {
+export function useDeleteCafeMutation(baseOptions?: Apollo.MutationHookOptions<DeleteCafeMutation, DeleteCafeMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeleteCoffeeShopMutation, DeleteCoffeeShopMutationVariables>(DeleteCoffeeShopDocument, options);
+        return Apollo.useMutation<DeleteCafeMutation, DeleteCafeMutationVariables>(DeleteCafeDocument, options);
       }
-export type DeleteCoffeeShopMutationHookResult = ReturnType<typeof useDeleteCoffeeShopMutation>;
-export type DeleteCoffeeShopMutationResult = Apollo.MutationResult<DeleteCoffeeShopMutation>;
-export type DeleteCoffeeShopMutationOptions = Apollo.BaseMutationOptions<DeleteCoffeeShopMutation, DeleteCoffeeShopMutationVariables>;
+export type DeleteCafeMutationHookResult = ReturnType<typeof useDeleteCafeMutation>;
+export type DeleteCafeMutationResult = Apollo.MutationResult<DeleteCafeMutation>;
+export type DeleteCafeMutationOptions = Apollo.BaseMutationOptions<DeleteCafeMutation, DeleteCafeMutationVariables>;
 export const CreateCategoryDocument = gql`
     mutation CreateCategory($name: String!, $slug: String!) {
   createCategory(name: $name, slug: $slug) {
@@ -690,3 +732,37 @@ export function useCreateCategoryMutation(baseOptions?: Apollo.MutationHookOptio
 export type CreateCategoryMutationHookResult = ReturnType<typeof useCreateCategoryMutation>;
 export type CreateCategoryMutationResult = Apollo.MutationResult<CreateCategoryMutation>;
 export type CreateCategoryMutationOptions = Apollo.BaseMutationOptions<CreateCategoryMutation, CreateCategoryMutationVariables>;
+export const ToggleLikeDocument = gql`
+    mutation ToggleLike($cafeId: Int!) {
+  toggleLike(id: $cafeId) {
+    ok
+    error
+  }
+}
+    `;
+export type ToggleLikeMutationFn = Apollo.MutationFunction<ToggleLikeMutation, ToggleLikeMutationVariables>;
+
+/**
+ * __useToggleLikeMutation__
+ *
+ * To run a mutation, you first call `useToggleLikeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useToggleLikeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [toggleLikeMutation, { data, loading, error }] = useToggleLikeMutation({
+ *   variables: {
+ *      cafeId: // value for 'cafeId'
+ *   },
+ * });
+ */
+export function useToggleLikeMutation(baseOptions?: Apollo.MutationHookOptions<ToggleLikeMutation, ToggleLikeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ToggleLikeMutation, ToggleLikeMutationVariables>(ToggleLikeDocument, options);
+      }
+export type ToggleLikeMutationHookResult = ReturnType<typeof useToggleLikeMutation>;
+export type ToggleLikeMutationResult = Apollo.MutationResult<ToggleLikeMutation>;
+export type ToggleLikeMutationOptions = Apollo.BaseMutationOptions<ToggleLikeMutation, ToggleLikeMutationVariables>;
