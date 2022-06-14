@@ -1,6 +1,9 @@
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import AuthInput from '../components/auth/AuthInput';
 import AuthLayout from '../components/auth/AuthLayout';
+import SubmitButton from '../components/buttons/SubmitButton';
+import FormError from '../components/FormError';
 import { useCreateAccountMutation } from '../generated/graphql';
 import { routes } from '../sharedData';
 
@@ -68,7 +71,7 @@ export default function SignUp() {
 		<AuthLayout>
 			<h1>Create Account</h1>
 			<form onSubmit={handleSubmit(onValid)}>
-				<input
+				<AuthInput
 					{...register('name', {
 						required: 'Name is required!',
 						minLength: {
@@ -83,40 +86,37 @@ export default function SignUp() {
 							value: /^[a-zA-Z]{2,10}$/g,
 							message: '2~10자 이내에 영문만 사용 가능합니다.',
 						},
-						onChange: () => {
-							clearErrors('result');
-						},
+						onChange: () => clearErrors('result'),
 					})}
 					type='text'
 					placeholder='name'
 				/>
-				<span style={{ color: 'red' }}>{errors.name?.message}</span>
-				<input
+				<FormError message={errors?.name?.message} />
+				<AuthInput
 					{...register('username', {
-						required: 'User Name is required!',
+						required: '이름을 입력해주세요.',
 						minLength: {
 							value: 2,
-							message: '2~10자 이내에 영문이나 숫자만 사용 가능합니다. ',
+							message: '2~10자 이내에 영문이나 숫자만 사용 가능합니다.',
 						},
 						maxLength: {
 							value: 10,
-							message: '2~10자 이내에 영문이나 숫자만 사용 가능합니다. ',
+							message: '2~10자 이내에 영문이나 숫자만 사용 가능합니다.',
 						},
 						pattern: {
 							value: /^[a-z0-9]{2,10}$/g,
 							message: '2~10자 이내에 영문이나 숫자만 사용 가능합니다.',
 						},
-						onChange: () => {
-							clearErrors('result');
-						},
+						onChange: () => clearErrors('result'),
 					})}
 					type='text'
-					placeholder='username'
+					placeholder='Username'
+					hasError={Boolean(errors?.username?.message)}
 				/>
-				<span style={{ color: 'red' }}>{errors.username?.message}</span>
-				<input
+				<FormError message={errors?.username?.message} />
+				<AuthInput
 					{...register('email', {
-						required: 'E-mail is required!',
+						required: '이메일을 입력해주세요.',
 						pattern: {
 							value:
 								/^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i,
@@ -126,32 +126,32 @@ export default function SignUp() {
 							clearErrors('result');
 						},
 					})}
-					type='text'
-					placeholder='email'
+					type='test'
+					placeholder='E-Mail'
+					hasError={Boolean(errors?.email?.message)}
 				/>
-				<span style={{ color: 'red' }}>{errors.email?.message}</span>
-				<input
+				<FormError message={errors?.email?.message} />
+				<AuthInput
 					{...register('password', {
-						required: 'Password is required!',
+						required: '비밀번호를 입력해주세요.',
 						minLength: {
 							value: 4,
 							message: '비밀번호는 최소 4자 이상이여야 합니다.',
 						},
-						onChange: () => {
-							clearErrors('result');
-						},
+						onChange: () => clearErrors('result'),
 					})}
 					type='password'
 					placeholder='password'
+					hasError={Boolean(errors?.password?.message)}
 				/>
-				<span style={{ color: 'red' }}>{errors.password?.message}</span>
-				<input
+				<FormError message={errors?.password?.message} />
+				<SubmitButton
 					style={{ cursor: 'pointer' }}
 					type='submit'
 					value={loading ? 'Loading...' : 'Create Account'}
 					disabled={loading}
 				/>
-				<span>{errors.result?.message}</span>
+				<FormError message={errors?.result?.message} />
 			</form>
 			<span>
 				Have your account? Please{' '}

@@ -49,13 +49,6 @@ export type CoffeeShopPhoto = {
   url: Scalars['String'];
 };
 
-export type DeleteCoffeeShopResult = {
-  __typename?: 'DeleteCoffeeShopResult';
-  coffeeShop?: Maybe<CoffeeShop>;
-  error?: Maybe<Scalars['String']>;
-  ok: Scalars['Boolean'];
-};
-
 export type LoginResult = {
   __typename?: 'LoginResult';
   error?: Maybe<Scalars['String']>;
@@ -68,7 +61,7 @@ export type Mutation = {
   createAccount?: Maybe<MutationResponse>;
   createCategory: MutationResponse;
   createCoffeeShop: CreateCoffeeShopResult;
-  deleteCoffeeShop: DeleteCoffeeShopResult;
+  deleteCoffeeShop: MutationResponse;
   editCoffeeShop: MutationResponse;
   editProfile?: Maybe<MutationResponse>;
   login?: Maybe<LoginResult>;
@@ -233,7 +226,7 @@ export type SeeCoffeeShopQuery = { __typename?: 'Query', seeCoffeeShop?: { __typ
 export type SeeMyProfileQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SeeMyProfileQuery = { __typename?: 'Query', seeMyProfile: { __typename?: 'User', id: number, name: string, username: string, email: string } };
+export type SeeMyProfileQuery = { __typename?: 'Query', seeMyProfile: { __typename?: 'User', id: number, name: string, username: string, email: string, avatarUrl?: string | null } };
 
 export type SeeCategoriesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -286,7 +279,7 @@ export type DeleteCoffeeShopMutationVariables = Exact<{
 }>;
 
 
-export type DeleteCoffeeShopMutation = { __typename?: 'Mutation', deleteCoffeeShop: { __typename?: 'DeleteCoffeeShopResult', ok: boolean, error?: string | null } };
+export type DeleteCoffeeShopMutation = { __typename?: 'Mutation', deleteCoffeeShop: { __typename?: 'MutationResponse', ok: boolean, error?: string | null } };
 
 export type CreateCategoryMutationVariables = Exact<{
   name: Scalars['String'];
@@ -390,6 +383,7 @@ export const SeeMyProfileDocument = gql`
     name
     username
     email
+    avatarUrl
   }
 }
     `;

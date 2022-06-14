@@ -9,7 +9,7 @@ const Container = styled.div`
 	justify-content: center;
 	align-items: center;
 	flex-direction: column;
-	border: 1px solid ${(props) => props.theme.borderColor};
+	box-shadow: ${(props) => props.theme.boxShadow};
 `;
 const Content = styled.div`
 	width: 100%;

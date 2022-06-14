@@ -11,6 +11,8 @@ import { darkTheme, GlobalStyles, lightTheme } from './styles';
 import Shop from './screens/Shop';
 import Category from './screens/Category';
 import Search from './screens/Search';
+import Notification from './screens/Notification';
+import Profile from './screens/Profile';
 
 function App() {
 	const isDarkMode = useReactiveVar(darkModeVar);
@@ -31,8 +33,10 @@ function App() {
 						<Route path={routes.add} element={<Add />} />
 						<Route path={routes.shop} element={<Shop />} />
 						<Route path={routes.search} element={<Search />} />
+						<Route path={routes.notification} element={<Notification />} />
 						<Route path={routes.category} element={<Category />} />
-						<Route element={<>Page Not found</>} />
+						<Route path={routes.user} element={<Profile />} />
+						<Route path={'*'} element={<>Page Not found</>} />
 					</Routes>
 				</BrowserRouter>
 			</ThemeProvider>

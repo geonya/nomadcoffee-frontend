@@ -39,6 +39,7 @@ gql`
 			name
 			username
 			email
+			avatarUrl
 		}
 	}
 	query SeeCategories {

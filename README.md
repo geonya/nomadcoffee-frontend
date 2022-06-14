@@ -33,9 +33,9 @@
 - [x] Category Menu
 - [x] CRUD Cache Update
 - [x] Layout Base Design
-- [ ] DarkMode Button
-- [ ] Notification Page
+- [x] DarkMode Button
 - [ ] My Profile Page
+- [ ] Notification Page
 
 - [ ] Pick Shop Location with Map API
 - [ ] Multiple Upload Photo
