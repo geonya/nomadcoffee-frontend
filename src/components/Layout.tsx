@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { darkModeVar, toggleDarkMode } from '../apollo';
 import { routes } from '../sharedData';
-import { useSeeMyProfileHook } from './hooks/useUser';
+import { useSeeUser } from './hooks/useSeeUser';
 
 const Container = styled.div`
 	max-width: ${(props) => props.theme.maxWidth};
@@ -124,7 +124,7 @@ interface ILayout {
 const Layout = ({ children, hasHeader = true, hasFooter = true }: ILayout) => {
 	const navigate = useNavigate();
 	const darkMode = useReactiveVar(darkModeVar);
-	const { data } = useSeeMyProfileHook();
+	const { data } = useSeeUser();
 	return (
 		<Container>
 			{hasHeader && (

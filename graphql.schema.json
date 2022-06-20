@@ -1285,7 +1285,7 @@
             "description": null,
             "args": [
               {
-                "name": "page",
+                "name": "offset",
                 "description": null,
                 "type": {
                   "kind": "NON_NULL",

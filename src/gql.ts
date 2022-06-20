@@ -35,8 +35,8 @@ export const USER_FRAGMENT = gql`
 // query
 
 gql`
-	query SeeCafes($page: Int!) {
-		seeCafes(page: $page) {
+	query SeeCafes($offset: Int!) {
+		seeCafes(offset: $offset) {
 			...CafeFragment
 		}
 		${CAFE_FRAGMENT}

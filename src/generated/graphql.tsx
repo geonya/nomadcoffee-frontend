@@ -180,7 +180,7 @@ export type QuerySeeCafeArgs = {
 
 
 export type QuerySeeCafesArgs = {
-  page: Scalars['Int'];
+  offset: Scalars['Int'];
 };
 
 
@@ -236,7 +236,7 @@ export type CafeFragmentFragment = { __typename?: 'Cafe', id: number, name: stri
 export type UserFragmentFragment = { __typename?: 'User', id: number, username: string, avatarUrl?: string | null, email: string, countCafes: number, givenLikes: number };
 
 export type SeeCafesQueryVariables = Exact<{
-  page: Scalars['Int'];
+  offset: Scalars['Int'];
 }>;
 
 
@@ -353,8 +353,8 @@ export const UserFragmentFragmentDoc = gql`
 }
     `;
 export const SeeCafesDocument = gql`
-    query SeeCafes($page: Int!) {
-  seeCafes(page: $page) {
+    query SeeCafes($offset: Int!) {
+  seeCafes(offset: $offset) {
     ...CafeFragment
   }
 }
@@ -372,7 +372,7 @@ export const SeeCafesDocument = gql`
  * @example
  * const { data, loading, error } = useSeeCafesQuery({
  *   variables: {
- *      page: // value for 'page'
+ *      offset: // value for 'offset'
  *   },
  * });
  */

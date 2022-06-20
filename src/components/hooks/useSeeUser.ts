@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { isLoggedInVar, logUserOut } from '../../apollo';
 import { useSeeMyProfileQuery } from '../../generated/graphql';
 
-export const useSeeMyProfileHook = () => {
+export const useSeeUser = () => {
 	const navigate = useNavigate();
 	const isLoggedIn = useReactiveVar(isLoggedInVar);
 	const { data } = useSeeMyProfileQuery({ skip: !isLoggedIn });

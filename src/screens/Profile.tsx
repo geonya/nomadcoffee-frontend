@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { logUserOut } from '../apollo';
 import Avatar from '../components/Avatar';
 import PointButton from '../components/buttons/PointButton';
-import { useSeeMyProfileHook } from '../components/hooks/useUser';
+import { useSeeUser } from '../components/hooks/useSeeUser';
 import Layout from '../components/Layout';
 
 const Container = styled.div`
@@ -69,7 +69,7 @@ const Photo = styled.div<{ url: string | undefined }>`
 
 export default function Profile() {
 	const navigate = useNavigate();
-	const { data } = useSeeMyProfileHook();
+	const { data } = useSeeUser();
 	return (
 		<Layout>
 			<Container>
