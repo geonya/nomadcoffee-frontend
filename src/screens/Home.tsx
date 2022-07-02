@@ -20,7 +20,7 @@ const AddBtn = styled.button`
 `;
 export default function Home() {
 	const navigation = useNavigate();
-	const { data, loading } = useSeeCafesQuery({ variables: { page: 1 } });
+	const { data, loading } = useSeeCafesQuery({ variables: { offset: 0 } });
 	return (
 		<Layout>
 			{loading
