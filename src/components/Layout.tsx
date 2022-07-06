@@ -22,7 +22,7 @@ const Container = styled.div`
 
 const Header = styled.div`
   width: 100%;
-  padding: 25px 40px;
+  padding: 20px 40px;
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
@@ -32,9 +32,8 @@ const Content = styled.div`
   width: 100%;
   height: 100%;
   display: flex;
-  justify-content: flex-start;
-  align-items: center;
   flex-direction: column;
+  justify-content: flex-start;
 `;
 
 const HeaderBtn = styled.button`
@@ -131,9 +130,9 @@ const Layout = ({ children, hasHeader = true, hasFooter = true }: ILayout) => {
               xmlns='http://www.w3.org/2000/svg'
             >
               <path
-                stroke-linecap='round'
-                stroke-linejoin='round'
-                stroke-width='2'
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth='2'
                 d='M4 6h16M4 12h8m-8 6h16'
               ></path>
             </svg>

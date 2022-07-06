@@ -52,7 +52,6 @@ export type Category = {
 
 export type CategoryInput = {
   name: Scalars['String'];
-  slug: Scalars['String'];
 };
 
 export type Like = {
@@ -93,9 +92,9 @@ export type MutationCreateAccountArgs = {
 
 
 export type MutationCreateCafeArgs = {
-  categories: Array<InputMaybe<CategoryInput>>;
+  categories?: InputMaybe<Array<InputMaybe<CategoryInput>>>;
   description?: InputMaybe<Scalars['String']>;
-  files: Array<InputMaybe<Scalars['Upload']>>;
+  files?: InputMaybe<Array<InputMaybe<Scalars['Upload']>>>;
   latitude?: InputMaybe<Scalars['String']>;
   longitude?: InputMaybe<Scalars['String']>;
   name: Scalars['String'];
@@ -104,7 +103,6 @@ export type MutationCreateCafeArgs = {
 
 export type MutationCreateCategoryArgs = {
   name: Scalars['String'];
-  slug: Scalars['String'];
 };
 
 
@@ -158,6 +156,7 @@ export type MutationResponse = {
 
 export type Query = {
   __typename?: 'Query';
+  searchCafes?: Maybe<Array<Maybe<Cafe>>>;
   searchUsers?: Maybe<SearchUserResult>;
   seeCafe?: Maybe<Cafe>;
   seeCafes?: Maybe<Array<Maybe<Cafe>>>;
@@ -165,6 +164,11 @@ export type Query = {
   seeCategory?: Maybe<Array<Maybe<Cafe>>>;
   seeMyProfile: User;
   seeUser?: Maybe<User>;
+};
+
+
+export type QuerySearchCafesArgs = {
+  keyword: Scalars['String'];
 };
 
 
@@ -280,7 +284,7 @@ export type CreateAccountMutation = { __typename?: 'Mutation', createAccount?: {
 export type CreateCafeMutationVariables = Exact<{
   name: Scalars['String'];
   files: Array<InputMaybe<Scalars['Upload']>> | InputMaybe<Scalars['Upload']>;
-  categories: Array<InputMaybe<CategoryInput>> | InputMaybe<CategoryInput>;
+  categories?: InputMaybe<Array<InputMaybe<CategoryInput>> | InputMaybe<CategoryInput>>;
   latitude?: InputMaybe<Scalars['String']>;
   longitude?: InputMaybe<Scalars['String']>;
 }>;
@@ -309,7 +313,6 @@ export type DeleteCafeMutation = { __typename?: 'Mutation', deleteCafe: { __type
 
 export type CreateCategoryMutationVariables = Exact<{
   name: Scalars['String'];
-  slug: Scalars['String'];
 }>;
 
 
@@ -575,7 +578,7 @@ export type CreateAccountMutationHookResult = ReturnType<typeof useCreateAccount
 export type CreateAccountMutationResult = Apollo.MutationResult<CreateAccountMutation>;
 export type CreateAccountMutationOptions = Apollo.BaseMutationOptions<CreateAccountMutation, CreateAccountMutationVariables>;
 export const CreateCafeDocument = gql`
-    mutation CreateCafe($name: String!, $files: [Upload]!, $categories: [CategoryInput]!, $latitude: String, $longitude: String) {
+    mutation CreateCafe($name: String!, $files: [Upload]!, $categories: [CategoryInput], $latitude: String, $longitude: String) {
   createCafe(
     name: $name
     files: $files
@@ -702,8 +705,8 @@ export type DeleteCafeMutationHookResult = ReturnType<typeof useDeleteCafeMutati
 export type DeleteCafeMutationResult = Apollo.MutationResult<DeleteCafeMutation>;
 export type DeleteCafeMutationOptions = Apollo.BaseMutationOptions<DeleteCafeMutation, DeleteCafeMutationVariables>;
 export const CreateCategoryDocument = gql`
-    mutation CreateCategory($name: String!, $slug: String!) {
-  createCategory(name: $name, slug: $slug) {
+    mutation CreateCategory($name: String!) {
+  createCategory(name: $name) {
     ok
     error
   }
@@ -725,7 +728,6 @@ export type CreateCategoryMutationFn = Apollo.MutationFunction<CreateCategoryMut
  * const [createCategoryMutation, { data, loading, error }] = useCreateCategoryMutation({
  *   variables: {
  *      name: // value for 'name'
- *      slug: // value for 'slug'
  *   },
  * });
  */

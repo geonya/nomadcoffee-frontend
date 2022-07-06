@@ -1,10 +1,10 @@
 import styled from 'styled-components';
 
-interface AuthInputProps {
+interface InputProps {
   hasError?: boolean;
 }
 
-const AuthInput = styled.input<AuthInputProps>`
+export const Input = styled.input<InputProps>`
   width: 100%;
   border-radius: 3px;
   padding: 10px;
@@ -18,5 +18,3 @@ const AuthInput = styled.input<AuthInputProps>`
     border-color: ${(props) => props.theme.pointColor};
   }
 `;
-
-export default AuthInput;

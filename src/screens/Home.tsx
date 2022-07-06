@@ -31,19 +31,33 @@ export default function Home() {
           </TopLocation>
         </TopTitle>
         <TopCharacter>
-          <TopCharacterImg src='https://images.vexels.com/media/users/3/294734/isolated/lists/1023420d295545fd3f51cdfb82dc5b18-self-esteem-coffee-character-cute-icon.png' />
+          <TopCharacterImg src='https://nomadcoffeee.s3.ap-northeast-2.amazonaws.com/photos/cafe-character.png' />
         </TopCharacter>
         <MainCafeBox>
-          <MainCafeImg src='https://image.shutterstock.com/image-photo/butter-scone-strawberry-cream-600w-1551568154.jpg' />
+          <MainCafeImg src='https://nomadcoffeee.s3.ap-northeast-2.amazonaws.com/photos/maincafe-img.jpeg' />
           <MainCafeTitleBox>
-            <MainCafeTitle></MainCafeTitle>
-            <MainCafeLocation></MainCafeLocation>
+            <MainCafeTitle>Grain Square Cafe</MainCafeTitle>
+            <MainCafeLocation>
+              <svg
+                xmlns='http://www.w3.org/2000/svg'
+                height='24px'
+                viewBox='0 0 24 24'
+                width='24px'
+                fill='#000000'
+              >
+                <path d='M0 0h24v24H0V0z' fill='none' />
+                <path d='M21 3L3 10.53v.98l6.84 2.65L12.48 21h.98L21 3z' />
+              </svg>{' '}
+              500 m
+            </MainCafeLocation>
           </MainCafeTitleBox>
         </MainCafeBox>
       </Top>
-      {loading
-        ? 'loading...'
-        : data?.seeCafes?.map((cafe, i) => <CafeBox {...cafe} key={i} />)}
+      <CafesContainer>
+        {loading
+          ? 'loading...'
+          : data?.seeCafes?.map((cafe, i) => <CafeBox {...cafe} key={i} />)}
+      </CafesContainer>
       <AddBtn onClick={() => navigation(routes.add)}>
         <svg
           fill='currentColor'
@@ -62,12 +76,12 @@ export default function Home() {
 }
 const Top = styled.div`
   width: 100%;
-  height: 40%;
-  padding: 0 30px;
-  padding-bottom: 50px;
+  padding: 50px 30px;
+  padding-bottom: 60px;
   display: flex;
   align-items: center;
   background-color: rgba(0, 0, 0, 0.05);
+
   position: relative;
 `;
 const TopTitle = styled.div`
@@ -79,7 +93,7 @@ const TopTitleSpan = styled.span`
   color: ${(props) => props.theme.fontColor};
 `;
 const TopTitleAccent = styled.span`
-  color: #ffc426;
+  color: ${(props) => props.theme.pointColor};
 `;
 
 const TopLocation = styled.div`
@@ -101,7 +115,7 @@ const TopCharacter = styled.div`
   width: 40%;
 `;
 const TopCharacterImg = styled.img`
-  width: 160px;
+  width: 100%;
 `;
 
 const MainCafeBox = styled.div`
@@ -118,21 +132,51 @@ const MainCafeBox = styled.div`
   align-items: center;
 `;
 const MainCafeImg = styled.img`
+  position: absolute;
+  left: -5px;
   width: 120px;
   height: 120px;
   border-radius: 50%;
   box-shadow: ${(props) => props.theme.boxShadow};
 `;
-const MainCafeTitleBox = styled.div``;
-const MainCafeTitle = styled.span``;
-const MainCafeLocation = styled.span``;
+const MainCafeTitleBox = styled.div`
+  padding-left: 135px;
+  padding-top: 15px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  line-height: 1.5;
+`;
+const MainCafeTitle = styled.span`
+  font-size: 15px;
+  font-weight: 600;
+`;
+const MainCafeLocation = styled.span`
+  opacity: 0.6;
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  svg {
+    margin-right: 6px;
+    width: 18px;
+    height: 18px;
+  }
+`;
+
+const CafesContainer = styled.div`
+  width: 100%;
+  padding-top: 80px;
+`;
 
 const AddBtn = styled.button`
+  cursor: pointer;
   background-color: ${(props) => props.theme.pointColor};
   border-radius: 50%;
   position: absolute;
   right: 10px;
-  bottom: 60px;
+  bottom: 80px;
   width: 50px;
   height: 50px;
   box-shadow: ${(props) => props.theme.boxShadow};

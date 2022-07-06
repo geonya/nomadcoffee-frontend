@@ -1,35 +1,35 @@
 import { gql } from '@apollo/client';
 
 export const CAFE_FRAGMENT = gql`
-	fragment CafeFragment on Cafe {
-		id
-		name
-		latitude
-		longitude
-		photos {
-			url
-		}
-		categories {
-			name
-		}
-		user {
-			username
-			avatarUrl
-		}
-		countLikes
-		isLiked
-	}
+  fragment CafeFragment on Cafe {
+    id
+    name
+    latitude
+    longitude
+    photos {
+      url
+    }
+    categories {
+      name
+    }
+    user {
+      username
+      avatarUrl
+    }
+    countLikes
+    isLiked
+  }
 `;
 
 export const USER_FRAGMENT = gql`
-	fragment UserFragment on User {
-		id
-		username
-		avatarUrl
-		email
-		countCafes
-		givenLikes
-	}
+  fragment UserFragment on User {
+    id
+    username
+    avatarUrl
+    email
+    countCafes
+    givenLikes
+  }
 `;
 
 // query
@@ -94,7 +94,7 @@ gql`
 	mutation CreateCafe(
 		$name: String!
 		$files: [Upload]!
-		$categories: [CategoryInput]!
+		$categories: [CategoryInput]
 		$latitude: String
 		$longitude: String
 	) {
@@ -139,8 +139,8 @@ gql`
 			error
 		}
 	}
-	mutation CreateCategory($name: String!, $slug: String!) {
-		createCategory(name: $name, slug: $slug) {
+	mutation CreateCategory($name: String!) {
+		createCategory(name: $name) {
 			ok
 			error
 		}
