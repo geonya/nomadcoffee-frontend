@@ -49,6 +49,7 @@ export default function CafeBox({
       },
     });
   };
+
   return photos ? (
     <Container>
       <Link to={`/cafe/${id}`}>
@@ -115,7 +116,9 @@ const CafeInfoBox = styled.div`
   justify-content: space-between;
   align-items: flex-start;
 `;
-const TitleNameBox = styled.div``;
+const TitleNameBox = styled.div`
+  width: 50%;
+`;
 const CafeTitle = styled.h1`
   font-size: 18px;
   font-weight: 600;
@@ -129,7 +132,7 @@ const CafeCreator = styled.span`
   margin-left: 5px;
 `;
 const LikeCategoryBox = styled.div`
-  width: 100%;
+  width: 50%;
   display: flex;
   flex-direction: column;
   align-items: flex-end;

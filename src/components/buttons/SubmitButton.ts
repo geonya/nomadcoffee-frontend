@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 const SubmitButton = styled.input`
-  width: 100%;
+  width: 80%;
   margin: 10px 0;
   border-radius: 3px;
   background-color: ${(props) => props.theme.pointColor};

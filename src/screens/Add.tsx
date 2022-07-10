@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -11,6 +11,8 @@ import {
   useSeeCategoriesQuery,
 } from '../generated/graphql';
 import { routes } from '../sharedData';
+import { AnimatePresence, motion } from 'framer-motion';
+import type { Variants } from 'framer-motion';
 
 interface AddFormValues {
   name: string;
@@ -27,7 +29,7 @@ const Add = () => {
   const [categoryList, setCategoryList] = useState<string[]>([]);
   const [pickCategories, setPickCategories] = useState<string[]>([]);
   const [addCategoryModal, setAddCategoryModal] = useState(false);
-
+  const [photosPreview, setPhotosPreview] = useState<string[]>([]);
   const navigation = useNavigate();
   const {
     register,
@@ -105,19 +107,118 @@ const Add = () => {
       );
     },
   });
-  console.log(filesWatch);
+  useEffect(() => {
+    if (filesWatch && filesWatch.length > 0) {
+      const filesArray = Array.from(filesWatch);
+      const urlsArray = filesArray.map((file) => URL.createObjectURL(file));
+      setPhotosPreview((prev) => [...prev, ...urlsArray]);
+    }
+  }, [filesWatch]);
+  const boxVariants: Variants = {
+    initial: {
+      x: 500,
+      opacity: 0,
+    },
+    animate: {
+      x: 0,
+      opacity: 1,
+      transition: { type: 'tween' },
+    },
+    exit: {
+      x: -500,
+      opacity: 0,
+    },
+  };
+  const [photoIndex, setPhotoIndex] = useState(0);
   return (
     <Layout>
       <Wrapper>
         <CafeForm onSubmit={handleSubmit(onSubmitValid)}>
-          <PhotoInputLabel>
-            <input
-              type='file'
-              accept='image/*'
-              {...register('files')}
-              multiple
-            />
-          </PhotoInputLabel>
+          {photosPreview && photosPreview.length > 0 ? (
+            <AnimatePresence>
+              <PhotosReivewRow>
+                {photosPreview.map((photo, i) =>
+                  i === photoIndex ? (
+                    <PhotoReview
+                      variants={boxVariants}
+                      initial='initial'
+                      animate='animate'
+                      exit='exit'
+                      photo={photo}
+                      key={i}
+                    >
+                      {photoIndex > 0 && (
+                        <PrevBtn
+                          onClick={() =>
+                            setPhotoIndex((prev) =>
+                              prev === 0 ? photosPreview.length - 1 : prev - 1
+                            )
+                          }
+                        >
+                          <svg
+                            fill='gray'
+                            viewBox='0 0 20 20'
+                            xmlns='http://www.w3.org/2000/svg'
+                          >
+                            <path
+                              fillRule='evenodd'
+                              d='M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z'
+                              clipRule='evenodd'
+                            ></path>
+                          </svg>
+                        </PrevBtn>
+                      )}
+                      <NextBtn
+                        onClick={() =>
+                          setPhotoIndex((prev) =>
+                            prev === photosPreview.length - 1 ? 0 : prev + 1
+                          )
+                        }
+                      >
+                        <svg
+                          fill='gray'
+                          viewBox='0 0 20 20'
+                          xmlns='http://www.w3.org/2000/svg'
+                        >
+                          <path
+                            fillRule='evenodd'
+                            d='M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z'
+                            clipRule='evenodd'
+                          ></path>
+                        </svg>
+                      </NextBtn>
+                    </PhotoReview>
+                  ) : null
+                )}
+                <SliderDots>
+                  {photosPreview.map((_, i) => (
+                    <SliderDot selected={photoIndex === i} />
+                  ))}
+                </SliderDots>
+              </PhotosReivewRow>
+            </AnimatePresence>
+          ) : (
+            <PhotoInputLabel>
+              <input
+                type='file'
+                accept='image/*'
+                {...register('files')}
+                multiple
+              />
+              <svg
+                fill='white'
+                viewBox='0 0 20 20'
+                xmlns='http://www.w3.org/2000/svg'
+              >
+                <path
+                  fillRule='evenodd'
+                  d='M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z'
+                  clipRule='evenodd'
+                ></path>
+              </svg>
+            </PhotoInputLabel>
+          )}
+
           <Input
             type='text'
             placeholder='Name'
@@ -134,9 +235,6 @@ const Add = () => {
             {...register('longitude', { required: true })}
           />
           <CategoryListBox>
-            <CategoryTitle>
-              <span>Categories</span>
-            </CategoryTitle>
             <CategoryList>
               {categoryList.map((name, i) => (
                 <CategoryItem
@@ -216,6 +314,7 @@ const CafeForm = styled.form`
 `;
 
 const CategoryListBox = styled.div`
+  margin: 20px 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -283,18 +382,70 @@ const CategoryAddModalBtn = styled.button`
   border-radius: 50%;
 `;
 
-const CategoryTitle = styled.div`
-  padding: 10px 0;
-  font-size: 15px;
-`;
-
 const PhotoInputLabel = styled.label`
   border-radius: 10px;
   cursor: pointer;
   width: 80%;
   height: 200px;
-  background-color: red;
+  background-color: rgba(0, 0, 0, 0.25);
+  display: grid;
+  place-content: center;
+  margin-bottom: 20px;
+  svg {
+    width: 80px;
+    height: 80px;
+  }
   input {
     display: none;
   }
+`;
+const PhotosReivewRow = styled(motion.div)`
+  width: 100%;
+  position: relative;
+`;
+const PhotoReview = styled(motion.div)<{ photo: string }>`
+  background-image: url(${(props) => props.photo});
+  background-size: cover;
+  background-position: center center;
+  height: 200px;
+  cursor: pointer;
+  position: relative;
+`;
+const PrevBtn = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translate(0, -50%);
+  width: 30px;
+  height: 30px;
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+`;
+const NextBtn = styled.div`
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translate(0, -50%);
+  width: 30px;
+  height: 30px;
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+`;
+const SliderDots = styled.div`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+const SliderDot = styled.div<{ selected: boolean }>`
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 5px;
+  background-color: ${(props) =>
+    props.selected ? 'rgba(255, 255, 255, 1)' : 'rgba(255, 255, 255, 0.5)'};
 `;
