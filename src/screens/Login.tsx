@@ -1,6 +1,5 @@
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useLocation } from 'react-router-dom';
-import styled from 'styled-components';
 import { logUserIn } from '../apollo';
 import AuthInput from '../components/auth/AuthInput';
 import AuthLayout from '../components/auth/AuthLayout';

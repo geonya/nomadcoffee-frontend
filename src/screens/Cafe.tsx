@@ -205,9 +205,8 @@ export default function Cafe() {
     setIsMe(data?.seeCafe?.user.username === meData?.seeMyProfile?.username);
   }, [data, meData]);
   useEffect(() => {
-    let map = null;
     const initMap = () => {
-      const map = new naver.maps.Map('map', {
+      new naver.maps.Map('map', {
         center: new naver.maps.LatLng(37, 127),
         zoom: 13,
       });
