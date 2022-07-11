@@ -4,8 +4,6 @@ import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import Layout from '../components/Layout';
 import { useSeeCafeQuery, useToggleLikeMutation } from '../generated/graphql';
-import { routes } from '../sharedData';
-import { useSeeMyProfile } from '../utils';
 
 export default function Cafe() {
   const [modalPhoto, setModalPhoto] = useState('');
