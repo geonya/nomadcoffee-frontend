@@ -4,13 +4,12 @@ import { useToggleLikeMutation } from '../generated/graphql';
 import Avatar from './Avatar';
 
 interface CafeBoxProps {
-  __typename?: 'Cafe' | undefined;
   id?: number;
   name?: string;
-  latitude?: string | null | undefined;
-  longitude?: string | null | undefined;
+  address?: string | null | undefined;
   countLikes?: number;
   isLiked?: boolean;
+  categories?: Array<{ __typename?: 'Category'; name: string } | null> | null;
   photos?:
     | ({
         __typename?: 'CafePhoto' | undefined;
@@ -29,6 +28,7 @@ export default function CafeBox({
   photos,
   countLikes,
   isLiked,
+  categories,
 }: CafeBoxProps) {
   const [toggleLikeMutation, { loading }] = useToggleLikeMutation({
     update: (cache, result) => {
@@ -56,16 +56,14 @@ export default function CafeBox({
         <CafeImg src={photos[0]?.url} alt={name} />
       </Link>
       <CafeInfoBox>
-        <TitleNameBox>
-          <Link to={`/cafe/${id}`}>
-            <CafeTitle>{name}</CafeTitle>
-          </Link>
+        <TitleLikeNameBox>
           <CafeCreatorBox>
             <Avatar source={user?.avatarUrl || ''} size={20} />
             <CafeCreator>{user?.username}</CafeCreator>
           </CafeCreatorBox>
-        </TitleNameBox>
-        <LikeCategoryBox>
+          <Link to={`/cafe/${id}`}>
+            <CafeTitle>{name}</CafeTitle>
+          </Link>
           <LikeBox>
             <LikeButton onClick={() => toggleLike(id!)}>
               <svg
@@ -84,12 +82,14 @@ export default function CafeBox({
             </LikeButton>
             <span>{countLikes}</span>
           </LikeBox>
+        </TitleLikeNameBox>
+        <CategoriesListBox>
           <CategoryBox>
-            <button>safljd</button>
-            <button>saflj</button>
-            <button>sdfsdfsdf</button>
+            {categories?.map((category, i) => (
+              <span key={i}>{category?.name}</span>
+            ))}
           </CategoryBox>
-        </LikeCategoryBox>
+        </CategoriesListBox>
       </CafeInfoBox>
     </Container>
   ) : null;
@@ -113,43 +113,44 @@ const CafeInfoBox = styled.div`
   width: 100%;
   padding: 10px 35px;
   display: flex;
+  flex-direction: column;
+`;
+const TitleLikeNameBox = styled.div`
+  width: 100%;
+  display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-`;
-const TitleNameBox = styled.div`
-  width: 50%;
-`;
-const CafeTitle = styled.h1`
-  font-size: 18px;
-  font-weight: 600;
+  align-items: center;
 `;
 const CafeCreatorBox = styled.div`
-  margin-top: 10px;
   display: flex;
   align-items: center;
+`;
+const CafeTitle = styled.h1`
+  font-size: 16px;
+  font-weight: 600;
 `;
 const CafeCreator = styled.span`
   margin-left: 5px;
 `;
-const LikeCategoryBox = styled.div`
-  width: 50%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: center;
-`;
-const CategoryBox = styled.div`
-  margin-top: 5px;
-  display: flex;
-  padding: 5px 0;
-  justify-content: flex-end;
+const CategoriesListBox = styled.div`
+  margin-top: 10px;
   width: 100%;
-  button {
-    padding: 2px;
+`;
+
+const CategoryBox = styled.div`
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  span {
+    cursor: pointer;
+    margin-right: 5px;
+    font-size: 10px;
+    padding: 3px;
     background-color: ${(props) => props.theme.pointColor};
     color: white;
     border-radius: 5px;
-    margin-left: 5px;
   }
 `;
 const LikeBox = styled.div`

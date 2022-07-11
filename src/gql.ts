@@ -4,11 +4,11 @@ export const CAFE_FRAGMENT = gql`
   fragment CafeFragment on Cafe {
     id
     name
-    latitude
-    longitude
+    address
     photos {
       url
     }
+    description
     categories {
       name
     }
@@ -95,15 +95,15 @@ gql`
 		$name: String!
 		$files: [Upload]!
 		$categories: [CategoryInput]
-		$latitude: String
-		$longitude: String
+		$address: String
+		$description:String
 	) {
 		createCafe(
 			name: $name
 			files: $files
 			categories: $categories
-			latitude: $latitude
-			longitude: $longitude
+			address: $address
+			description:$description
 		) {
 			ok
 			error
@@ -117,16 +117,16 @@ gql`
 		$cafeId: Int!
 		$name: String
 		$files: [Upload]
-		$latitude: String
-		$longitude: String
+		$address: String
+		$description:String
 		$categories: [CategoryInput]
 	) {
 		editCafe(
 			id: $cafeId
 			name: $name
 			files: $files
-			latitude: $latitude
-			longitude: $longitude
+			address: $address
+			description:$description
 			categories: $categories
 		) {
 			ok

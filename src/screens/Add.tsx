@@ -13,11 +13,12 @@ import {
 import { routes } from '../sharedData';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { Variants } from 'framer-motion';
+import DaumPostcodeEmbed, { type Address } from 'react-daum-postcode';
 
 interface AddFormValues {
   name: string;
-  latitude: string;
-  longitude: string;
+  address: string;
+  description: string;
   files: FileList;
   result: string;
 }
@@ -30,11 +31,13 @@ const Add = () => {
   const [pickCategories, setPickCategories] = useState<string[]>([]);
   const [addCategoryModal, setAddCategoryModal] = useState(false);
   const [photosPreview, setPhotosPreview] = useState<string[]>([]);
+  const [addressModal, setAddressModal] = useState(false);
   const navigation = useNavigate();
   const {
     register,
     handleSubmit,
     setError,
+    setValue,
     formState: { errors },
     watch,
   } = useForm<AddFormValues>();
@@ -43,6 +46,7 @@ const Add = () => {
     register: categoryRegister,
     handleSubmit: categoryHandleSubmit,
     setValue: categorySetValue,
+    setFocus,
   } = useForm<CategoryAddFormValues>();
 
   const onCategorySubmitValid: SubmitHandler<CategoryAddFormValues> = (
@@ -130,9 +134,41 @@ const Add = () => {
     },
   };
   const [photoIndex, setPhotoIndex] = useState(0);
+  const daumPostcodeComplete = (data: Address) => {
+    setValue('address', data.address);
+    setAddressModal(false);
+  };
+  useEffect(() => {
+    if (addCategoryModal === true) {
+      setFocus('name');
+    }
+  }, [addCategoryModal]);
   return (
     <Layout>
       <Wrapper>
+        <AnimatePresence>
+          {addressModal ? (
+            <>
+              <ModalBackground
+                onClick={() => setAddressModal(false)}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1, transition: { type: 'tween' } }}
+                exit={{ opacity: 0 }}
+              />
+              <AddressModal
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{
+                  scale: 1,
+                  opacity: 1,
+                  transition: { type: 'tween' },
+                }}
+                exit={{ scale: 0, opacity: 0 }}
+              >
+                <DaumPostcodeEmbed onComplete={daumPostcodeComplete} />
+              </AddressModal>
+            </>
+          ) : null}
+        </AnimatePresence>
         <CafeForm onSubmit={handleSubmit(onSubmitValid)}>
           {photosPreview && photosPreview.length > 0 ? (
             <AnimatePresence>
@@ -168,33 +204,37 @@ const Add = () => {
                           </svg>
                         </PrevBtn>
                       )}
-                      <NextBtn
-                        onClick={() =>
-                          setPhotoIndex((prev) =>
-                            prev === photosPreview.length - 1 ? 0 : prev + 1
-                          )
-                        }
-                      >
-                        <svg
-                          fill='gray'
-                          viewBox='0 0 20 20'
-                          xmlns='http://www.w3.org/2000/svg'
+                      {photosPreview.length > 1 && (
+                        <NextBtn
+                          onClick={() =>
+                            setPhotoIndex((prev) =>
+                              prev === photosPreview.length - 1 ? 0 : prev + 1
+                            )
+                          }
                         >
-                          <path
-                            fillRule='evenodd'
-                            d='M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z'
-                            clipRule='evenodd'
-                          ></path>
-                        </svg>
-                      </NextBtn>
+                          <svg
+                            fill='gray'
+                            viewBox='0 0 20 20'
+                            xmlns='http://www.w3.org/2000/svg'
+                          >
+                            <path
+                              fillRule='evenodd'
+                              d='M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z'
+                              clipRule='evenodd'
+                            ></path>
+                          </svg>
+                        </NextBtn>
+                      )}
                     </PhotoReview>
                   ) : null
                 )}
-                <SliderDots>
-                  {photosPreview.map((_, i) => (
-                    <SliderDot selected={photoIndex === i} />
-                  ))}
-                </SliderDots>
+                {photosPreview.length > 1 && (
+                  <SliderDots>
+                    {photosPreview.map((_, i) => (
+                      <SliderDot selected={photoIndex === i} key={i} />
+                    ))}
+                  </SliderDots>
+                )}
               </PhotosReivewRow>
             </AnimatePresence>
           ) : (
@@ -224,15 +264,21 @@ const Add = () => {
             placeholder='Name'
             {...register('name', { required: true })}
           />
+          <div style={{ position: 'relative', width: '100%' }}>
+            <Input
+              type='text'
+              placeholder='Address'
+              {...register('address', { required: true })}
+              onClick={() => setAddressModal(true)}
+            />
+            <AddressModalBtn onClick={() => setAddressModal(true)}>
+              주소 찾기
+            </AddressModalBtn>
+          </div>
           <Input
             type='text'
-            placeholder='latitude'
-            {...register('latitude', { required: true })}
-          />
-          <Input
-            type='text'
-            placeholder='longitude'
-            {...register('longitude', { required: true })}
+            placeholder='Description'
+            {...register('description', { required: true })}
           />
           <CategoryListBox>
             <CategoryList>
@@ -251,7 +297,11 @@ const Add = () => {
                   {name}
                 </CategoryItem>
               ))}
-              <CategoryAddButton onClick={() => setAddCategoryModal(true)}>
+              <CategoryAddButton
+                onClick={() => {
+                  setAddCategoryModal(true);
+                }}
+              >
                 <svg
                   fill='white'
                   viewBox='0 0 20 20'
@@ -269,33 +319,47 @@ const Add = () => {
           <SubmitButton type='submit' value='Create' />
           <span>{errors.result?.message}</span>
         </CafeForm>
-        {addCategoryModal ? (
-          <>
-            <ModalBackground onClick={() => setAddCategoryModal(false)} />
-            <CategoryAddModal
-              onSubmit={categoryHandleSubmit(onCategorySubmitValid)}
-            >
-              <input
-                {...categoryRegister('name', { required: true })}
-                type='text'
-                placeholder='Category Name'
+        <AnimatePresence>
+          {addCategoryModal ? (
+            <>
+              <ModalBackground
+                onClick={() => setAddCategoryModal(false)}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1, transition: { type: 'tween' } }}
+                exit={{ opacity: 0 }}
               />
-              <CategoryAddModalBtn>
-                <svg
-                  fill='white'
-                  viewBox='0 0 20 20'
-                  xmlns='http://www.w3.org/2000/svg'
-                >
-                  <path
-                    fillRule='evenodd'
-                    d='M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z'
-                    clipRule='evenodd'
-                  ></path>
-                </svg>
-              </CategoryAddModalBtn>
-            </CategoryAddModal>
-          </>
-        ) : null}
+              <CategoryAddModal
+                onSubmit={categoryHandleSubmit(onCategorySubmitValid)}
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{
+                  scale: 1,
+                  opacity: 1,
+                  transition: { type: 'tween' },
+                }}
+                exit={{ scale: 0, opacity: 0 }}
+              >
+                <input
+                  {...categoryRegister('name', { required: true })}
+                  type='text'
+                  placeholder='Category Name'
+                />
+                <CategoryAddModalBtn>
+                  <svg
+                    fill='white'
+                    viewBox='0 0 20 20'
+                    xmlns='http://www.w3.org/2000/svg'
+                  >
+                    <path
+                      fillRule='evenodd'
+                      d='M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z'
+                      clipRule='evenodd'
+                    ></path>
+                  </svg>
+                </CategoryAddModalBtn>
+              </CategoryAddModal>
+            </>
+          ) : null}
+        </AnimatePresence>
       </Wrapper>
     </Layout>
   );
@@ -311,6 +375,7 @@ const CafeForm = styled.form`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  position: relative;
 `;
 
 const CategoryListBox = styled.div`
@@ -346,19 +411,21 @@ const CategoryAddButton = styled.div`
   background-color: ${(props) => props.theme.pointColor};
   border-radius: 50%;
 `;
-const ModalBackground = styled.div`
-  position: absolute;
+const ModalBackground = styled(motion.div)`
+  position: fixed;
   right: 0;
   top: 0;
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.3);
+  z-index: 100;
 `;
-const CategoryAddModal = styled.form`
+const CategoryAddModal = styled(motion.form)`
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  top: 45%;
+  left: 0;
+  right: 0;
+  margin: auto auto;
   border-radius: 20px;
   background-color: white;
   width: 180px;
@@ -367,8 +434,10 @@ const CategoryAddModal = styled.form`
   padding: 10px;
   justify-content: center;
   align-items: center;
+  z-index: 101;
   input {
     width: 100%;
+    padding: 5px;
   }
 `;
 const CategoryAddModalBtn = styled.button`
@@ -385,7 +454,7 @@ const CategoryAddModalBtn = styled.button`
 const PhotoInputLabel = styled.label`
   border-radius: 10px;
   cursor: pointer;
-  width: 80%;
+  width: 100%;
   height: 200px;
   background-color: rgba(0, 0, 0, 0.25);
   display: grid;
@@ -404,6 +473,7 @@ const PhotosReivewRow = styled(motion.div)`
   position: relative;
 `;
 const PhotoReview = styled(motion.div)<{ photo: string }>`
+  border-radius: 10px;
   background-image: url(${(props) => props.photo});
   background-size: cover;
   background-position: center center;
@@ -448,4 +518,23 @@ const SliderDot = styled.div<{ selected: boolean }>`
   margin-right: 5px;
   background-color: ${(props) =>
     props.selected ? 'rgba(255, 255, 255, 1)' : 'rgba(255, 255, 255, 0.5)'};
+`;
+const AddressModal = styled(motion.div)`
+  position: absolute;
+  top: 200px;
+  width: 350px;
+  z-index: 999;
+`;
+
+const AddressModalBtn = styled.div`
+  position: absolute;
+  top: 15px;
+  right: 0;
+  cursor: pointer;
+  padding: 7px;
+  background-color: ${(props) => props.theme.pointColor};
+  color: ${(props) => props.theme.fontColor};
+  border-radius: 10px;
+  margin-right: 10px;
+  margin-bottom: 10px;
 `;

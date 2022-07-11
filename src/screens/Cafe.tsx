@@ -1,16 +1,189 @@
+import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import { SubmitHandler, useForm } from 'react-hook-form';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import Layout from '../components/Layout';
-import { createCategoryObj } from '../components/sharedFunc';
-import {
-  useDeleteCafeMutation,
-  useEditCafeMutation,
-  useSeeCafeQuery,
-} from '../generated/graphql';
+import { useSeeCafeQuery, useToggleLikeMutation } from '../generated/graphql';
 import { routes } from '../sharedData';
 import { useSeeMyProfile } from '../utils';
+
+export default function Cafe() {
+  const [modalPhoto, setModalPhoto] = useState('');
+  const { id: cafeId } = useParams();
+
+  const { data, loading } = useSeeCafeQuery({
+    variables: { cafeId: +cafeId! },
+    onCompleted: (data) => {
+      if (!data.seeCafe) return;
+    },
+  });
+  // kakao map api
+  useEffect(() => {
+    const container = document.getElementById('map');
+    if (!container) return;
+    const options = {
+      center: new kakao.maps.LatLng(33.450701, 126.570667),
+      level: 2, //지도의 레벨(확대, 축소 정도)
+    };
+    const map = new kakao.maps.Map(container, options);
+    const geocoder = new kakao.maps.services.Geocoder();
+    if (!data?.seeCafe?.address) return;
+    geocoder.addressSearch(data?.seeCafe?.address, (result, status) => {
+      if (status === kakao.maps.services.Status.OK) {
+        const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+        new kakao.maps.Marker({
+          map,
+          position: coords,
+        });
+        map.setCenter(coords);
+      }
+    });
+  }, [data?.seeCafe?.address]);
+
+  const [toggleLikeMutation] = useToggleLikeMutation({
+    update: (cache, result) => {
+      cache.modify({
+        id: `Cafe:${data?.seeCafe?.id}`,
+        fields: {
+          isLiked: (prev) => !prev,
+          countLikes: (prev) => (data?.seeCafe?.isLiked ? prev - 1 : prev + 1),
+        },
+      });
+    },
+  });
+  const toggleLike = (id: number) => {
+    if (loading) return;
+    toggleLikeMutation({
+      variables: {
+        cafeId: id,
+      },
+    });
+  };
+
+  return (
+    <Layout hasHeader={false}>
+      <Wrapper>
+        <Map id='map'></Map>
+        <CafeContent>
+          <CafeInfoBox>
+            <CafeTitle>{data?.seeCafe?.name}</CafeTitle>
+            <CafeDescription>{data?.seeCafe?.description}</CafeDescription>
+            <CafeAddress>{data?.seeCafe?.address}</CafeAddress>
+            <LikeBox>
+              <LikeButton onClick={() => toggleLike(data?.seeCafe?.id!)}>
+                <svg
+                  fill={data?.seeCafe?.isLiked ? 'currentColor' : 'none'}
+                  stroke='currentColor'
+                  viewBox='0 0 24 24'
+                  xmlns='http://www.w3.org/2000/svg'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth='2'
+                    d='M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z'
+                  ></path>
+                </svg>
+              </LikeButton>
+              <span>{data?.seeCafe?.countLikes}</span>
+            </LikeBox>
+          </CafeInfoBox>
+          {data?.seeCafe?.photos && data?.seeCafe?.photos.length > 0 ? (
+            <PhotosReivewRow>
+              {data.seeCafe.photos.map((photo, i) => (
+                <PhotoReview
+                  photo={photo?.url!}
+                  key={i}
+                  onClick={() => setModalPhoto(photo?.url!)}
+                />
+              ))}
+            </PhotosReivewRow>
+          ) : null}
+          <AnimatePresence>
+            {modalPhoto !== '' ? (
+              <>
+                <ModalBackground
+                  onClick={() => setModalPhoto('')}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1, transition: { type: 'tween' } }}
+                  exit={{ opacity: 0 }}
+                >
+                  <ModalPhoto
+                    photo={modalPhoto}
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{
+                      scale: 1,
+                      opacity: 1,
+                      transition: { type: 'tween' },
+                    }}
+                    exit={{ scale: 0, opacity: 0 }}
+                  />
+                </ModalBackground>
+              </>
+            ) : null}
+          </AnimatePresence>
+        </CafeContent>
+      </Wrapper>
+    </Layout>
+  );
+}
+const CafeContent = styled.div`
+  width: 100%;
+  position: absolute;
+  top: 260px;
+  z-index: 100;
+  display: grid;
+  grid-gap: 20px;
+  padding: 0 20px;
+`;
+
+const PhotosReivewRow = styled.div`
+  width: 100%;
+  display: grid;
+  grid-gap: 5px;
+  grid-auto-rows: 100px;
+  grid-template-columns: repeat(3, 1fr);
+`;
+const PhotoReview = styled.div<{ photo: string }>`
+  border-radius: 10px;
+  background-image: url(${(props) => props.photo});
+  background-size: cover;
+  background-position: center center;
+  cursor: pointer;
+`;
+const ModalPhoto = styled(motion.div)<{ photo: string }>`
+  width: 360px;
+  height: 250px;
+  background-image: url(${(props) => props.photo});
+  background-size: cover;
+  background-position: center center;
+  border-radius: 10px;
+`;
+
+const CafeTitle = styled.h1`
+  color: ${(props) => props.theme.bgColor};
+  font-size: 18px;
+  font-weight: 600;
+`;
+const CafeDescription = styled.h4`
+  color: ${(props) => props.theme.bgColor};
+  opacity: 0.7;
+`;
+const CafeAddress = styled.span`
+  font-size: 11.5px;
+  color: ${(props) => props.theme.bgColor};
+  opacity: 0.4;
+`;
+const CafeInfoBox = styled.div`
+  width: 100%;
+  height: 160px;
+  padding: 20px;
+  border-radius: 20px;
+  background-color: rgba(0, 0, 0, 0.7);
+  line-height: 2;
+  display: flex;
+  flex-direction: column;
+`;
 
 const Wrapper = styled.div`
   width: 100%;
@@ -18,304 +191,45 @@ const Wrapper = styled.div`
   flex-direction: column;
   align-items: center;
 `;
-const CafeForm = styled.form`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  input {
-    padding: 5px;
-    border: 1px solid ${(props) => props.theme.borderColor};
-  }
-`;
-const CategoryListBox = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  border: 1px solid ${(props) => props.theme.borderColor};
-`;
-const CategoryList = styled.div`
-  display: flex;
-`;
-const CategoryItem = styled.span<{ picked: boolean }>`
-  margin: 0 5px;
-  cursor: pointer;
-  padding: 3px;
-  background-color: ${(props) => (props.picked ? 'blue' : '')};
-  color: ${(props) => (props.picked ? 'white' : '')};
-  border: 1px solid ${(props) => props.theme.borderColor};
-  border-radius: 10px;
-`;
-const CategoryAddButton = styled.div`
-  margin-top: 20px;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 40px;
-  height: 40px;
-  padding: 5px;
-  border: 1px solid ${(props) => props.theme.borderColor};
-  border-radius: 10px;
-`;
-const ModalBackground = styled.div`
-  background-color: rgba(0, 0, 0, 0.5);
-  position: absolute;
+const Map = styled.div`
   width: 100%;
-  height: 100%;
-`;
-const CategoryAddModal = styled.div`
-  position: absolute;
-  top: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 30px;
-  background-color: white;
-  width: 200px;
-  height: 100px;
-  form {
+  height: 300px;
+  border-radius: 20px;
+  h4 {
+    width: 80px;
+    height: 40px;
+    display: block;
+    border-radius: 20px;
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
-    input {
-      font-size: 18px;
-      padding: 10px;
-      text-align: center;
-    }
+    color: ${(props) => props.theme.fontColor};
+    font-weight: 600;
   }
 `;
-const CategoryTitle = styled.div`
-  padding: 10px 0;
-  font-size: 15px;
+const LikeBox = styled.div`
+  justify-self: flex-end;
+  display: flex;
+  align-items: center;
+  span {
+    color: ${(props) => props.theme.bgColor};
+  }
 `;
-interface EditFormValues {
-  name: string;
-  latitude: string;
-  longitude: string;
-  files: FileList;
-  result: string;
-}
-
-interface CategoryAddFormValues {
-  name: string;
-}
-export default function Cafe() {
-  const [categoryList, setCategoryList] = useState<string[]>([]);
-  const [pickCategories, setPickCategories] = useState<string[]>([]);
-  const [addCategoryModal, setAddCategoryModal] = useState(false);
-  const navigation = useNavigate();
-  const [isMe, setIsMe] = useState(false);
-  const { id: cafeId } = useParams();
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    setError,
-    getValues,
-    formState: { errors },
-  } = useForm<EditFormValues>({ mode: 'onChange' });
-  const { register: categoryRegister, handleSubmit: categoryHandleSubmit } =
-    useForm<CategoryAddFormValues>();
-  const onCategorySubmitValid: SubmitHandler<CategoryAddFormValues> = (
-    data
-  ) => {
-    setCategoryList((prev) => [...prev, data.name]);
-    setAddCategoryModal(false);
-  };
-  const { data, loading } = useSeeCafeQuery({
-    variables: { cafeId: +cafeId! },
-    onCompleted: (data) => {
-      if (!data.seeCafe) return;
-      data.seeCafe?.categories?.forEach((category) => {
-        if (!category) return;
-        if (!categoryList.includes(category.name)) {
-          setCategoryList((prev) => [...prev, category.name]);
-          setPickCategories((prev) => [...prev, category.name]);
-        }
-      });
-    },
-  });
-  const { data: meData } = useSeeMyProfile();
-  const [editCafe, { loading: editLoading }] = useEditCafeMutation({
-    onCompleted: (data) => {
-      if (!data.editCafe) return;
-      const {
-        editCafe: { ok, error },
-      } = data;
-      if (!ok) {
-        setError('result', { message: error! });
-      }
-    },
-    update: (cache, result) => {
-      if (!result.data?.editCafe.ok) return;
-      const categories = pickCategories.map((name) => createCategoryObj(name));
-      cache.modify({
-        id: `Cafe:${cafeId}`,
-        fields: {
-          name: () => getValues().name,
-          latitude: () => getValues().latitude,
-          longitude: () => getValues().longitude,
-          files: () => getValues().files,
-          categories: (prev) => [...categories],
-        },
-      });
-    },
-  });
-  const onSubmitValid: SubmitHandler<EditFormValues> = (data) => {
-    if (loading) return;
-    const categories = pickCategories.map((name) => createCategoryObj(name));
-    editCafe({
-      variables: {
-        cafeId: +cafeId!,
-        categories,
-        ...data,
-      },
-    });
-  };
-  const [deleteCafe, { loading: deleteLoading }] = useDeleteCafeMutation({
-    onCompleted: (data) => {
-      if (!data.deleteCafe) return;
-      const {
-        deleteCafe: { ok, error },
-      } = data;
-      if (!ok) {
-        setError('result', { message: error! });
-      }
-    },
-    update: (cache, result) => {
-      if (!result.data?.deleteCafe?.ok) return;
-      cache.modify({
-        id: 'ROOT_QUERY',
-        fields: {
-          seeCafes: (_, { DELETE }) => DELETE,
-        },
-      });
-      navigation(routes.home);
-    },
-  });
-  useEffect(() => {
-    if (data?.seeCafe?.name) setValue('name', data?.seeCafe?.name);
-    if (data?.seeCafe?.longitude)
-      setValue('longitude', data?.seeCafe?.longitude);
-    if (data?.seeCafe?.latitude) setValue('latitude', data?.seeCafe?.latitude);
-  }, [data, setValue]);
-  useEffect(() => {
-    setIsMe(data?.seeCafe?.user.username === meData?.seeMyProfile?.username);
-  }, [data, meData]);
-  useEffect(() => {
-    const initMap = () => {
-      new naver.maps.Map('map', {
-        center: new naver.maps.LatLng(37, 127),
-        zoom: 13,
-      });
-    };
-    initMap();
-  }, []);
-  return (
-    <Layout>
-      <Wrapper>
-        <div id='map' style={{ width: '200px', height: '200px' }}></div>
-        {loading ? (
-          'loading...'
-        ) : (
-          <>
-            {data?.seeCafe?.photos ? (
-              <img
-                src={data?.seeCafe?.photos[0]?.url}
-                alt={data?.seeCafe?.name}
-                width={300}
-                height={300}
-              />
-            ) : null}
-            <CafeForm onSubmit={handleSubmit(onSubmitValid)}>
-              <input
-                type='file'
-                accept='image/*'
-                {...register('files')}
-                multiple
-                disabled={!isMe}
-              />
-              <span>Photo</span>
-              <input
-                type='text'
-                placeholder='Name'
-                {...register('name', { required: true })}
-                disabled={!isMe}
-              />
-              <input
-                type='text'
-                placeholder='latitude'
-                {...register('latitude', { required: true })}
-                disabled={!isMe}
-              />
-              <input
-                type='text'
-                placeholder='longitude'
-                {...register('longitude', { required: true })}
-                disabled={!isMe}
-              />
-
-              <CategoryListBox>
-                <CategoryTitle>
-                  <span>Categories</span>
-                </CategoryTitle>
-                <CategoryList>
-                  {categoryList.map((name, i) => (
-                    <CategoryItem
-                      key={i}
-                      onClick={() =>
-                        setPickCategories((prev) =>
-                          !pickCategories.includes(name)
-                            ? [...prev, name]
-                            : [...prev.filter((item) => item !== name!)]
-                        )
-                      }
-                      picked={pickCategories.includes(name)}
-                    >
-                      {name}
-                    </CategoryItem>
-                  ))}
-                </CategoryList>
-                <CategoryAddButton onClick={() => setAddCategoryModal(true)}>
-                  ADD
-                </CategoryAddButton>
-              </CategoryListBox>
-              {isMe ? (
-                <button>{editLoading ? 'Loading...' : 'Edit Cafe'}</button>
-              ) : null}
-              <span>{errors.result?.message}</span>
-            </CafeForm>
-            {isMe ? (
-              <button
-                onClick={() =>
-                  deleteCafe({
-                    variables: { cafeId: +cafeId! },
-                  })
-                }
-              >
-                {deleteLoading ? 'Loading...' : 'Delete Cafe'}
-              </button>
-            ) : null}
-          </>
-        )}
-        {addCategoryModal ? (
-          <>
-            <ModalBackground onClick={() => setAddCategoryModal(false)} />
-            <CategoryAddModal>
-              <form onSubmit={categoryHandleSubmit(onCategorySubmitValid)}>
-                <input
-                  {...categoryRegister('name', { required: true })}
-                  type='text'
-                  placeholder='name'
-                />
-                <input type='submit' value='Add' />
-              </form>
-            </CategoryAddModal>
-          </>
-        ) : null}
-      </Wrapper>
-    </Layout>
-  );
-}
+const LikeButton = styled.button`
+  width: 25px;
+  height: 25px;
+  margin-right: 5px;
+  svg {
+    color: ${(props) => props.theme.red};
+  }
+`;
+const ModalBackground = styled(motion.div)`
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: grid;
+  place-content: center;
+`;

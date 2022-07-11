@@ -8,7 +8,6 @@ import CafeBox from '../components/CafeBox';
 export default function Home() {
   const navigation = useNavigate();
   const { data, loading } = useSeeCafesQuery({ variables: { offset: 0 } });
-
   return (
     <Layout>
       <Top>
