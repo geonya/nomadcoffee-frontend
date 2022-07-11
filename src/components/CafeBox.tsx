@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { ClipLoader } from 'react-spinners';
 import styled from 'styled-components';
 import { useToggleLikeMutation } from '../generated/graphql';
 import Avatar from './Avatar';
@@ -20,6 +21,7 @@ interface CafeBoxProps {
     username: string;
     avatarUrl?: string | null;
   };
+  description?: string | null;
   distance: number;
 }
 export default function CafeBox({
@@ -31,6 +33,7 @@ export default function CafeBox({
   isLiked,
   categories,
   distance,
+  description,
 }: CafeBoxProps) {
   const [toggleLikeMutation, { loading }] = useToggleLikeMutation({
     update: (cache, result) => {
@@ -55,26 +58,44 @@ export default function CafeBox({
   return photos ? (
     <Container>
       <Link to={`/cafe/${id}`}>
-        <CafeImg src={photos[0]?.url} alt={name} />
+        <PhotoBox photo={photos[0]?.url as string}>
+          <PhotoBoxInfo>
+            <Distance>
+              <svg
+                xmlns='http://www.w3.org/2000/svg'
+                height='24px'
+                viewBox='0 0 24 24'
+                width='24px'
+                fill='#000000'
+              >
+                <path d='M0 0h24v24H0V0z' fill='none' />
+                <path d='M21 3L3 10.53v.98l6.84 2.65L12.48 21h.98L21 3z' />
+              </svg>
+              {distance ? (
+                <span>
+                  {distance < 0.009
+                    ? 0 + ' m'
+                    : distance < 0.1
+                    ? distance?.toString().substring(4, 6) + ' m'
+                    : distance?.toFixed(2) + ' km'}
+                </span>
+              ) : (
+                <ClipLoader size={12} />
+              )}
+            </Distance>
+            <CafeCreatorBox>
+              <Avatar source={user?.avatarUrl || ''} size={20} />
+              <CafeCreator>{user?.username}</CafeCreator>
+            </CafeCreatorBox>
+          </PhotoBoxInfo>
+        </PhotoBox>
       </Link>
       <CafeInfoBox>
         <TitleLikeNameBox>
-          <CafeCreatorBox>
-            <Avatar source={user?.avatarUrl || ''} size={20} />
-            <CafeCreator>{user?.username}</CafeCreator>
-          </CafeCreatorBox>
           <Link to={`/cafe/${id}`}>
             <CafeTitle>{name}</CafeTitle>
+            <CafeDescription>{description}</CafeDescription>
           </Link>
-          {distance ? (
-            <span>
-              {distance < 0.009
-                ? 0 + ' m'
-                : distance < 0.1
-                ? distance?.toString().substring(4, 6) + ' m'
-                : distance?.toFixed(2) + ' km'}
-            </span>
-          ) : null}
           <LikeBox>
             <LikeButton onClick={() => toggleLike(id!)}>
               <svg
@@ -115,10 +136,16 @@ const Container = styled.div`
   padding: 15px 10px;
 `;
 
-const CafeImg = styled.img`
+const PhotoBox = styled.div<{ photo: string }>`
   border-radius: 10px;
+  background-image: url(${(props) => props.photo});
+  background-size: cover;
+  background-position: center center;
   width: 300px;
   height: 200px;
+  cursor: pointer;
+  position: relative;
+  display: flex;
 `;
 const CafeInfoBox = styled.div`
   width: 100%;
@@ -131,6 +158,7 @@ const TitleLikeNameBox = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  line-height: 1.2;
 `;
 const CafeCreatorBox = styled.div`
   display: flex;
@@ -140,11 +168,15 @@ const CafeTitle = styled.h1`
   font-size: 16px;
   font-weight: 600;
 `;
+const CafeDescription = styled.span`
+  font-size: 12px;
+  opacity: 0.8;
+`;
 const CafeCreator = styled.span`
   margin-left: 5px;
 `;
 const CategoriesListBox = styled.div`
-  margin-top: 10px;
+  margin-top: 5px;
   width: 100%;
 `;
 
@@ -167,6 +199,9 @@ const CategoryBox = styled.div`
 const LikeBox = styled.div`
   display: flex;
   align-items: center;
+  span {
+    opacity: 0.7;
+  }
 `;
 const LikeButton = styled.button`
   width: 25px;
@@ -175,4 +210,29 @@ const LikeButton = styled.button`
   svg {
     color: ${(props) => props.theme.red};
   }
+`;
+const Distance = styled.div`
+  display: flex;
+  align-items: center;
+  span {
+    opacity: 0.8;
+    font-size: 12px;
+  }
+  svg {
+    opacity: 0.6;
+    margin-right: 5px;
+    width: 18px;
+    height: 18px;
+  }
+`;
+
+const PhotoBoxInfo = styled.div`
+  width: 100%;
+  height: 30px;
+  background-color: rgba(255, 255, 255, 0.5);
+  align-self: flex-end;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  justify-content: space-between;
 `;

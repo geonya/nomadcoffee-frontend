@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Layout from '../components/Layout';
 import { useSeeCafesQuery } from '../generated/graphql';
@@ -42,7 +42,6 @@ export default function Home() {
         }
       });
     });
-
     async function getMyLocation() {
       // navigator.geolocation 없다면 null을 반환하고 조건식의 결과는 false
       if (navigator.geolocation) {
@@ -52,7 +51,6 @@ export default function Home() {
         });
       }
     }
-
     // 구면 코사인 법칙(Spherical Law of Cosine) 으로 두 위도/경도 지점의 거리를 구함
     // 반환 거리 단위 (km)
     function computeDistance(startCoords: any, destCoords: any) {
@@ -70,7 +68,6 @@ export default function Home() {
         ) * Radius;
       return distance;
     }
-
     function degreesToRadians(degrees: any) {
       const radians = (degrees * Math.PI) / 180;
       return radians;
@@ -88,7 +85,6 @@ export default function Home() {
       setClosestCafeIndex(minDistanceIndex);
     })();
   }, [data?.seeCafes]);
-
   return (
     <Layout>
       <Container id='container'>
@@ -115,15 +111,27 @@ export default function Home() {
           <TopCharacter>
             <TopCharacterImg src='https://nomadcoffeee.s3.ap-northeast-2.amazonaws.com/photos/cafe-character.png' />
           </TopCharacter>
-          {closestCafeIndex ? (
+          <Link
+            to={`/cafe/${
+              closestCafeIndex
+                ? data?.seeCafes![closestCafeIndex]?.id
+                : data?.seeCafes![0]?.id
+            }`}
+          >
             <MainCafeBox>
               <MainCafeImg
-                src={data?.seeCafes![closestCafeIndex]?.photos![0]?.url}
+                src={
+                  closestCafeIndex
+                    ? data?.seeCafes![closestCafeIndex]?.photos![0]?.url
+                    : data?.seeCafes![0]?.photos![0]?.url
+                }
               />
               <MainCafeTitleBox>
                 <h4>The nearest cafe right now</h4>
                 <MainCafeTitle>
-                  {data?.seeCafes![closestCafeIndex]?.name}
+                  {closestCafeIndex
+                    ? data?.seeCafes![closestCafeIndex]?.name
+                    : data?.seeCafes![0]?.name}
                 </MainCafeTitle>
                 <MainCafeLocation>
                   <svg
@@ -136,19 +144,23 @@ export default function Home() {
                     <path d='M0 0h24v24H0V0z' fill='none' />
                     <path d='M21 3L3 10.53v.98l6.84 2.65L12.48 21h.98L21 3z' />
                   </svg>
-                  <span>
-                    {distanceArray[closestCafeIndex] < 0.009
-                      ? 0 + ' m'
-                      : distanceArray[closestCafeIndex] < 0.1
-                      ? distanceArray[closestCafeIndex]
-                          .toString()
-                          .substring(4, 6) + ' m'
-                      : distanceArray[closestCafeIndex].toFixed(2) + ' km'}
-                  </span>
+                  {closestCafeIndex ? (
+                    <span>
+                      {distanceArray[closestCafeIndex] < 0.009
+                        ? 0 + ' m'
+                        : distanceArray[closestCafeIndex] < 0.1
+                        ? distanceArray[closestCafeIndex]
+                            .toString()
+                            .substring(4, 6) + ' m'
+                        : distanceArray[closestCafeIndex].toFixed(2) + ' km'}
+                    </span>
+                  ) : (
+                    <ClipLoader size={12} />
+                  )}
                 </MainCafeLocation>
               </MainCafeTitleBox>
             </MainCafeBox>
-          ) : null}
+          </Link>
         </Top>
         <CafesContainer>
           {!loading && data && data.seeCafes && (
