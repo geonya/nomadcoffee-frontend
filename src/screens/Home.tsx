@@ -6,7 +6,7 @@ import { routes } from '../sharedData';
 import CafeBox from '../components/CafeBox';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { ClipLoader } from 'react-spinners';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Home() {
   const navigation = useNavigate();
@@ -14,6 +14,8 @@ export default function Home() {
     variables: { offset: 0 },
   });
   const [fetchLoading, setFetchLoading] = useState(true);
+  const [distanceArray, setDistanceArray] = useState<number[]>([]);
+  const [closestCafeIndex, setClosestCafeIndex] = useState<null | number>(null);
   const onLoadMore = () => {
     setFetchLoading(true);
     fetchMore({
@@ -23,6 +25,70 @@ export default function Home() {
     });
     setFetchLoading(false);
   };
+  const cacluateDistance = async (address: string) => {
+    const geocoder = new kakao.maps.services.Geocoder();
+    return new Promise((resolve) => {
+      geocoder.addressSearch(address, async (result, status) => {
+        if (status === kakao.maps.services.Status.OK) {
+          const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+          const ourCoords = {
+            latitude: coords.getLat(), //위도
+            longitude: coords.getLng(), //경도
+          };
+          const distance = await getMyLocation().then((position: any) =>
+            computeDistance(position.coords, ourCoords)
+          );
+          resolve(distance);
+        }
+      });
+    });
+
+    async function getMyLocation() {
+      // navigator.geolocation 없다면 null을 반환하고 조건식의 결과는 false
+      if (navigator.geolocation) {
+        //getCurrentPosition(successhandler, errorHandler, option)
+        return new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject);
+        });
+      }
+    }
+
+    // 구면 코사인 법칙(Spherical Law of Cosine) 으로 두 위도/경도 지점의 거리를 구함
+    // 반환 거리 단위 (km)
+    function computeDistance(startCoords: any, destCoords: any) {
+      const startLatRads = degreesToRadians(startCoords.latitude);
+      const startLongRads = degreesToRadians(startCoords.longitude);
+      const destLatRads = degreesToRadians(destCoords.latitude);
+      const destLongRads = degreesToRadians(destCoords.longitude);
+      const Radius = 6371; //지구의 반경(km)
+      const distance =
+        Math.acos(
+          Math.sin(startLatRads) * Math.sin(destLatRads) +
+            Math.cos(startLatRads) *
+              Math.cos(destLatRads) *
+              Math.cos(startLongRads - destLongRads)
+        ) * Radius;
+      return distance;
+    }
+
+    function degreesToRadians(degrees: any) {
+      const radians = (degrees * Math.PI) / 180;
+      return radians;
+    }
+  };
+  useEffect(() => {
+    (async () => {
+      if (!data?.seeCafes) return;
+      const distanceArray = (await Promise.all(
+        data?.seeCafes?.map((cafe) => cacluateDistance(cafe?.address as string))
+      )) as number[];
+      setDistanceArray([...distanceArray]);
+      const minDistance = Math.min(...(distanceArray as number[]));
+      const minDistanceIndex = distanceArray.indexOf(minDistance);
+      setClosestCafeIndex(minDistanceIndex);
+    })();
+  }, [data?.seeCafes]);
+
   return (
     <Layout>
       <Container id='container'>
@@ -43,31 +109,46 @@ export default function Home() {
                   clipRule='evenodd'
                 ></path>
               </svg>
-              <span>22 cafes near you</span>
+              <span>{distanceArray.length} cafes near you</span>
             </TopLocation>
           </TopTitle>
           <TopCharacter>
             <TopCharacterImg src='https://nomadcoffeee.s3.ap-northeast-2.amazonaws.com/photos/cafe-character.png' />
           </TopCharacter>
-          <MainCafeBox>
-            <MainCafeImg src='https://nomadcoffeee.s3.ap-northeast-2.amazonaws.com/photos/maincafe-img.jpeg' />
-            <MainCafeTitleBox>
-              <MainCafeTitle>Grain Square Cafe</MainCafeTitle>
-              <MainCafeLocation>
-                <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  height='24px'
-                  viewBox='0 0 24 24'
-                  width='24px'
-                  fill='#000000'
-                >
-                  <path d='M0 0h24v24H0V0z' fill='none' />
-                  <path d='M21 3L3 10.53v.98l6.84 2.65L12.48 21h.98L21 3z' />
-                </svg>{' '}
-                500 m
-              </MainCafeLocation>
-            </MainCafeTitleBox>
-          </MainCafeBox>
+          {closestCafeIndex ? (
+            <MainCafeBox>
+              <MainCafeImg
+                src={data?.seeCafes![closestCafeIndex]?.photos![0]?.url}
+              />
+              <MainCafeTitleBox>
+                <h4>The nearest cafe right now</h4>
+                <MainCafeTitle>
+                  {data?.seeCafes![closestCafeIndex]?.name}
+                </MainCafeTitle>
+                <MainCafeLocation>
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    height='24px'
+                    viewBox='0 0 24 24'
+                    width='24px'
+                    fill='#000000'
+                  >
+                    <path d='M0 0h24v24H0V0z' fill='none' />
+                    <path d='M21 3L3 10.53v.98l6.84 2.65L12.48 21h.98L21 3z' />
+                  </svg>
+                  <span>
+                    {distanceArray[closestCafeIndex] < 0.009
+                      ? 0 + ' m'
+                      : distanceArray[closestCafeIndex] < 0.1
+                      ? distanceArray[closestCafeIndex]
+                          .toString()
+                          .substring(4, 6) + ' m'
+                      : distanceArray[closestCafeIndex].toFixed(2) + ' km'}
+                  </span>
+                </MainCafeLocation>
+              </MainCafeTitleBox>
+            </MainCafeBox>
+          ) : null}
         </Top>
         <CafesContainer>
           {!loading && data && data.seeCafes && (
@@ -90,7 +171,7 @@ export default function Home() {
               scrollableTarget='container'
             >
               {data.seeCafes.map((cafe, i) => (
-                <CafeBox {...cafe} key={i} />
+                <CafeBox {...cafe} key={i} distance={distanceArray[i]} />
               ))}
             </InfiniteScroll>
           )}
@@ -179,15 +260,18 @@ const MainCafeImg = styled.img`
 `;
 const MainCafeTitleBox = styled.div`
   padding-left: 135px;
-  padding-top: 15px;
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
   line-height: 1.5;
+  h4 {
+    font-size: 10px;
+    font-weight: 600;
+  }
 `;
-const MainCafeTitle = styled.span`
+const MainCafeTitle = styled.h1`
   font-size: 15px;
   font-weight: 600;
 `;

@@ -20,6 +20,7 @@ interface CafeBoxProps {
     username: string;
     avatarUrl?: string | null;
   };
+  distance: number;
 }
 export default function CafeBox({
   id,
@@ -29,6 +30,7 @@ export default function CafeBox({
   countLikes,
   isLiked,
   categories,
+  distance,
 }: CafeBoxProps) {
   const [toggleLikeMutation, { loading }] = useToggleLikeMutation({
     update: (cache, result) => {
@@ -64,6 +66,15 @@ export default function CafeBox({
           <Link to={`/cafe/${id}`}>
             <CafeTitle>{name}</CafeTitle>
           </Link>
+          {distance ? (
+            <span>
+              {distance < 0.009
+                ? 0 + ' m'
+                : distance < 0.1
+                ? distance?.toString().substring(4, 6) + ' m'
+                : distance?.toFixed(2) + ' km'}
+            </span>
+          ) : null}
           <LikeBox>
             <LikeButton onClick={() => toggleLike(id!)}>
               <svg
