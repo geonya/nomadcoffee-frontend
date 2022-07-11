@@ -142,7 +142,7 @@ const Add = () => {
     if (addCategoryModal === true) {
       setFocus('name');
     }
-  }, [addCategoryModal]);
+  }, [addCategoryModal, setFocus]);
   return (
     <Layout>
       <Wrapper>
