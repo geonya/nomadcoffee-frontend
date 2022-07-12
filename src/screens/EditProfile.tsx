@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { ClipLoader } from 'react-spinners';
 import styled from 'styled-components';
 import SubmitButton from '../components/buttons/SubmitButton';
 import FormError from '../components/FormError';
@@ -61,7 +60,7 @@ export default function EditProfile() {
     if (data?.seeMyProfile.email) {
       setValue('email', data.seeMyProfile.email);
     }
-  }, [data]);
+  }, [data, setValue]);
   return (
     // node
     <Layout>
