@@ -174,9 +174,9 @@ const CafeDescription = styled.span`
 `;
 const CafeCreator = styled.span`
   margin-left: 5px;
+  font-size: 11px;
 `;
 const CategoriesListBox = styled.div`
-  margin-top: 5px;
   width: 100%;
 `;
 

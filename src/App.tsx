@@ -6,45 +6,50 @@ import Home from './screens/Home';
 import Login from './screens/Login';
 import Add from './screens/Add';
 import SignUp from './screens/SignUp';
-import { routes } from './sharedData';
+import { routes } from './routes';
 import { darkTheme, GlobalStyles, lightTheme } from './styles';
 import Cafe from './screens/Cafe';
 import Category from './screens/Category';
 import Search from './screens/Search';
 import Notification from './screens/Notification';
 import Profile from './screens/Profile';
+import EditProfile from './screens/EditProfile';
 
 function App() {
-	const isDarkMode = useReactiveVar(darkModeVar);
-	const isLoggedIn = useReactiveVar(isLoggedInVar);
-	return (
-		<ApolloProvider client={client}>
-			<ThemeProvider theme={isDarkMode ? darkTheme : lightTheme}>
-				<GlobalStyles />
-				<BrowserRouter basename={process.env.PUBLIC_URL}>
-					<Routes>
-						<Route
-							path={routes.home}
-							element={isLoggedIn ? <Home /> : <Login />}
-						/>
-						{!isLoggedIn ? (
-							<Route path={routes.signUp} element={<SignUp />} />
-						) : null}
-						<Route path={routes.add} element={<Add />} />
-						<Route path={routes.cafe} element={<Cafe />} />
-						<Route path={routes.search} element={<Search />} />
-						<Route path={routes.notification} element={<Notification />} />
-						<Route path={routes.category} element={<Category />} />
-						<Route
-							path={routes.user}
-							element={isLoggedIn ? <Profile /> : <Login />}
-						/>
-						<Route path={'*'} element={<>Page Not found</>} />
-					</Routes>
-				</BrowserRouter>
-			</ThemeProvider>
-		</ApolloProvider>
-	);
+  const isDarkMode = useReactiveVar(darkModeVar);
+  const isLoggedIn = useReactiveVar(isLoggedInVar);
+  return (
+    <ApolloProvider client={client}>
+      <ThemeProvider theme={isDarkMode ? darkTheme : lightTheme}>
+        <GlobalStyles />
+        <BrowserRouter basename={process.env.PUBLIC_URL}>
+          <Routes>
+            <Route
+              path={routes.home}
+              element={isLoggedIn ? <Home /> : <Login />}
+            />
+            {!isLoggedIn ? (
+              <Route path={routes.signUp} element={<SignUp />} />
+            ) : null}
+            <Route path={routes.add} element={<Add />} />
+            <Route path={routes.cafe} element={<Cafe />} />
+            <Route path={routes.search} element={<Search />} />
+            <Route path={routes.notification} element={<Notification />} />
+            <Route path={routes.category} element={<Category />} />
+            <Route
+              path={routes.user}
+              element={isLoggedIn ? <Profile /> : <Login />}
+            />
+            <Route
+              path={routes.editProfile}
+              element={isLoggedIn ? <EditProfile /> : <Login />}
+            />
+            <Route path={'*'} element={<>Page Not found</>} />
+          </Routes>
+        </BrowserRouter>
+      </ThemeProvider>
+    </ApolloProvider>
+  );
 }
 
 export default App;

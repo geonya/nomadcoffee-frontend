@@ -10,7 +10,7 @@ import {
   useCreateCafeMutation,
   useSeeCategoriesQuery,
 } from '../generated/graphql';
-import { routes } from '../sharedData';
+import { routes } from '../routes';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { Variants } from 'framer-motion';
 import DaumPostcodeEmbed, { type Address } from 'react-daum-postcode';
@@ -111,8 +111,8 @@ const Add = () => {
   };
 
   const onSubmitValid: SubmitHandler<AddFormValues> = async (data) => {
-    let coords = null;
     if (loading) return;
+    let coords = null;
     const files = Array.from(data.files);
     const categories = pickCategories.map((name) => createCategoryObj(name));
     if (data.address) {
@@ -395,6 +395,9 @@ const Add = () => {
 };
 
 export default Add;
+
+// css
+
 const Wrapper = styled.div`
   padding: 20px;
 `;

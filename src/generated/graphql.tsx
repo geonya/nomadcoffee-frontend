@@ -124,10 +124,10 @@ export type MutationEditCafeArgs = {
 
 
 export type MutationEditProfileArgs = {
+  address?: InputMaybe<Scalars['String']>;
   avatar?: InputMaybe<Scalars['Upload']>;
   email?: InputMaybe<Scalars['String']>;
   githubUsername?: InputMaybe<Scalars['String']>;
-  location?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
   password?: InputMaybe<Scalars['String']>;
   username?: InputMaybe<Scalars['String']>;
@@ -164,7 +164,7 @@ export type Query = {
   seeCategories?: Maybe<Array<Maybe<Category>>>;
   seeCategory?: Maybe<Array<Maybe<Cafe>>>;
   seeMyProfile: User;
-  seeUser?: Maybe<User>;
+  seeUser?: Maybe<SeeUserResult>;
 };
 
 
@@ -196,7 +196,6 @@ export type QuerySeeCategoryArgs = {
 
 
 export type QuerySeeUserArgs = {
-  page: Scalars['Int'];
   username: Scalars['String'];
 };
 
@@ -207,8 +206,15 @@ export type SearchUserResult = {
   totalPages?: Maybe<Scalars['Int']>;
 };
 
+export type SeeUserResult = {
+  __typename?: 'SeeUserResult';
+  isMe?: Maybe<Scalars['Boolean']>;
+  user?: Maybe<User>;
+};
+
 export type User = {
   __typename?: 'User';
+  address?: Maybe<Scalars['String']>;
   avatarUrl?: Maybe<Scalars['String']>;
   cafes?: Maybe<Array<Maybe<Cafe>>>;
   countCafes: Scalars['Int'];
@@ -219,7 +225,6 @@ export type User = {
   githubUsername?: Maybe<Scalars['String']>;
   givenLikes: Scalars['Int'];
   id: Scalars['Int'];
-  location?: Maybe<Scalars['String']>;
   name: Scalars['String'];
   password: Scalars['String'];
   photos?: Maybe<Array<Maybe<CafePhoto>>>;
@@ -238,7 +243,7 @@ export type CreateCafeResult = {
 
 export type CafeFragmentFragment = { __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } };
 
-export type UserFragmentFragment = { __typename?: 'User', id: number, username: string, avatarUrl?: string | null, email: string, countCafes: number, givenLikes: number };
+export type UserFragmentFragment = { __typename?: 'User', id: number, username: string, name: string, avatarUrl?: string | null, email: string, address?: string | null, countCafes: number, givenLikes: number, totalFollowing: number, totalFollowers: number };
 
 export type SeeCafesQueryVariables = Exact<{
   offset: Scalars['Int'];
@@ -257,12 +262,19 @@ export type SeeCafeQuery = { __typename?: 'Query', seeCafe?: { __typename?: 'Caf
 export type SeeMyProfileQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SeeMyProfileQuery = { __typename?: 'Query', seeMyProfile: { __typename?: 'User', id: number, username: string, avatarUrl?: string | null, email: string, countCafes: number, givenLikes: number, cafes?: Array<{ __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } } | null> | null } };
+export type SeeMyProfileQuery = { __typename?: 'Query', seeMyProfile: { __typename?: 'User', id: number, username: string, name: string, avatarUrl?: string | null, email: string, address?: string | null, countCafes: number, givenLikes: number, totalFollowing: number, totalFollowers: number, cafes?: Array<{ __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } } | null> | null } };
 
 export type SeeCategoriesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type SeeCategoriesQuery = { __typename?: 'Query', seeCategories?: Array<{ __typename?: 'Category', name: string, slug: string, totalCafes: number } | null> | null };
+
+export type SeeUserQueryVariables = Exact<{
+  username: Scalars['String'];
+}>;
+
+
+export type SeeUserQuery = { __typename?: 'Query', seeUser?: { __typename?: 'SeeUserResult', isMe?: boolean | null, user?: { __typename?: 'User', id: number, username: string, name: string, avatarUrl?: string | null, email: string, address?: string | null, countCafes: number, givenLikes: number, totalFollowing: number, totalFollowers: number, cafes?: Array<{ __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } } | null> | null, photos?: Array<{ __typename?: 'CafePhoto', url: string, cafe?: { __typename?: 'Cafe', id: number } | null } | null> | null } | null } | null };
 
 export type LoginMutationVariables = Exact<{
   username: Scalars['String'];
@@ -281,6 +293,19 @@ export type CreateAccountMutationVariables = Exact<{
 
 
 export type CreateAccountMutation = { __typename?: 'Mutation', createAccount?: { __typename?: 'MutationResponse', ok: boolean, error?: string | null } | null };
+
+export type EditProfileMutationVariables = Exact<{
+  username?: InputMaybe<Scalars['String']>;
+  name?: InputMaybe<Scalars['String']>;
+  email?: InputMaybe<Scalars['String']>;
+  password?: InputMaybe<Scalars['String']>;
+  avatar?: InputMaybe<Scalars['Upload']>;
+  githubUsername?: InputMaybe<Scalars['String']>;
+  address?: InputMaybe<Scalars['String']>;
+}>;
+
+
+export type EditProfileMutation = { __typename?: 'Mutation', editProfile?: { __typename?: 'MutationResponse', ok: boolean, error?: string | null } | null };
 
 export type CreateCafeMutationVariables = Exact<{
   name: Scalars['String'];
@@ -354,10 +379,14 @@ export const UserFragmentFragmentDoc = gql`
     fragment UserFragment on User {
   id
   username
+  name
   avatarUrl
   email
+  address
   countCafes
   givenLikes
+  totalFollowing
+  totalFollowers
 }
     `;
 export const SeeCafesDocument = gql`
@@ -504,6 +533,54 @@ export function useSeeCategoriesLazyQuery(baseOptions?: Apollo.LazyQueryHookOpti
 export type SeeCategoriesQueryHookResult = ReturnType<typeof useSeeCategoriesQuery>;
 export type SeeCategoriesLazyQueryHookResult = ReturnType<typeof useSeeCategoriesLazyQuery>;
 export type SeeCategoriesQueryResult = Apollo.QueryResult<SeeCategoriesQuery, SeeCategoriesQueryVariables>;
+export const SeeUserDocument = gql`
+    query SeeUser($username: String!) {
+  seeUser(username: $username) {
+    user {
+      ...UserFragment
+      cafes {
+        ...CafeFragment
+      }
+      photos {
+        url
+        cafe {
+          id
+        }
+      }
+    }
+    isMe
+  }
+}
+    ${UserFragmentFragmentDoc}
+${CafeFragmentFragmentDoc}`;
+
+/**
+ * __useSeeUserQuery__
+ *
+ * To run a query within a React component, call `useSeeUserQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSeeUserQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSeeUserQuery({
+ *   variables: {
+ *      username: // value for 'username'
+ *   },
+ * });
+ */
+export function useSeeUserQuery(baseOptions: Apollo.QueryHookOptions<SeeUserQuery, SeeUserQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SeeUserQuery, SeeUserQueryVariables>(SeeUserDocument, options);
+      }
+export function useSeeUserLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SeeUserQuery, SeeUserQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SeeUserQuery, SeeUserQueryVariables>(SeeUserDocument, options);
+        }
+export type SeeUserQueryHookResult = ReturnType<typeof useSeeUserQuery>;
+export type SeeUserLazyQueryHookResult = ReturnType<typeof useSeeUserLazyQuery>;
+export type SeeUserQueryResult = Apollo.QueryResult<SeeUserQuery, SeeUserQueryVariables>;
 export const LoginDocument = gql`
     mutation Login($username: String!, $password: String!) {
   login(username: $username, password: $password) {
@@ -582,6 +659,54 @@ export function useCreateAccountMutation(baseOptions?: Apollo.MutationHookOption
 export type CreateAccountMutationHookResult = ReturnType<typeof useCreateAccountMutation>;
 export type CreateAccountMutationResult = Apollo.MutationResult<CreateAccountMutation>;
 export type CreateAccountMutationOptions = Apollo.BaseMutationOptions<CreateAccountMutation, CreateAccountMutationVariables>;
+export const EditProfileDocument = gql`
+    mutation EditProfile($username: String, $name: String, $email: String, $password: String, $avatar: Upload, $githubUsername: String, $address: String) {
+  editProfile(
+    username: $username
+    name: $name
+    email: $email
+    password: $password
+    avatar: $avatar
+    githubUsername: $githubUsername
+    address: $address
+  ) {
+    ok
+    error
+  }
+}
+    `;
+export type EditProfileMutationFn = Apollo.MutationFunction<EditProfileMutation, EditProfileMutationVariables>;
+
+/**
+ * __useEditProfileMutation__
+ *
+ * To run a mutation, you first call `useEditProfileMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useEditProfileMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [editProfileMutation, { data, loading, error }] = useEditProfileMutation({
+ *   variables: {
+ *      username: // value for 'username'
+ *      name: // value for 'name'
+ *      email: // value for 'email'
+ *      password: // value for 'password'
+ *      avatar: // value for 'avatar'
+ *      githubUsername: // value for 'githubUsername'
+ *      address: // value for 'address'
+ *   },
+ * });
+ */
+export function useEditProfileMutation(baseOptions?: Apollo.MutationHookOptions<EditProfileMutation, EditProfileMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<EditProfileMutation, EditProfileMutationVariables>(EditProfileDocument, options);
+      }
+export type EditProfileMutationHookResult = ReturnType<typeof useEditProfileMutation>;
+export type EditProfileMutationResult = Apollo.MutationResult<EditProfileMutation>;
+export type EditProfileMutationOptions = Apollo.BaseMutationOptions<EditProfileMutation, EditProfileMutationVariables>;
 export const CreateCafeDocument = gql`
     mutation CreateCafe($name: String!, $files: [Upload]!, $categories: [CategoryInput], $address: String, $description: String, $latitude: Float, $longitude: Float) {
   createCafe(

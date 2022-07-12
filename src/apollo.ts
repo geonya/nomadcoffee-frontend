@@ -1,5 +1,5 @@
 import { ApolloClient, InMemoryCache, makeVar } from '@apollo/client';
-import { DARK_MODE, routes, TOKEN } from './sharedData';
+import { DARK_MODE, routes, TOKEN } from './routes';
 import { createUploadLink } from 'apollo-upload-client';
 import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
@@ -64,6 +64,7 @@ export const client = new ApolloClient({
           seeCafes: offsetLimitPagination(),
         },
       },
+      User: {},
       Cafe: {
         keyFields: (obj) => `Cafe:${obj.id}`,
         fields: {

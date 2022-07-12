@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 
-export const CAFE_FRAGMENT = gql`
+const CAFE_FRAGMENT = gql`
   fragment CafeFragment on Cafe {
     id
     name
@@ -23,14 +23,18 @@ export const CAFE_FRAGMENT = gql`
   }
 `;
 
-export const USER_FRAGMENT = gql`
+const USER_FRAGMENT = gql`
   fragment UserFragment on User {
     id
     username
+    name
     avatarUrl
     email
+    address
     countCafes
     givenLikes
+    totalFollowing
+    totalFollowers
   }
 `;
 
@@ -66,6 +70,25 @@ gql`
 			totalCafes
 		}
 	}
+	query SeeUser($username: String!) {
+  seeUser(username: $username) {
+    user {
+      ...UserFragment
+			cafes {
+			...CafeFragment
+			}
+      photos {
+        url
+        cafe {
+          id
+        }
+      }
+    }
+		isMe
+  }
+	${CAFE_FRAGMENT}
+	${USER_FRAGMENT}
+}
 `;
 
 // muation
@@ -93,6 +116,12 @@ gql`
 			error
 		}
 	}
+	mutation EditProfile($username: String, $name: String, $email: String, $password: String, $avatar: Upload, $githubUsername: String, $address: String) {
+  editProfile(username: $username, name: $name, email: $email, password: $password, avatar: $avatar, githubUsername: $githubUsername, address: $address) {
+    ok
+    error
+  }
+}
 	mutation CreateCafe(
 		$name: String!
 		$files: [Upload]!

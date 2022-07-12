@@ -1,11 +1,12 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import Layout from '../components/Layout';
 import { useSeeCafeQuery, useToggleLikeMutation } from '../generated/graphql';
 
 export default function Cafe() {
+  const navigate = useNavigate();
   const [modalPhoto, setModalPhoto] = useState('');
   const { id: cafeId } = useParams();
 
@@ -61,6 +62,21 @@ export default function Cafe() {
   return (
     <Layout hasHeader={false}>
       <Wrapper>
+        <HeaderBtn onClick={() => navigate('..', { replace: true })}>
+          <svg
+            fill='none'
+            stroke='currentColor'
+            viewBox='0 0 24 24'
+            xmlns='http://www.w3.org/2000/svg'
+          >
+            <path
+              strokeLinecap='round'
+              strokeLinejoin='round'
+              strokeWidth='2'
+              d='M15 19l-7-7 7-7'
+            />
+          </svg>
+        </HeaderBtn>
         <Map id='map'></Map>
         <CafeContent>
           <CafeInfoBox>
@@ -230,4 +246,16 @@ const ModalBackground = styled(motion.div)`
   background-color: rgba(0, 0, 0, 0.5);
   display: grid;
   place-content: center;
+`;
+
+const HeaderBtn = styled.button`
+  position: absolute;
+  padding: 20px;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  svg {
+    width: 30px;
+    height: 30px;
+  }
 `;

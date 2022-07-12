@@ -1,13 +1,14 @@
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useLocation } from 'react-router-dom';
 import { logUserIn } from '../apollo';
+import AuthForm from '../components/auth/AuthForm';
 import AuthInput from '../components/auth/AuthInput';
 import AuthLayout from '../components/auth/AuthLayout';
 import { AuthFooter, AuthTitle } from '../components/auth/AuthStyles';
 import SubmitButton from '../components/buttons/SubmitButton';
 import FormError from '../components/FormError';
 import { useLoginMutation } from '../generated/graphql';
-import { routes } from '../sharedData';
+import { routes } from '../routes';
 import { SignUpState } from './SignUp';
 
 interface LoginFormValues {
@@ -46,7 +47,7 @@ export default function Login() {
   return (
     <AuthLayout>
       <AuthTitle>{state?.message || 'Welcome to Nomad Coffee'}</AuthTitle>
-      <form onSubmit={handleSubmit(onValid)}>
+      <AuthForm onSubmit={handleSubmit(onValid)}>
         <AuthInput
           {...register('username', {
             required: '이름을 입력해주세요.',
@@ -90,7 +91,7 @@ export default function Login() {
           disabled={loading}
         />
         <FormError message={errors.result?.message} />
-      </form>
+      </AuthForm>
       <AuthFooter>
         Don't you have account?
         <a href={routes.signUp}>Sign Up</a>

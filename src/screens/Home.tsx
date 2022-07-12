@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Layout from '../components/Layout';
 import { useSeeCafesQuery } from '../generated/graphql';
-import { routes } from '../sharedData';
+import { routes } from '../routes';
 import CafeBox from '../components/CafeBox';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { ClipLoader } from 'react-spinners';
@@ -84,7 +84,7 @@ export default function Home() {
     })();
   }, [data?.seeCafes]);
   return (
-    <Layout>
+    <Layout needMenu={true}>
       <Container id='container'>
         <Top>
           <TopTitle>
@@ -205,7 +205,7 @@ export default function Home() {
 }
 const Top = styled.div`
   width: 100%;
-  padding: 50px 30px;
+  padding: 30px 30px;
   padding-bottom: 60px;
   display: flex;
   align-items: center;

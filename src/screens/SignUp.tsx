@@ -1,12 +1,13 @@
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import AuthForm from '../components/auth/AuthForm';
 import AuthInput from '../components/auth/AuthInput';
 import AuthLayout from '../components/auth/AuthLayout';
 import { AuthFooter, AuthTitle } from '../components/auth/AuthStyles';
 import SubmitButton from '../components/buttons/SubmitButton';
 import FormError from '../components/FormError';
 import { useCreateAccountMutation } from '../generated/graphql';
-import { routes } from '../sharedData';
+import { routes } from '../routes';
 
 interface SignUpFormValues {
   username: string;
@@ -71,7 +72,7 @@ export default function SignUp() {
   return (
     <AuthLayout>
       <AuthTitle>Create Account</AuthTitle>
-      <form onSubmit={handleSubmit(onValid)}>
+      <AuthForm onSubmit={handleSubmit(onValid)}>
         <AuthInput
           {...register('name', {
             required: 'Name is required!',
@@ -153,7 +154,7 @@ export default function SignUp() {
           disabled={loading}
         />
         <FormError message={errors?.result?.message} />
-      </form>
+      </AuthForm>
       <AuthFooter>
         Have your account? Please <a href={routes.home}>Login</a>
       </AuthFooter>

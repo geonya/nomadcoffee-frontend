@@ -7,7 +7,7 @@ export const lightTheme: DefaultTheme = {
   fontColor: '#2c2c2c',
   bgColor: '#FAFAFA',
   pointColor: '#ffc426',
-  boxShadow: 'rgba(0, 0, 0, 0.16) 0px 10px 36px 0px',
+  boxShadow: '0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08)',
   red: 'tomato',
   checkedColor: '#8b4513',
 };
@@ -17,7 +17,7 @@ export const darkTheme: DefaultTheme = {
   fontColor: '#FAFAFA',
   bgColor: '#2c2c2c',
   pointColor: '#ffc426',
-  boxShadow: 'rgba(0, 0, 0, 0.06) 0px 0px 0px 1px',
+  boxShadow: '0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08)',
   red: 'tomato',
   checkedColor: '#8b4513',
 };
