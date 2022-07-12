@@ -76,7 +76,7 @@ export default function CafeBox({
                   {distance < 0.009
                     ? 0 + ' m'
                     : distance < 0.1
-                    ? distance?.toString().substring(4, 6) + ' m'
+                    ? distance?.toString()?.substring(4, 6) + ' m'
                     : distance?.toFixed(1) + ' km'}
                 </span>
               ) : (

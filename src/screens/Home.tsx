@@ -152,9 +152,9 @@ export default function Home() {
                         ? 0 + ' m'
                         : distanceArray[closestCafeIndex] < 0.1
                         ? distanceArray[closestCafeIndex]
-                            .toString()
-                            .substring(4, 6) + ' m'
-                        : distanceArray[closestCafeIndex].toFixed(1) + ' km'}
+                            ?.toString()
+                            ?.substring(4, 6) + ' m'
+                        : distanceArray[closestCafeIndex]?.toFixed(1) + ' km'}
                     </span>
                   ) : (
                     <ClipLoader size={12} />
@@ -271,6 +271,7 @@ const MainCafeImg = styled.img`
   height: 120px;
   border-radius: 50%;
   box-shadow: ${(props) => props.theme.boxShadow};
+  background-color: ${(props) => props.theme.bgColor};
 `;
 const MainCafeTitleBox = styled.div`
   padding-left: 135px;
