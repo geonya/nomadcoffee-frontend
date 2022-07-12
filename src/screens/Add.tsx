@@ -90,13 +90,39 @@ const Add = () => {
       navigation(routes.home);
     },
   });
-  const onSubmitValid: SubmitHandler<AddFormValues> = (data) => {
+
+  // 주소 -> 좌표
+  const getCoords = (address: string) => {
+    const geocoder = new kakao.maps.services.Geocoder();
+    return new Promise<{ latitude: number; longitude: number } | null>(
+      (resolve) => {
+        geocoder.addressSearch(address, async (result, status) => {
+          if (status === kakao.maps.services.Status.OK) {
+            const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+            const ourCoords = {
+              latitude: coords.getLat(), //위도
+              longitude: coords.getLng(), //경도
+            };
+            resolve(ourCoords);
+          }
+        });
+      }
+    );
+  };
+
+  const onSubmitValid: SubmitHandler<AddFormValues> = async (data) => {
+    let coords = null;
     if (loading) return;
     const files = Array.from(data.files);
     const categories = pickCategories.map((name) => createCategoryObj(name));
+    if (data.address) {
+      coords = await getCoords(data.address);
+    }
     createCafe({
       variables: {
         ...data,
+        latitude: coords?.latitude,
+        longitude: coords?.longitude,
         categories,
         files,
       },
@@ -242,7 +268,7 @@ const Add = () => {
               <input
                 type='file'
                 accept='image/*'
-                {...register('files')}
+                {...register('files', { required: 'You need to upload Photo' })}
                 multiple
               />
               <svg
@@ -316,7 +342,10 @@ const Add = () => {
               </CategoryAddButton>
             </CategoryList>
           </CategoryListBox>
-          <SubmitButton type='submit' value='Create' />
+          <SubmitButton
+            type='submit'
+            value={loading ? 'Loading...' : 'Submit'}
+          />
           <span>{errors.result?.message}</span>
         </CafeForm>
         <AnimatePresence>

@@ -5,6 +5,8 @@ export const CAFE_FRAGMENT = gql`
     id
     name
     address
+    latitude
+    longitude
     photos {
       url
     }
@@ -97,6 +99,8 @@ gql`
 		$categories: [CategoryInput]
 		$address: String
 		$description:String
+		$latitude:Float
+		$longitude:Float
 	) {
 		createCafe(
 			name: $name
@@ -104,6 +108,8 @@ gql`
 			categories: $categories
 			address: $address
 			description:$description
+			latitude:$latitude
+			longitude:$longitude
 		) {
 			ok
 			error

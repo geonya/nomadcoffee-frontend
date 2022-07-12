@@ -77,7 +77,7 @@ export default function CafeBox({
                     ? 0 + ' m'
                     : distance < 0.1
                     ? distance?.toString().substring(4, 6) + ' m'
-                    : distance?.toFixed(2) + ' km'}
+                    : distance?.toFixed(1) + ' km'}
                 </span>
               ) : (
                 <ClipLoader size={12} />

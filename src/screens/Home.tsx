@@ -25,22 +25,16 @@ export default function Home() {
     });
     setFetchLoading(false);
   };
-  const cacluateDistance = async (address: string) => {
-    const geocoder = new kakao.maps.services.Geocoder();
-    return new Promise((resolve) => {
-      geocoder.addressSearch(address, async (result, status) => {
-        if (status === kakao.maps.services.Status.OK) {
-          const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
-          const ourCoords = {
-            latitude: coords.getLat(), //위도
-            longitude: coords.getLng(), //경도
-          };
-          const distance = await getMyLocation().then((position: any) =>
-            computeDistance(position.coords, ourCoords)
-          );
-          resolve(distance);
-        }
-      });
+  const cacluateDistance = async (address: string, i: number) => {
+    return new Promise(async (resolve) => {
+      const ourCoords = {
+        latitude: data?.seeCafes![i]?.latitude,
+        longitude: data?.seeCafes![i]?.longitude,
+      };
+      const distance = await getMyLocation().then((position: any) =>
+        computeDistance(position.coords, ourCoords)
+      );
+      resolve(distance);
     });
     async function getMyLocation() {
       // navigator.geolocation 없다면 null을 반환하고 조건식의 결과는 false
@@ -76,10 +70,14 @@ export default function Home() {
   useEffect(() => {
     (async () => {
       if (!data?.seeCafes) return;
+      // 모든 카페 거리값들 배열로 정리
       const distanceArray = (await Promise.all(
-        data?.seeCafes?.map((cafe) => cacluateDistance(cafe?.address as string))
+        data?.seeCafes?.map((cafe, i) =>
+          cacluateDistance(cafe?.address as string, i)
+        )
       )) as number[];
       setDistanceArray([...distanceArray]);
+      // 가장 가까운 카페 구하기
       const minDistance = Math.min(...(distanceArray as number[]));
       const minDistanceIndex = distanceArray.indexOf(minDistance);
       setClosestCafeIndex(minDistanceIndex);
@@ -144,7 +142,7 @@ export default function Home() {
                     <path d='M0 0h24v24H0V0z' fill='none' />
                     <path d='M21 3L3 10.53v.98l6.84 2.65L12.48 21h.98L21 3z' />
                   </svg>
-                  {closestCafeIndex ? (
+                  {closestCafeIndex !== null ? (
                     <span>
                       {distanceArray[closestCafeIndex] < 0.009
                         ? 0 + ' m'
@@ -152,7 +150,7 @@ export default function Home() {
                         ? distanceArray[closestCafeIndex]
                             .toString()
                             .substring(4, 6) + ' m'
-                        : distanceArray[closestCafeIndex].toFixed(2) + ' km'}
+                        : distanceArray[closestCafeIndex].toFixed(1) + ' km'}
                     </span>
                   ) : (
                     <ClipLoader size={12} />

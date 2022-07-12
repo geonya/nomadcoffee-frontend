@@ -25,6 +25,8 @@ export type Cafe = {
   description?: Maybe<Scalars['String']>;
   id: Scalars['Int'];
   isLiked: Scalars['Boolean'];
+  latitude?: Maybe<Scalars['Float']>;
+  longitude?: Maybe<Scalars['Float']>;
   name: Scalars['String'];
   photos?: Maybe<Array<Maybe<CafePhoto>>>;
   updatedAt: Scalars['String'];
@@ -95,6 +97,8 @@ export type MutationCreateCafeArgs = {
   categories?: InputMaybe<Array<InputMaybe<CategoryInput>>>;
   description?: InputMaybe<Scalars['String']>;
   files?: InputMaybe<Array<InputMaybe<Scalars['Upload']>>>;
+  latitude?: InputMaybe<Scalars['Float']>;
+  longitude?: InputMaybe<Scalars['Float']>;
   name: Scalars['String'];
 };
 
@@ -232,7 +236,7 @@ export type CreateCafeResult = {
   ok: Scalars['Boolean'];
 };
 
-export type CafeFragmentFragment = { __typename?: 'Cafe', id: number, name: string, address?: string | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } };
+export type CafeFragmentFragment = { __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } };
 
 export type UserFragmentFragment = { __typename?: 'User', id: number, username: string, avatarUrl?: string | null, email: string, countCafes: number, givenLikes: number };
 
@@ -241,19 +245,19 @@ export type SeeCafesQueryVariables = Exact<{
 }>;
 
 
-export type SeeCafesQuery = { __typename?: 'Query', seeCafes?: Array<{ __typename?: 'Cafe', id: number, name: string, address?: string | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } } | null> | null };
+export type SeeCafesQuery = { __typename?: 'Query', seeCafes?: Array<{ __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } } | null> | null };
 
 export type SeeCafeQueryVariables = Exact<{
   cafeId: Scalars['Int'];
 }>;
 
 
-export type SeeCafeQuery = { __typename?: 'Query', seeCafe?: { __typename?: 'Cafe', id: number, name: string, address?: string | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } } | null };
+export type SeeCafeQuery = { __typename?: 'Query', seeCafe?: { __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } } | null };
 
 export type SeeMyProfileQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SeeMyProfileQuery = { __typename?: 'Query', seeMyProfile: { __typename?: 'User', id: number, username: string, avatarUrl?: string | null, email: string, countCafes: number, givenLikes: number, cafes?: Array<{ __typename?: 'Cafe', id: number, name: string, address?: string | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } } | null> | null } };
+export type SeeMyProfileQuery = { __typename?: 'Query', seeMyProfile: { __typename?: 'User', id: number, username: string, avatarUrl?: string | null, email: string, countCafes: number, givenLikes: number, cafes?: Array<{ __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } } | null> | null } };
 
 export type SeeCategoriesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -284,10 +288,12 @@ export type CreateCafeMutationVariables = Exact<{
   categories?: InputMaybe<Array<InputMaybe<CategoryInput>> | InputMaybe<CategoryInput>>;
   address?: InputMaybe<Scalars['String']>;
   description?: InputMaybe<Scalars['String']>;
+  latitude?: InputMaybe<Scalars['Float']>;
+  longitude?: InputMaybe<Scalars['Float']>;
 }>;
 
 
-export type CreateCafeMutation = { __typename?: 'Mutation', createCafe: { __typename?: 'createCafeResult', ok: boolean, error?: string | null, cafe?: { __typename?: 'Cafe', id: number, name: string, address?: string | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } } | null } };
+export type CreateCafeMutation = { __typename?: 'Mutation', createCafe: { __typename?: 'createCafeResult', ok: boolean, error?: string | null, cafe?: { __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } } | null } };
 
 export type EditCafeMutationVariables = Exact<{
   cafeId: Scalars['Int'];
@@ -327,6 +333,8 @@ export const CafeFragmentFragmentDoc = gql`
   id
   name
   address
+  latitude
+  longitude
   photos {
     url
   }
@@ -575,13 +583,15 @@ export type CreateAccountMutationHookResult = ReturnType<typeof useCreateAccount
 export type CreateAccountMutationResult = Apollo.MutationResult<CreateAccountMutation>;
 export type CreateAccountMutationOptions = Apollo.BaseMutationOptions<CreateAccountMutation, CreateAccountMutationVariables>;
 export const CreateCafeDocument = gql`
-    mutation CreateCafe($name: String!, $files: [Upload]!, $categories: [CategoryInput], $address: String, $description: String) {
+    mutation CreateCafe($name: String!, $files: [Upload]!, $categories: [CategoryInput], $address: String, $description: String, $latitude: Float, $longitude: Float) {
   createCafe(
     name: $name
     files: $files
     categories: $categories
     address: $address
     description: $description
+    latitude: $latitude
+    longitude: $longitude
   ) {
     ok
     error
@@ -611,6 +621,8 @@ export type CreateCafeMutationFn = Apollo.MutationFunction<CreateCafeMutation, C
  *      categories: // value for 'categories'
  *      address: // value for 'address'
  *      description: // value for 'description'
+ *      latitude: // value for 'latitude'
+ *      longitude: // value for 'longitude'
  *   },
  * });
  */
