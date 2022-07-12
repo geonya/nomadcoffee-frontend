@@ -30,11 +30,12 @@ export const toggleDarkMode = (isDarkMode: boolean) => {
 };
 
 const uploadHttpLink = createUploadLink({
-  uri:
-    process.env.NODE_ENV === 'production'
-      ? 'https://nomadcoffee-backend-geony.herokuapp.com/graphql'
-      : 'http://localhost:4321/graphql',
+  uri: 'https://nomadcoffee-backend-geony.herokuapp.com/graphql',
 });
+// process.env.NODE_ENV === 'production'
+// ? 'https://nomadcoffee-backend-geony.herokuapp.com/graphql'
+// : 'http://localhost:4321/graphql',
+
 const authLink = setContext((_, { headers }) => {
   return {
     headers: {

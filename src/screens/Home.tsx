@@ -146,7 +146,8 @@ export default function Home() {
                     <path d='M0 0h24v24H0V0z' fill='none' />
                     <path d='M21 3L3 10.53v.98l6.84 2.65L12.48 21h.98L21 3z' />
                   </svg>
-                  {closestCafeIndex !== null ? (
+                  {closestCafeIndex !== null &&
+                  distanceArray[closestCafeIndex] !== undefined ? (
                     <span>
                       {distanceArray[closestCafeIndex] < 0.009
                         ? 0 + ' m'
@@ -314,7 +315,7 @@ const AddBtn = styled.button`
   border-radius: 50%;
   position: absolute;
   right: 10px;
-  bottom: 80px;
+  bottom: 120px;
   width: 50px;
   height: 50px;
   box-shadow: ${(props) => props.theme.boxShadow};
