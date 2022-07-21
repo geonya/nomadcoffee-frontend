@@ -11,6 +11,7 @@ import {
 } from '../generated/graphql';
 import { useApolloClient } from '@apollo/client';
 import { useSeeMe } from '../hooks/useSeeMe';
+import CafesPhotoGridContainer from '../components/CafesPhotoGridContainer';
 
 interface ProfileBtn {
   isMe?: boolean | null;
@@ -124,15 +125,9 @@ export default function Profile() {
               Log Out
             </PointButton>
           )}
-          <PhotoGrid>
-            {data.seeUser.user?.cafes?.map((cafe, i) => (
-              <Photo
-                url={cafe?.photos ? cafe?.photos[0]?.url : undefined}
-                key={i}
-                onClick={() => navigate(`/cafe/${cafe?.id}`)}
-              />
-            ))}
-          </PhotoGrid>
+          {data.seeUser.user.cafes && (
+            <CafesPhotoGridContainer cafes={data.seeUser.user.cafes} />
+          )}
         </Container>
       )}
     </Layout>
@@ -183,20 +178,4 @@ const AvatarBox = styled.div`
   span {
     font-size: 14px;
   }
-`;
-
-const PhotoGrid = styled.div`
-  margin-top: 30px;
-  width: 100%;
-  display: grid;
-  grid-auto-rows: 100px;
-  grid-gap: 5px;
-  grid-template-columns: repeat(3, 1fr);
-`;
-const Photo = styled.div<{ url: string | undefined }>`
-  background-image: url(${(props) => props.url});
-  background-size: cover;
-  position: relative;
-  cursor: pointer;
-  border-radius: 10px;
 `;

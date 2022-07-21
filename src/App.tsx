@@ -11,7 +11,6 @@ import { darkTheme, GlobalStyles, lightTheme } from './styles';
 import Cafe from './screens/Cafe';
 import Category from './screens/Category';
 import Search from './screens/Search';
-import Notification from './screens/Notification';
 import Profile from './screens/Profile';
 import EditProfile from './screens/EditProfile';
 
@@ -34,7 +33,6 @@ function App() {
             <Route path={routes.add} element={<Add />} />
             <Route path={routes.cafe} element={<Cafe />} />
             <Route path={routes.search} element={<Search />} />
-            <Route path={routes.notification} element={<Notification />} />
             <Route path={routes.category} element={<Category />} />
             <Route
               path={routes.user}
@@ -44,6 +42,7 @@ function App() {
               path={routes.editProfile}
               element={isLoggedIn ? <EditProfile /> : <Login />}
             />
+            <Route path={routes.category} element={<Category />} />
             <Route path={'*'} element={<>Page Not found</>} />
           </Routes>
         </BrowserRouter>

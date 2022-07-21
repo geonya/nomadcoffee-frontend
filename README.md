@@ -39,10 +39,10 @@
 - [x] Change Name : CoffeeShop -> Cafe
 - [x] Pick Shop Location with Map API
 - [x] Multiple Upload Photo
-- [ ] My Profile Page
+- [x] My Profile Page
   - [x] Photo Grid
   - [x] Follow / UnFollow function
-- [ ] Search Page
+- [x] Search Page
 - [ ] Category -> Cafes List
 - [ ] Menu Modal using framer-motion
 - 메인 페이지로 갈 때마다 매번 user / cafe location coords 를 fetching 해야 하나 ?

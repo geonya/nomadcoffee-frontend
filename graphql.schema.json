@@ -1407,7 +1407,7 @@
             "description": null,
             "args": [
               {
-                "name": "name",
+                "name": "slug",
                 "description": null,
                 "type": {
                   "kind": "NON_NULL",
@@ -1415,22 +1415,6 @@
                   "ofType": {
                     "kind": "SCALAR",
                     "name": "String",
-                    "ofType": null
-                  }
-                },
-                "defaultValue": null,
-                "isDeprecated": false,
-                "deprecationReason": null
-              },
-              {
-                "name": "page",
-                "description": null,
-                "type": {
-                  "kind": "NON_NULL",
-                  "name": null,
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "Int",
                     "ofType": null
                   }
                 },

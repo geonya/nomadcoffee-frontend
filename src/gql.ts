@@ -13,6 +13,7 @@ const CAFE_FRAGMENT = gql`
     description
     categories {
       name
+      slug
     }
     user {
       username
@@ -63,6 +64,12 @@ gql`
 			}
 		}
 		${USER_FRAGMENT}
+		${CAFE_FRAGMENT}
+	}
+	query SeeCategory($slug:String!) {
+		seeCategory(slug:$slug) {
+			...CafeFragment
+		}
 		${CAFE_FRAGMENT}
 	}
 	query SeeCategories {

@@ -6,7 +6,7 @@ export const routes = {
   signUp: '/signup',
   add: '/add',
   cafe: '/cafe/:id',
-  category: '/category/:name',
+  category: '/category/:slug',
   user: '/users/:username',
   search: '/search',
   notification: '/noti',

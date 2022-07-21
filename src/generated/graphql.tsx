@@ -202,8 +202,7 @@ export type QuerySeeCafesArgs = {
 
 
 export type QuerySeeCategoryArgs = {
-  name: Scalars['String'];
-  page: Scalars['Int'];
+  slug: Scalars['String'];
 };
 
 
@@ -254,7 +253,7 @@ export type CreateCafeResult = {
   ok: Scalars['Boolean'];
 };
 
-export type CafeFragmentFragment = { __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } };
+export type CafeFragmentFragment = { __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string, slug: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } };
 
 export type UserFragmentFragment = { __typename?: 'User', id: number, username: string, name: string, avatarUrl?: string | null, email: string, address?: string | null, isMe?: boolean | null, isFollowing?: boolean | null, countCafes: number, givenLikes: number, totalFollowing: number, totalFollowers: number };
 
@@ -263,19 +262,26 @@ export type SeeCafesQueryVariables = Exact<{
 }>;
 
 
-export type SeeCafesQuery = { __typename?: 'Query', seeCafes?: Array<{ __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } } | null> | null };
+export type SeeCafesQuery = { __typename?: 'Query', seeCafes?: Array<{ __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string, slug: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } } | null> | null };
 
 export type SeeCafeQueryVariables = Exact<{
   cafeId: Scalars['Int'];
 }>;
 
 
-export type SeeCafeQuery = { __typename?: 'Query', seeCafe?: { __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } } | null };
+export type SeeCafeQuery = { __typename?: 'Query', seeCafe?: { __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string, slug: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } } | null };
 
 export type SeeMyProfileQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SeeMyProfileQuery = { __typename?: 'Query', seeMyProfile: { __typename?: 'User', id: number, username: string, name: string, avatarUrl?: string | null, email: string, address?: string | null, isMe?: boolean | null, isFollowing?: boolean | null, countCafes: number, givenLikes: number, totalFollowing: number, totalFollowers: number, cafes?: Array<{ __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } } | null> | null } };
+export type SeeMyProfileQuery = { __typename?: 'Query', seeMyProfile: { __typename?: 'User', id: number, username: string, name: string, avatarUrl?: string | null, email: string, address?: string | null, isMe?: boolean | null, isFollowing?: boolean | null, countCafes: number, givenLikes: number, totalFollowing: number, totalFollowers: number, cafes?: Array<{ __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string, slug: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } } | null> | null } };
+
+export type SeeCategoryQueryVariables = Exact<{
+  slug: Scalars['String'];
+}>;
+
+
+export type SeeCategoryQuery = { __typename?: 'Query', seeCategory?: Array<{ __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string, slug: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } } | null> | null };
 
 export type SeeCategoriesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -287,14 +293,14 @@ export type SeeUserQueryVariables = Exact<{
 }>;
 
 
-export type SeeUserQuery = { __typename?: 'Query', seeUser?: { __typename?: 'SeeUserResult', user?: { __typename?: 'User', id: number, username: string, name: string, avatarUrl?: string | null, email: string, address?: string | null, isMe?: boolean | null, isFollowing?: boolean | null, countCafes: number, givenLikes: number, totalFollowing: number, totalFollowers: number, cafes?: Array<{ __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } } | null> | null, photos?: Array<{ __typename?: 'CafePhoto', url: string, cafe?: { __typename?: 'Cafe', id: number } | null } | null> | null } | null } | null };
+export type SeeUserQuery = { __typename?: 'Query', seeUser?: { __typename?: 'SeeUserResult', user?: { __typename?: 'User', id: number, username: string, name: string, avatarUrl?: string | null, email: string, address?: string | null, isMe?: boolean | null, isFollowing?: boolean | null, countCafes: number, givenLikes: number, totalFollowing: number, totalFollowers: number, cafes?: Array<{ __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string, slug: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } } | null> | null, photos?: Array<{ __typename?: 'CafePhoto', url: string, cafe?: { __typename?: 'Cafe', id: number } | null } | null> | null } | null } | null };
 
 export type SearchCafesQueryVariables = Exact<{
   keyword: Scalars['String'];
 }>;
 
 
-export type SearchCafesQuery = { __typename?: 'Query', searchCafes?: Array<{ __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } } | null> | null };
+export type SearchCafesQuery = { __typename?: 'Query', searchCafes?: Array<{ __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string, slug: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } } | null> | null };
 
 export type LoginMutationVariables = Exact<{
   username: Scalars['String'];
@@ -338,7 +344,7 @@ export type CreateCafeMutationVariables = Exact<{
 }>;
 
 
-export type CreateCafeMutation = { __typename?: 'Mutation', createCafe: { __typename?: 'createCafeResult', ok: boolean, error?: string | null, cafe?: { __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } } | null } };
+export type CreateCafeMutation = { __typename?: 'Mutation', createCafe: { __typename?: 'createCafeResult', ok: boolean, error?: string | null, cafe?: { __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string, slug: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } } | null } };
 
 export type EditCafeMutationVariables = Exact<{
   cafeId: Scalars['Int'];
@@ -400,6 +406,7 @@ export const CafeFragmentFragmentDoc = gql`
   description
   categories {
     name
+    slug
   }
   user {
     username
@@ -533,6 +540,41 @@ export function useSeeMyProfileLazyQuery(baseOptions?: Apollo.LazyQueryHookOptio
 export type SeeMyProfileQueryHookResult = ReturnType<typeof useSeeMyProfileQuery>;
 export type SeeMyProfileLazyQueryHookResult = ReturnType<typeof useSeeMyProfileLazyQuery>;
 export type SeeMyProfileQueryResult = Apollo.QueryResult<SeeMyProfileQuery, SeeMyProfileQueryVariables>;
+export const SeeCategoryDocument = gql`
+    query SeeCategory($slug: String!) {
+  seeCategory(slug: $slug) {
+    ...CafeFragment
+  }
+}
+    ${CafeFragmentFragmentDoc}`;
+
+/**
+ * __useSeeCategoryQuery__
+ *
+ * To run a query within a React component, call `useSeeCategoryQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSeeCategoryQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSeeCategoryQuery({
+ *   variables: {
+ *      slug: // value for 'slug'
+ *   },
+ * });
+ */
+export function useSeeCategoryQuery(baseOptions: Apollo.QueryHookOptions<SeeCategoryQuery, SeeCategoryQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SeeCategoryQuery, SeeCategoryQueryVariables>(SeeCategoryDocument, options);
+      }
+export function useSeeCategoryLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SeeCategoryQuery, SeeCategoryQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SeeCategoryQuery, SeeCategoryQueryVariables>(SeeCategoryDocument, options);
+        }
+export type SeeCategoryQueryHookResult = ReturnType<typeof useSeeCategoryQuery>;
+export type SeeCategoryLazyQueryHookResult = ReturnType<typeof useSeeCategoryLazyQuery>;
+export type SeeCategoryQueryResult = Apollo.QueryResult<SeeCategoryQuery, SeeCategoryQueryVariables>;
 export const SeeCategoriesDocument = gql`
     query SeeCategories {
   seeCategories {

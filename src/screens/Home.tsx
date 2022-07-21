@@ -3,31 +3,19 @@ import styled from 'styled-components';
 import Layout from '../components/Layout';
 import { useSeeCafesQuery } from '../generated/graphql';
 import { routes } from '../routes';
-import CafeBox from '../components/CafeBox';
-import InfiniteScroll from 'react-infinite-scroll-component';
 import { ClipLoader } from 'react-spinners';
 import { useEffect, useState } from 'react';
 import Loading from '../components/Loading';
 import useCalculateDistance from '../libs/caculateDistance';
+import CafesContainer from '../components/CafesContainer';
 
 export default function Home() {
   const navigation = useNavigate();
   const { data, loading, fetchMore } = useSeeCafesQuery({
     variables: { offset: 0 },
   });
-  const [fetchLoading, setFetchLoading] = useState(true);
   const [distanceArray, setDistanceArray] = useState<number[]>([]);
   const [closestCafeIndex, setClosestCafeIndex] = useState<null | number>(null);
-  const onLoadMore = () => {
-    setFetchLoading(true);
-    fetchMore({
-      variables: {
-        offset: data?.seeCafes?.length,
-      },
-    });
-    setFetchLoading(false);
-  };
-
   const calculateDistance = useCalculateDistance({ data });
 
   useEffect(() => {
@@ -101,7 +89,6 @@ export default function Home() {
                     height='24px'
                     viewBox='0 0 24 24'
                     width='24px'
-                    fill='#000000'
                   >
                     <path d='M0 0h24v24H0V0z' fill='none' />
                     <path d='M21 3L3 10.53v.98l6.84 2.65L12.48 21h.98L21 3z' />
@@ -125,32 +112,16 @@ export default function Home() {
             </MainCafeBox>
           </Link>
         </Top>
-        <CafesContainer>
-          {!loading && data && data.seeCafes && (
-            <InfiniteScroll
-              dataLength={data.seeCafes.length}
-              next={onLoadMore}
-              hasMore={fetchLoading}
-              scrollThreshold={0.9}
-              loader={
-                <div
-                  style={{
-                    width: '100%',
-                    display: 'grid',
-                    placeContent: 'center',
-                  }}
-                >
-                  <ClipLoader />
-                </div>
-              }
-              scrollableTarget='container'
-            >
-              {data.seeCafes.map((cafe, i) => (
-                <CafeBox {...cafe} key={i} distance={distanceArray[i]} />
-              ))}
-            </InfiniteScroll>
-          )}
-        </CafesContainer>
+        {data && data.seeCafes ? (
+          <CafesContainer
+            cafes={data.seeCafes}
+            loading={loading}
+            fetchMore={fetchMore}
+            distanceArray={distanceArray}
+          />
+        ) : (
+          <Loading />
+        )}
         <AddBtn onClick={() => navigation(routes.add)}>
           <svg
             fill='currentColor'
@@ -252,21 +223,17 @@ const MainCafeTitle = styled.h1`
   font-weight: 600;
 `;
 const MainCafeLocation = styled.span`
-  opacity: 0.6;
+  opacity: 0.8;
   display: flex;
   align-items: center;
   font-size: 12px;
+  color: ${(props) => props.theme.fontColor};
   svg {
+    fill: ${(props) => props.theme.fontColor};
     margin-right: 6px;
     width: 18px;
     height: 18px;
   }
-`;
-
-const CafesContainer = styled.div`
-  width: 100%;
-  padding-top: 80px;
-  overflow-y: auto;
 `;
 
 const AddBtn = styled.button`

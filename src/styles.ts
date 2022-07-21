@@ -13,7 +13,7 @@ export const lightTheme: DefaultTheme = {
 };
 export const darkTheme: DefaultTheme = {
   maxWidth: '385px',
-  borderColor: 'rgba(0,0,0,0.2)',
+  borderColor: 'rgba(255,255,255,0.5)',
   fontColor: '#FAFAFA',
   bgColor: '#2c2c2c',
   pointColor: '#ffc426',

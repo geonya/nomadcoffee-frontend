@@ -5,24 +5,23 @@ import { useToggleLikeMutation } from '../generated/graphql';
 import Avatar from './Avatar';
 
 interface CafeBoxProps {
+  __typename?: 'Cafe';
   id?: number;
   name?: string;
-  address?: string | null | undefined;
+  address?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  description?: string | null;
   countLikes?: number;
   isLiked?: boolean;
-  categories?: Array<{ __typename?: 'Category'; name: string } | null> | null;
-  photos?:
-    | ({
-        __typename?: 'CafePhoto' | undefined;
-        url: string;
-      } | null)[]
-    | null;
-  user?: {
-    username: string;
-    avatarUrl?: string | null;
-  };
-  description?: string | null;
-  distance: number;
+  photos?: Array<{ __typename?: 'CafePhoto'; url: string } | null> | null;
+  categories?: Array<{
+    __typename?: 'Category';
+    name?: string;
+    slug?: string;
+  } | null> | null;
+  user?: { __typename?: 'User'; username: string; avatarUrl?: string | null };
+  distance?: number;
 }
 export default function CafeBox({
   id,
@@ -61,24 +60,27 @@ export default function CafeBox({
         <PhotoBox photo={photos[0]?.url as string}>
           <PhotoBoxInfo>
             <Distance>
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                height='24px'
-                viewBox='0 0 24 24'
-                width='24px'
-                fill='#000000'
-              >
-                <path d='M0 0h24v24H0V0z' fill='none' />
-                <path d='M21 3L3 10.53v.98l6.84 2.65L12.48 21h.98L21 3z' />
-              </svg>
               {distance ? (
-                <span>
-                  {distance < 0.009
-                    ? 0 + ' m'
-                    : distance < 0.1
-                    ? distance?.toString()?.substring(4, 6) + ' m'
-                    : distance?.toFixed(1) + ' km'}
-                </span>
+                <>
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    height='24px'
+                    viewBox='0 0 24 24'
+                    width='24px'
+                    fill='#000000'
+                  >
+                    <path d='M0 0h24v24H0V0z' fill='none' />
+                    <path d='M21 3L3 10.53v.98l6.84 2.65L12.48 21h.98L21 3z' />
+                  </svg>
+
+                  <span>
+                    {distance < 0.009
+                      ? 0 + ' m'
+                      : distance < 0.1
+                      ? distance?.toString()?.substring(4, 6) + ' m'
+                      : distance?.toFixed(1) + ' km'}
+                  </span>
+                </>
               ) : (
                 <ClipLoader size={12} />
               )}
@@ -118,7 +120,9 @@ export default function CafeBox({
         <CategoriesListBox>
           <CategoryBox>
             {categories?.map((category, i) => (
-              <span key={i}>{category?.name}</span>
+              <a href={`/category/${category?.slug}`} key={i}>
+                {category?.name}
+              </a>
             ))}
           </CategoryBox>
         </CategoriesListBox>
@@ -186,7 +190,7 @@ const CategoryBox = styled.div`
   flex-wrap: wrap;
   justify-content: flex-end;
   align-items: center;
-  span {
+  a {
     cursor: pointer;
     margin-right: 5px;
     font-size: 10px;
@@ -214,6 +218,7 @@ const LikeButton = styled.button`
 const Distance = styled.div`
   display: flex;
   align-items: center;
+  color: #2c2c2c;
   span {
     opacity: 0.8;
     font-size: 12px;
@@ -235,4 +240,5 @@ const PhotoBoxInfo = styled.div`
   align-items: center;
   padding: 0 10px;
   justify-content: space-between;
+  color: #2c2c2c;
 `;
