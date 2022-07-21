@@ -10,7 +10,5 @@ export const useSeeUser = (username: string) => {
     },
     skip: !isLoggedIn,
   });
-  return {
-    data,
-  };
+  return { data };
 };

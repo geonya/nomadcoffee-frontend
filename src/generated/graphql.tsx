@@ -78,9 +78,11 @@ export type Mutation = {
   deleteCafe: MutationResponse;
   editCafe: MutationResponse;
   editProfile?: Maybe<MutationResponse>;
+  followUser?: Maybe<MutationResponse>;
   login?: Maybe<LoginResult>;
   toggleFollow?: Maybe<MutationResponse>;
   toggleLike: MutationResponse;
+  unfollowUser?: Maybe<MutationResponse>;
 };
 
 
@@ -134,6 +136,11 @@ export type MutationEditProfileArgs = {
 };
 
 
+export type MutationFollowUserArgs = {
+  username: Scalars['String'];
+};
+
+
 export type MutationLoginArgs = {
   password: Scalars['String'];
   username: Scalars['String'];
@@ -147,6 +154,11 @@ export type MutationToggleFollowArgs = {
 
 export type MutationToggleLikeArgs = {
   id: Scalars['Int'];
+};
+
+
+export type MutationUnfollowUserArgs = {
+  username: Scalars['String'];
 };
 
 export type MutationResponse = {
@@ -208,7 +220,6 @@ export type SearchUserResult = {
 
 export type SeeUserResult = {
   __typename?: 'SeeUserResult';
-  isMe?: Maybe<Scalars['Boolean']>;
   user?: Maybe<User>;
 };
 
@@ -225,6 +236,8 @@ export type User = {
   githubUsername?: Maybe<Scalars['String']>;
   givenLikes: Scalars['Int'];
   id: Scalars['Int'];
+  isFollowing?: Maybe<Scalars['Boolean']>;
+  isMe?: Maybe<Scalars['Boolean']>;
   name: Scalars['String'];
   password: Scalars['String'];
   photos?: Maybe<Array<Maybe<CafePhoto>>>;
@@ -243,7 +256,7 @@ export type CreateCafeResult = {
 
 export type CafeFragmentFragment = { __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } };
 
-export type UserFragmentFragment = { __typename?: 'User', id: number, username: string, name: string, avatarUrl?: string | null, email: string, address?: string | null, countCafes: number, givenLikes: number, totalFollowing: number, totalFollowers: number };
+export type UserFragmentFragment = { __typename?: 'User', id: number, username: string, name: string, avatarUrl?: string | null, email: string, address?: string | null, isMe?: boolean | null, isFollowing?: boolean | null, countCafes: number, givenLikes: number, totalFollowing: number, totalFollowers: number };
 
 export type SeeCafesQueryVariables = Exact<{
   offset: Scalars['Int'];
@@ -262,7 +275,7 @@ export type SeeCafeQuery = { __typename?: 'Query', seeCafe?: { __typename?: 'Caf
 export type SeeMyProfileQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SeeMyProfileQuery = { __typename?: 'Query', seeMyProfile: { __typename?: 'User', id: number, username: string, name: string, avatarUrl?: string | null, email: string, address?: string | null, countCafes: number, givenLikes: number, totalFollowing: number, totalFollowers: number, cafes?: Array<{ __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } } | null> | null } };
+export type SeeMyProfileQuery = { __typename?: 'Query', seeMyProfile: { __typename?: 'User', id: number, username: string, name: string, avatarUrl?: string | null, email: string, address?: string | null, isMe?: boolean | null, isFollowing?: boolean | null, countCafes: number, givenLikes: number, totalFollowing: number, totalFollowers: number, cafes?: Array<{ __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } } | null> | null } };
 
 export type SeeCategoriesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -274,7 +287,14 @@ export type SeeUserQueryVariables = Exact<{
 }>;
 
 
-export type SeeUserQuery = { __typename?: 'Query', seeUser?: { __typename?: 'SeeUserResult', isMe?: boolean | null, user?: { __typename?: 'User', id: number, username: string, name: string, avatarUrl?: string | null, email: string, address?: string | null, countCafes: number, givenLikes: number, totalFollowing: number, totalFollowers: number, cafes?: Array<{ __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } } | null> | null, photos?: Array<{ __typename?: 'CafePhoto', url: string, cafe?: { __typename?: 'Cafe', id: number } | null } | null> | null } | null } | null };
+export type SeeUserQuery = { __typename?: 'Query', seeUser?: { __typename?: 'SeeUserResult', user?: { __typename?: 'User', id: number, username: string, name: string, avatarUrl?: string | null, email: string, address?: string | null, isMe?: boolean | null, isFollowing?: boolean | null, countCafes: number, givenLikes: number, totalFollowing: number, totalFollowers: number, cafes?: Array<{ __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } } | null> | null, photos?: Array<{ __typename?: 'CafePhoto', url: string, cafe?: { __typename?: 'Cafe', id: number } | null } | null> | null } | null } | null };
+
+export type SearchCafesQueryVariables = Exact<{
+  keyword: Scalars['String'];
+}>;
+
+
+export type SearchCafesQuery = { __typename?: 'Query', searchCafes?: Array<{ __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string } | null> | null, user: { __typename?: 'User', username: string, avatarUrl?: string | null } } | null> | null };
 
 export type LoginMutationVariables = Exact<{
   username: Scalars['String'];
@@ -353,6 +373,20 @@ export type ToggleLikeMutationVariables = Exact<{
 
 export type ToggleLikeMutation = { __typename?: 'Mutation', toggleLike: { __typename?: 'MutationResponse', ok: boolean, error?: string | null } };
 
+export type FollowUserMutationVariables = Exact<{
+  username: Scalars['String'];
+}>;
+
+
+export type FollowUserMutation = { __typename?: 'Mutation', followUser?: { __typename?: 'MutationResponse', ok: boolean, error?: string | null } | null };
+
+export type UnfollowUserMutationVariables = Exact<{
+  username: Scalars['String'];
+}>;
+
+
+export type UnfollowUserMutation = { __typename?: 'Mutation', unfollowUser?: { __typename?: 'MutationResponse', ok: boolean, error?: string | null } | null };
+
 export const CafeFragmentFragmentDoc = gql`
     fragment CafeFragment on Cafe {
   id
@@ -383,6 +417,8 @@ export const UserFragmentFragmentDoc = gql`
   avatarUrl
   email
   address
+  isMe
+  isFollowing
   countCafes
   givenLikes
   totalFollowing
@@ -548,7 +584,6 @@ export const SeeUserDocument = gql`
         }
       }
     }
-    isMe
   }
 }
     ${UserFragmentFragmentDoc}
@@ -581,6 +616,41 @@ export function useSeeUserLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Se
 export type SeeUserQueryHookResult = ReturnType<typeof useSeeUserQuery>;
 export type SeeUserLazyQueryHookResult = ReturnType<typeof useSeeUserLazyQuery>;
 export type SeeUserQueryResult = Apollo.QueryResult<SeeUserQuery, SeeUserQueryVariables>;
+export const SearchCafesDocument = gql`
+    query SearchCafes($keyword: String!) {
+  searchCafes(keyword: $keyword) {
+    ...CafeFragment
+  }
+}
+    ${CafeFragmentFragmentDoc}`;
+
+/**
+ * __useSearchCafesQuery__
+ *
+ * To run a query within a React component, call `useSearchCafesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSearchCafesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSearchCafesQuery({
+ *   variables: {
+ *      keyword: // value for 'keyword'
+ *   },
+ * });
+ */
+export function useSearchCafesQuery(baseOptions: Apollo.QueryHookOptions<SearchCafesQuery, SearchCafesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SearchCafesQuery, SearchCafesQueryVariables>(SearchCafesDocument, options);
+      }
+export function useSearchCafesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SearchCafesQuery, SearchCafesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SearchCafesQuery, SearchCafesQueryVariables>(SearchCafesDocument, options);
+        }
+export type SearchCafesQueryHookResult = ReturnType<typeof useSearchCafesQuery>;
+export type SearchCafesLazyQueryHookResult = ReturnType<typeof useSearchCafesLazyQuery>;
+export type SearchCafesQueryResult = Apollo.QueryResult<SearchCafesQuery, SearchCafesQueryVariables>;
 export const LoginDocument = gql`
     mutation Login($username: String!, $password: String!) {
   login(username: $username, password: $password) {
@@ -906,3 +976,71 @@ export function useToggleLikeMutation(baseOptions?: Apollo.MutationHookOptions<T
 export type ToggleLikeMutationHookResult = ReturnType<typeof useToggleLikeMutation>;
 export type ToggleLikeMutationResult = Apollo.MutationResult<ToggleLikeMutation>;
 export type ToggleLikeMutationOptions = Apollo.BaseMutationOptions<ToggleLikeMutation, ToggleLikeMutationVariables>;
+export const FollowUserDocument = gql`
+    mutation followUser($username: String!) {
+  followUser(username: $username) {
+    ok
+    error
+  }
+}
+    `;
+export type FollowUserMutationFn = Apollo.MutationFunction<FollowUserMutation, FollowUserMutationVariables>;
+
+/**
+ * __useFollowUserMutation__
+ *
+ * To run a mutation, you first call `useFollowUserMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useFollowUserMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [followUserMutation, { data, loading, error }] = useFollowUserMutation({
+ *   variables: {
+ *      username: // value for 'username'
+ *   },
+ * });
+ */
+export function useFollowUserMutation(baseOptions?: Apollo.MutationHookOptions<FollowUserMutation, FollowUserMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<FollowUserMutation, FollowUserMutationVariables>(FollowUserDocument, options);
+      }
+export type FollowUserMutationHookResult = ReturnType<typeof useFollowUserMutation>;
+export type FollowUserMutationResult = Apollo.MutationResult<FollowUserMutation>;
+export type FollowUserMutationOptions = Apollo.BaseMutationOptions<FollowUserMutation, FollowUserMutationVariables>;
+export const UnfollowUserDocument = gql`
+    mutation unfollowUser($username: String!) {
+  unfollowUser(username: $username) {
+    ok
+    error
+  }
+}
+    `;
+export type UnfollowUserMutationFn = Apollo.MutationFunction<UnfollowUserMutation, UnfollowUserMutationVariables>;
+
+/**
+ * __useUnfollowUserMutation__
+ *
+ * To run a mutation, you first call `useUnfollowUserMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUnfollowUserMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [unfollowUserMutation, { data, loading, error }] = useUnfollowUserMutation({
+ *   variables: {
+ *      username: // value for 'username'
+ *   },
+ * });
+ */
+export function useUnfollowUserMutation(baseOptions?: Apollo.MutationHookOptions<UnfollowUserMutation, UnfollowUserMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UnfollowUserMutation, UnfollowUserMutationVariables>(UnfollowUserDocument, options);
+      }
+export type UnfollowUserMutationHookResult = ReturnType<typeof useUnfollowUserMutation>;
+export type UnfollowUserMutationResult = Apollo.MutationResult<UnfollowUserMutation>;
+export type UnfollowUserMutationOptions = Apollo.BaseMutationOptions<UnfollowUserMutation, UnfollowUserMutationVariables>;

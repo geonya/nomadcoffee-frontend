@@ -5,11 +5,87 @@ import Avatar from '../components/Avatar';
 import PointButton from '../components/buttons/PointButton';
 import { useSeeUser } from '../hooks/useSeeUser';
 import Layout from '../components/Layout';
+import {
+  useFollowUserMutation,
+  useUnfollowUserMutation,
+} from '../generated/graphql';
+import { useApolloClient } from '@apollo/client';
+import { useSeeMe } from '../hooks/useSeeMe';
+
+interface ProfileBtn {
+  isMe?: boolean | null;
+  isFollowing?: boolean | null;
+}
 
 export default function Profile() {
   const navigate = useNavigate();
   const { username } = useParams();
   const { data } = useSeeUser(username!);
+  const { data: myData } = useSeeMe();
+  const apolloClient = useApolloClient();
+  const [followUser] = useFollowUserMutation({
+    variables: {
+      username: username!,
+    },
+    onCompleted: (data) => {
+      if (!data?.followUser?.ok) return;
+      const { cache } = apolloClient;
+      cache.modify({
+        id: `User:${username}`,
+        fields: {
+          isFollowing: () => true,
+          totalFollowers: (prev) => prev + 1,
+        },
+      });
+      if (!myData?.seeMyProfile) return;
+      cache.modify({
+        id: `User:${myData.seeMyProfile.username}`,
+        fields: {
+          totalFollowings: (prev) => prev + 1,
+        },
+      });
+    },
+  });
+  const [unFollowUser] = useUnfollowUserMutation({
+    variables: {
+      username: username!,
+    },
+    onCompleted: (data) => {
+      if (!data?.unfollowUser?.ok) return;
+      const { cache } = apolloClient;
+      cache.modify({
+        id: `User:${username}`,
+        fields: {
+          isFollowing: () => false,
+          totalFollowers: (prev) => prev - 1,
+        },
+      });
+      if (!myData?.seeMyProfile) return;
+      cache.modify({
+        id: `User:${myData.seeMyProfile.username}`,
+        fields: {
+          totalFollowings: (prev) => prev - 1,
+        },
+      });
+    },
+  });
+
+  const ProfileBtn = ({ isMe, isFollowing }: ProfileBtn) => {
+    if (isMe)
+      return (
+        <PointButton
+          onClick={() => navigate('edit')}
+          style={{ marginBottom: 10 }}
+        >
+          Edit Profile
+        </PointButton>
+      );
+    if (isFollowing) {
+      return <PointButton onClick={() => unFollowUser()}>UnFollow</PointButton>;
+    } else {
+      return <PointButton onClick={() => followUser()}>Follow</PointButton>;
+    }
+  };
   return (
     <Layout>
       {!data || !data.seeUser || !data.seeUser.user ? (
@@ -21,7 +97,7 @@ export default function Profile() {
           <ProfileBox>
             <AvatarBox>
               <Avatar source={data.seeUser.user.avatarUrl || ''} size={60} />
-              <h1>{data.seeUser.user?.username}</h1>
+              <h1>{data.seeUser.user.username}</h1>
             </AvatarBox>
             <CountBox>
               <div>
@@ -42,20 +118,12 @@ export default function Profile() {
               </div>
             </CountBox>
           </ProfileBox>
-          {data.seeUser.isMe && (
-            <>
-              <PointButton
-                onClick={() => navigate('edit')}
-                style={{ marginBottom: 10 }}
-              >
-                Edit Profile
-              </PointButton>
-              <PointButton onClick={() => logUserOut(navigate)}>
-                Log Out
-              </PointButton>
-            </>
+          {ProfileBtn(data.seeUser.user)}
+          {data.seeUser.user.isMe && (
+            <PointButton onClick={() => logUserOut(navigate)}>
+              Log Out
+            </PointButton>
           )}
-
           <PhotoGrid>
             {data.seeUser.user?.cafes?.map((cafe, i) => (
               <Photo

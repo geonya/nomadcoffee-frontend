@@ -31,6 +31,8 @@ const USER_FRAGMENT = gql`
     avatarUrl
     email
     address
+    isMe
+    isFollowing
     countCafes
     givenLikes
     totalFollowing
@@ -71,24 +73,30 @@ gql`
 		}
 	}
 	query SeeUser($username: String!) {
-  seeUser(username: $username) {
-    user {
-      ...UserFragment
-			cafes {
-			...CafeFragment
+		seeUser(username: $username) {
+			user {
+				...UserFragment
+				cafes {
+				...CafeFragment
+				}
+				photos {
+					url
+					cafe {
+						id
+					}
+				}
 			}
-      photos {
-        url
-        cafe {
-          id
-        }
-      }
-    }
-		isMe
-  }
-	${CAFE_FRAGMENT}
-	${USER_FRAGMENT}
-}
+			
+		}
+		${CAFE_FRAGMENT}
+		${USER_FRAGMENT}
+	}
+	query SearchCafes($keyword:String!) {
+		searchCafes(keyword:$keyword) {
+			...CafeFragment
+		}
+		${CAFE_FRAGMENT}
+	}
 `;
 
 // muation
@@ -182,8 +190,20 @@ gql`
 	}
 	mutation ToggleLike($cafeId: Int!) {
   toggleLike(id: $cafeId) {
-    ok
-    error
-  }
-}
+			ok
+			error
+  	}
+	}
+	mutation followUser($username: String!) {
+  followUser(username: $username) {
+			ok
+			error
+  	}
+	}
+	mutation unfollowUser($username: String!) {
+  unfollowUser(username: $username) {
+			ok
+			error
+  	}
+	}
 `;

@@ -37,9 +37,14 @@
 - [x] Backend : Like Model & toggleLikeMutation
 - [x] Front : Like Button and Function
 - [x] Change Name : CoffeeShop -> Cafe
+- [x] Pick Shop Location with Map API
+- [x] Multiple Upload Photo
 - [ ] My Profile Page
-  - [ ] Photo Grid
-- [ ] Notification Page
-
-- [ ] Pick Shop Location with Map API
-- [ ] Multiple Upload Photo
+  - [x] Photo Grid
+  - [x] Follow / UnFollow function
+- [ ] Search Page
+- [ ] Category -> Cafes List
+- [ ] Menu Modal using framer-motion
+- 메인 페이지로 갈 때마다 매번 user / cafe location coords 를 fetching 해야 하나 ?
+- [ ] Comment
+- [ ] Deploy 🚀

@@ -30,11 +30,11 @@ export const toggleDarkMode = (isDarkMode: boolean) => {
 };
 
 const uploadHttpLink = createUploadLink({
-  uri: 'https://nomadcoffee-backend-geony.herokuapp.com/graphql',
+  uri:
+    process.env.NODE_ENV === 'production'
+      ? 'https://nomadcoffee-backend-geony.herokuapp.com/graphql'
+      : 'http://localhost:4321/graphql',
 });
-// process.env.NODE_ENV === 'production'
-// ? 'https://nomadcoffee-backend-geony.herokuapp.com/graphql'
-// : 'http://localhost:4321/graphql',
 
 const authLink = setContext((_, { headers }) => {
   return {
@@ -65,7 +65,9 @@ export const client = new ApolloClient({
           seeCafes: offsetLimitPagination(),
         },
       },
-      User: {},
+      User: {
+        keyFields: (obj) => `User:${obj.username}`,
+      },
       Cafe: {
         keyFields: (obj) => `Cafe:${obj.id}`,
         fields: {
