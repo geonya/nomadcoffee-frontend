@@ -41,15 +41,17 @@ export default function Search() {
           <SubmitButton type='submit' value='Find' />
         </SearchInputBox>
       </Form>
-      {!data || !data.searchCafes ? (
-        <EmptyContainer>
-          <span>Search Anything...</span>
-        </EmptyContainer>
-      ) : !loading ? (
-        <CafesPhotoGridContainer cafes={data.searchCafes} />
-      ) : (
-        <Loading />
-      )}
+      <SearchContainer>
+        {!data || !data.searchCafes ? (
+          <EmptyContainer>
+            <span>Search Anything...</span>
+          </EmptyContainer>
+        ) : !loading ? (
+          <CafesPhotoGridContainer cafes={data.searchCafes} />
+        ) : (
+          <Loading />
+        )}
+      </SearchContainer>
     </Layout>
   );
 }
@@ -60,7 +62,6 @@ const SearchInputBox = styled.div`
   grid-gap: 10px;
   grid-template-columns: 5fr 1fr;
 `;
-
 const Form = styled.form`
   width: 80%;
   right: 0;
@@ -69,11 +70,13 @@ const Form = styled.form`
   display: flex;
   justify-content: center;
 `;
-
 const EmptyContainer = styled.div`
   width: 100%;
-  height: 100vh;
+  height: 80vh;
   display: flex;
   justify-content: center;
   align-items: center;
+`;
+const SearchContainer = styled.div`
+  padding: 0 10px;
 `;

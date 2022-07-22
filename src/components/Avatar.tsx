@@ -6,10 +6,14 @@ const AvatarImage = styled.img<{ src: string; size: number }>`
   border-radius: 50px;
 `;
 const AvatarCircle = styled.div<{ size: number }>`
-  background-color: ${(props) => props.theme.checkedColor};
-  width: ${(props) => props.size}px;
-  height: ${(props) => props.size}px;
+  width: ${(props) => `${props.size}px`};
+  height: ${(props) => `${props.size}px`};
   border-radius: 50px;
+  display: grid;
+  place-content: center;
+  span {
+    font-size: ${(props) => `${props.size}px`};
+  }
 `;
 
 interface AvatarProps {
@@ -21,6 +25,8 @@ export default function Avatar({ source, size }: AvatarProps) {
   return source ? (
     <AvatarImage src={source} size={size} />
   ) : (
-    <AvatarCircle size={size} />
+    <AvatarCircle size={size}>
+      <span>☕️</span>
+    </AvatarCircle>
   );
 }

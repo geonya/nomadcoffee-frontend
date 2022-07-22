@@ -13,6 +13,8 @@ import Category from './screens/Category';
 import Search from './screens/Search';
 import Profile from './screens/Profile';
 import EditProfile from './screens/EditProfile';
+import EditCafe from './screens/EditCafe';
+import NotFound from './components/NotFound';
 
 function App() {
   const isDarkMode = useReactiveVar(darkModeVar);
@@ -43,7 +45,8 @@ function App() {
               element={isLoggedIn ? <EditProfile /> : <Login />}
             />
             <Route path={routes.category} element={<Category />} />
-            <Route path={'*'} element={<>Page Not found</>} />
+            <Route path={routes.editCafe} element={<EditCafe />} />
+            <Route path={'*'} element={<NotFound />} />
           </Routes>
         </BrowserRouter>
       </ThemeProvider>

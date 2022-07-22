@@ -2,13 +2,16 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
+import Avatar from '../components/Avatar';
 import Layout from '../components/Layout';
 import { useSeeCafeQuery, useToggleLikeMutation } from '../generated/graphql';
+import { useSeeMe } from '../hooks/useSeeMe';
 
 export default function Cafe() {
   const navigate = useNavigate();
   const [modalPhoto, setModalPhoto] = useState('');
   const { id: cafeId } = useParams();
+  const { data: myData } = useSeeMe();
 
   const { data, loading } = useSeeCafeQuery({
     variables: { cafeId: +cafeId! },
@@ -80,10 +83,23 @@ export default function Cafe() {
         <Map id='map'></Map>
         <CafeContent>
           <CafeInfoBox>
-            <CafeTitle>{data?.seeCafe?.name}</CafeTitle>
+            <CafeTitleBox>
+              <CafeTitle>{data?.seeCafe?.name}</CafeTitle>
+              <CafeCreatorBox
+                onClick={() =>
+                  navigate(`/users/${data?.seeCafe?.user?.username}`)
+                }
+              >
+                <Avatar
+                  source={data?.seeCafe?.user?.avatarUrl || ''}
+                  size={20}
+                />
+                <CafeCreator>{data?.seeCafe?.user?.username}</CafeCreator>
+              </CafeCreatorBox>
+            </CafeTitleBox>
             <CafeDescription>{data?.seeCafe?.description}</CafeDescription>
             <CafeAddress>{data?.seeCafe?.address}</CafeAddress>
-            <LikeBox>
+            <FooterBox>
               <LikeButton onClick={() => toggleLike(data?.seeCafe?.id!)}>
                 <svg
                   fill={data?.seeCafe?.isLiked ? 'currentColor' : 'none'}
@@ -98,9 +114,28 @@ export default function Cafe() {
                     d='M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z'
                   ></path>
                 </svg>
+                <span>{data?.seeCafe?.countLikes}</span>
               </LikeButton>
-              <span>{data?.seeCafe?.countLikes}</span>
-            </LikeBox>
+              {myData?.seeMyProfile.id === data?.seeCafe?.user.id && (
+                <EditButton
+                  onClick={() => navigate(`/cafe/${data?.seeCafe?.id}/edit`)}
+                >
+                  <svg
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                    xmlns='http://www.w3.org/2000/svg'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth='2'
+                      d='M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z'
+                    ></path>
+                  </svg>
+                </EditButton>
+              )}
+            </FooterBox>
           </CafeInfoBox>
           {data?.seeCafe?.photos && data?.seeCafe?.photos.length > 0 ? (
             <PhotosReivewRow>
@@ -149,6 +184,7 @@ const CafeContent = styled.div`
   display: grid;
   grid-gap: 20px;
   padding: 0 20px;
+  color: ${(props) => props.theme.white};
 `;
 
 const PhotosReivewRow = styled.div`
@@ -175,17 +211,14 @@ const ModalPhoto = styled(motion.div)<{ photo: string }>`
 `;
 
 const CafeTitle = styled.h1`
-  color: ${(props) => props.theme.bgColor};
   font-size: 18px;
   font-weight: 600;
 `;
 const CafeDescription = styled.h4`
-  color: ${(props) => props.theme.bgColor};
   opacity: 0.7;
 `;
 const CafeAddress = styled.span`
   font-size: 11.5px;
-  color: ${(props) => props.theme.bgColor};
   opacity: 0.4;
 `;
 const CafeInfoBox = styled.div`
@@ -216,24 +249,39 @@ const Map = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    color: ${(props) => props.theme.fontColor};
     font-weight: 600;
   }
 `;
-const LikeBox = styled.div`
-  justify-self: flex-end;
+const FooterBox = styled.div`
+  width: 100%;
   display: flex;
   align-items: center;
-  span {
-    color: ${(props) => props.theme.bgColor};
+  padding: 2px 0;
+`;
+const EditButton = styled.button`
+  opacity: 0.7;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  svg {
+    width: 20px;
+    height: 20px;
+    color: ${(props) => props.theme.white};
   }
 `;
 const LikeButton = styled.button`
-  width: 25px;
-  height: 25px;
-  margin-right: 5px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  grid-gap: 5px;
   svg {
+    width: 20px;
+    height: 20px;
     color: ${(props) => props.theme.red};
+  }
+  span {
+    opacity: 0.6;
+    color: ${(props) => props.theme.white};
   }
 `;
 const ModalBackground = styled(motion.div)`
@@ -257,4 +305,20 @@ const HeaderBtn = styled.button`
     width: 30px;
     height: 30px;
   }
+`;
+
+const CafeCreatorBox = styled.div`
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+`;
+const CafeCreator = styled.span`
+  margin-left: 5px;
+  font-size: 11px;
+`;
+const CafeTitleBox = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 `;

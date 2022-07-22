@@ -11,4 +11,5 @@ export const routes = {
   search: '/search',
   notification: '/noti',
   editProfile: '/users/:username/edit',
+  editCafe: '/cafe/:id/edit',
 };

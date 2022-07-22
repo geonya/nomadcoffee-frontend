@@ -10,6 +10,7 @@ export const lightTheme: DefaultTheme = {
   boxShadow: '0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08)',
   red: 'tomato',
   checkedColor: '#8b4513',
+  white: '#FAFAFA',
 };
 export const darkTheme: DefaultTheme = {
   maxWidth: '385px',
@@ -20,6 +21,7 @@ export const darkTheme: DefaultTheme = {
   boxShadow: '0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08)',
   red: 'tomato',
   checkedColor: '#8b4513',
+  white: '#FAFAFA',
 };
 
 export const GlobalStyles = createGlobalStyle`

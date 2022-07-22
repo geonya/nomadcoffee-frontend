@@ -52,7 +52,7 @@ export default function useCalculateDistance({
         return radians;
       }
     },
-    [data?.seeCafes]
+    [data]
   );
   return calculateDistance;
 }

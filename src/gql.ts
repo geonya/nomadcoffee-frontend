@@ -16,6 +16,7 @@ const CAFE_FRAGMENT = gql`
       slug
     }
     user {
+      id
       username
       avatarUrl
     }
@@ -164,24 +165,32 @@ gql`
 		${CAFE_FRAGMENT}
 	}
 	mutation EditCafe(
-		$cafeId: Int!
+		$id: Int!
 		$name: String
 		$files: [Upload]
 		$address: String
 		$description:String
 		$categories: [CategoryInput]
+		$latitude:Float
+		$longitude:Float
 	) {
 		editCafe(
-			id: $cafeId
+			id: $id
 			name: $name
 			files: $files
 			address: $address
 			description:$description
 			categories: $categories
+			latitude:$latitude
+			longitude:$longitude
 		) {
 			ok
 			error
+			cafe {
+				...CafeFragment
+			}
 		}
+		${CAFE_FRAGMENT}
 	}
 	mutation DeleteCafe($cafeId: Int!) {
 		deleteCafe(id: $cafeId) {

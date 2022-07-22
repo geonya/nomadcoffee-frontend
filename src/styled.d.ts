@@ -9,5 +9,6 @@ declare module 'styled-components' {
     boxShadow: string;
     red: string;
     checkedColor: string;
+    white: string;
   }
 }

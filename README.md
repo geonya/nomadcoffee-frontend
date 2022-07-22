@@ -43,8 +43,9 @@
   - [x] Photo Grid
   - [x] Follow / UnFollow function
 - [x] Search Page
-- [ ] Category -> Cafes List
-- [ ] Menu Modal using framer-motion
+- [x] Category -> Cafes List
+- [x] Menu Modal using framer-motion
+- [ ] Edit Cafe Page 220722
 - 메인 페이지로 갈 때마다 매번 user / cafe location coords 를 fetching 해야 하나 ?
 - [ ] Comment
 - [ ] Deploy 🚀

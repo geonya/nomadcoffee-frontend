@@ -72,7 +72,7 @@ export default function Profile() {
   });
 
   const ProfileBtn = ({ isMe, isFollowing }: ProfileBtn) => {
-    if (isMe)
+    if (data?.seeUser?.user?.isMe)
       return (
         <PointButton
           onClick={() => navigate('edit')}
