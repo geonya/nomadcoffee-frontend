@@ -142,7 +142,7 @@ export default function Cafe() {
               {data.seeCafe.photos.map((photo, i) => (
                 <PhotoReview
                   photo={photo?.url!}
-                  key={i}
+                  key={photo?.url}
                   onClick={() => setModalPhoto(photo?.url!)}
                 />
               ))}

@@ -362,6 +362,7 @@ const BlackOut = styled(motion.div)`
   z-index: 10;
 `;
 const MenuItem = styled.div`
+  color: ${(props) => props.theme.white};
   cursor: pointer;
   padding: 5px;
   display: flex;

@@ -175,7 +175,7 @@ const Add = () => {
                         animate='animate'
                         exit='exit'
                         photo={photo}
-                        key={i}
+                        key={photo}
                       >
                         {photoIndex > 0 && (
                           <PrevBtn
@@ -278,7 +278,7 @@ const Add = () => {
             <CategoryList>
               {categoryList.map((name, i) => (
                 <CategoryItem
-                  key={i}
+                  key={name}
                   onClick={() =>
                     setPickCategories((prev) =>
                       !pickCategories.includes(name)

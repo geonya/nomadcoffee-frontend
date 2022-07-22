@@ -31,7 +31,7 @@ export default function EditCafe() {
   const [photosPreview, setPhotosPreview] = useState<string[]>([]);
   const [addressModal, setAddressModal] = useState(false);
   const [photoIndex, setPhotoIndex] = useState(0);
-  const [uploadFileList, setUploadFileList] = useState<FileList>();
+  const [uploadFileList, setUploadFileList] = useState<FileList | null>(null);
   const { data } = useSeeCafeQuery({ variables: { cafeId: +param?.id! } });
   const [editCafeFn, { data: editCafeResult, loading }] = useEditCafeMutation({
     onCompleted: (data) => {
@@ -86,8 +86,6 @@ export default function EditCafe() {
     },
   });
   const filesWatch = watch('files');
-  console.log(filesWatch);
-  console.log(uploadFileList);
   const {
     register: categoryRegister,
     handleSubmit: categoryHandleSubmit,
@@ -95,8 +93,12 @@ export default function EditCafe() {
   } = useForm<CategoryAddFormValues>();
   const onValid = async (data: EditFormValues) => {
     if (loading) return;
+    if (!uploadFileList) return;
     let coords = null;
-    const files = Array.from(data.files);
+    let files = null;
+    if (uploadFileList) {
+      files = Array.from(uploadFileList);
+    }
     const categories = pickCategories.map((name) => createCategoryObj(name));
     if (data.address) {
       coords = await getCoords(data.address);
@@ -107,8 +109,8 @@ export default function EditCafe() {
         ...data,
         latitude: coords?.latitude,
         longitude: coords?.longitude,
-        categories,
-        files,
+        ...(categories && { categories }),
+        ...(files && { files }),
       },
     });
   };
@@ -128,6 +130,12 @@ export default function EditCafe() {
     setAddressModal(false);
   };
 
+  const onPhotoDelete = (i: number) => {
+    setPhotosPreview((prev) => [
+      ...prev.slice(0, i),
+      ...prev.slice(i + 1, prev.length),
+    ]);
+  };
   useEffect(() => {
     if (data?.seeCafe?.photos) {
       const urlArr = data.seeCafe.photos.map((photo) => photo?.url || '');
@@ -163,120 +171,118 @@ export default function EditCafe() {
     setValue('address', data?.seeCafe?.address!);
     setValue('description', data?.seeCafe?.description!);
   }, [data, setValue]);
+
+  const makeUploadBox = (photosPreview: string[]) => {
+    const PhotosArr = photosPreview.map((photo, i) => (
+      <PhotoReview
+        variants={boxVariants}
+        initial='initial'
+        animate='animate'
+        exit='exit'
+        photo={photo}
+        key={i}
+      >
+        <PhotoDeleteBtn onClick={() => onPhotoDelete(i)}>
+          <svg
+            fill='none'
+            stroke='currentColor'
+            viewBox='0 0 24 24'
+            xmlns='http://www.w3.org/2000/svg'
+          >
+            <path
+              strokeLinecap='round'
+              strokeLinejoin='round'
+              strokeWidth='2'
+              d='M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z'
+            ></path>
+          </svg>
+        </PhotoDeleteBtn>
+      </PhotoReview>
+    ));
+    const addBtnBox = (
+      <PhotoInputContainer
+        variants={boxVariants}
+        initial='initial'
+        animate='animate'
+        exit='exit'
+      >
+        <PhotoInputLabel
+          initial={{ scale: 1 }}
+          whileHover={{ scale: 1.2, backgroundColor: 'rgba(255,255,255,0.5)' }}
+        >
+          <motion.svg
+            fill='white'
+            viewBox='0 0 20 20'
+            xmlns='http://www.w3.org/2000/svg'
+          >
+            <path
+              fillRule='evenodd'
+              d='M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z'
+              clipRule='evenodd'
+            ></path>
+          </motion.svg>
+          <input
+            type='file'
+            accept='image/*'
+            {...register('files')}
+            multiple
+            hidden
+          />
+        </PhotoInputLabel>
+      </PhotoInputContainer>
+    );
+    const addBtnArr = [...PhotosArr, addBtnBox];
+    return addBtnArr[photoIndex];
+  };
+
   return (
     <Layout>
       <Wrapper>
         <CafeForm onSubmit={handleSubmit(onValid)}>
           <PhotoUploadBox>
-            <PhotoDeleteBtn>
-              <svg
-                fill='none'
-                stroke='currentColor'
-                viewBox='0 0 24 24'
-                xmlns='http://www.w3.org/2000/svg'
+            {photoIndex > 0 && (
+              <PrevBtn
+                onClick={() =>
+                  setPhotoIndex((prev) =>
+                    prev === 0 ? photosPreview.length - 1 : prev - 1
+                  )
+                }
               >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth='2'
-                  d='M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z'
-                ></path>
-              </svg>
-            </PhotoDeleteBtn>
-            <AnimatePresence>
-              <PhotosReivewRow>
-                {photosPreview.map((photo, i) =>
-                  i === photoIndex ? (
-                    <PhotoReview
-                      variants={boxVariants}
-                      initial='initial'
-                      animate='animate'
-                      exit='exit'
-                      photo={photo}
-                      key={photo}
-                    >
-                      {photoIndex > 0 && (
-                        <PrevBtn
-                          onClick={() =>
-                            setPhotoIndex((prev) =>
-                              prev === 0 ? photosPreview.length - 1 : prev - 1
-                            )
-                          }
-                        >
-                          <svg
-                            fill='gray'
-                            viewBox='0 0 20 20'
-                            xmlns='http://www.w3.org/2000/svg'
-                          >
-                            <path
-                              fillRule='evenodd'
-                              d='M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z'
-                              clipRule='evenodd'
-                            ></path>
-                          </svg>
-                        </PrevBtn>
-                      )}
-                      {photosPreview.length > 1 && (
-                        <NextBtn
-                          onClick={() =>
-                            setPhotoIndex((prev) =>
-                              prev === photosPreview.length - 1 ? 0 : prev + 1
-                            )
-                          }
-                        >
-                          <svg
-                            fill='gray'
-                            viewBox='0 0 20 20'
-                            xmlns='http://www.w3.org/2000/svg'
-                          >
-                            <path
-                              fillRule='evenodd'
-                              d='M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z'
-                              clipRule='evenodd'
-                            ></path>
-                          </svg>
-                        </NextBtn>
-                      )}
-                    </PhotoReview>
-                  ) : null
-                )}
-                {photosPreview.length > 1 && (
-                  <SliderDots>
-                    {photosPreview.map((_, i) => (
-                      <SliderDot selected={photoIndex === i} key={i} />
-                    ))}
-                  </SliderDots>
-                )}
-              </PhotosReivewRow>
-            </AnimatePresence>
-            <PhotoInputLabel
-              initial={{ scale: 1, opacity: 0 }}
-              whileHover={{
-                scale: 1,
-                opacity: 1,
-                transition: { duration: 0.5 },
-              }}
-              exit={{ scale: 1, opacity: 0 }}
-            >
-              <svg
-                fill='white'
-                viewBox='0 0 20 20'
-                xmlns='http://www.w3.org/2000/svg'
+                <svg
+                  fill='gray'
+                  viewBox='0 0 20 20'
+                  xmlns='http://www.w3.org/2000/svg'
+                >
+                  <path
+                    fillRule='evenodd'
+                    d='M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z'
+                    clipRule='evenodd'
+                  ></path>
+                </svg>
+              </PrevBtn>
+            )}
+            {photosPreview.length > 0 && (
+              <NextBtn
+                onClick={() => {
+                  setPhotoIndex((prev) =>
+                    prev === photosPreview.length ? 0 : prev + 1
+                  );
+                }}
               >
-                <path
-                  fillRule='evenodd'
-                  d='M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z'
-                  clipRule='evenodd'
-                ></path>
-              </svg>
-              <input
-                type='file'
-                accept='image/*'
-                {...register('files')}
-                multiple
-                hidden
-              />
-            </PhotoInputLabel>
+                <svg
+                  fill='gray'
+                  viewBox='0 0 20 20'
+                  xmlns='http://www.w3.org/2000/svg'
+                >
+                  <path
+                    fillRule='evenodd'
+                    d='M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z'
+                    clipRule='evenodd'
+                  ></path>
+                </svg>
+              </NextBtn>
+            )}
+            {makeUploadBox(photosPreview)}
           </PhotoUploadBox>
           <Input type='text' placeholder='Name' {...register('name')} />
           <div style={{ position: 'relative', width: '100%' }}>
@@ -299,7 +305,7 @@ export default function EditCafe() {
             <CategoryList>
               {categoryList.map((name, i) => (
                 <CategoryItem
-                  key={i}
+                  key={name + i}
                   onClick={() =>
                     setPickCategories((prev) =>
                       !pickCategories.includes(name)
@@ -433,7 +439,7 @@ const CategoryItem = styled.span<{ picked: boolean }>`
   background-color: ${(props) =>
     props.picked ? props.theme.checkedColor : props.theme.pointColor};
   color: ${(props) =>
-    props.picked ? props.theme.bgColor : props.theme.fontColor};
+    props.picked ? props.theme.fontColor : props.theme.bgColor};
   border-radius: 10px;
   margin-right: 10px;
   margin-bottom: 10px;
@@ -475,6 +481,7 @@ const CategoryAddModal = styled(motion.form)`
   input {
     width: 100%;
     padding: 5px;
+    color: ${(props) => props.theme.black};
   }
 `;
 const CategoryAddModalBtn = styled.button`
@@ -488,16 +495,29 @@ const CategoryAddModalBtn = styled.button`
   border-radius: 50%;
 `;
 
-const PhotoInputLabel = styled(motion.label)`
-  border-radius: 50%;
+const PhotoInputContainer = styled(motion.div)`
   cursor: pointer;
-  width: 120px;
-  height: 120px;
+  width: 100%;
+  height: 200px;
   background-color: rgba(255, 255, 255, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  margin-bottom: 10px;
+
   input {
     display: tnone;
   }
-  position: absolute;
+`;
+const PhotoInputLabel = styled(motion.label)`
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 50%;
+  svg {
+    width: 100px;
+    height: 100px;
+  }
 `;
 const PhotosReivewRow = styled(motion.div)`
   width: 100%;
@@ -522,8 +542,10 @@ const PrevBtn = styled.div`
   background-color: rgba(255, 255, 255, 0.5);
   border-radius: 50%;
   z-index: 999;
+  cursor: pointer;
 `;
 const NextBtn = styled.div`
+  cursor: pointer;
   position: absolute;
   top: 50%;
   right: 10px;
@@ -586,9 +608,7 @@ const PhotoDeleteBtn = styled.div`
 
 const PhotoUploadBox = styled.div`
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  height: 200px;
   position: relative;
+  margin-bottom: 10px;
 `;

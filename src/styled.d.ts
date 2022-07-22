@@ -10,5 +10,6 @@ declare module 'styled-components' {
     red: string;
     checkedColor: string;
     white: string;
+    black: string;
   }
 }

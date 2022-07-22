@@ -11,6 +11,7 @@ export const lightTheme: DefaultTheme = {
   red: 'tomato',
   checkedColor: '#8b4513',
   white: '#FAFAFA',
+  black: '#2c2c2c',
 };
 export const darkTheme: DefaultTheme = {
   maxWidth: '385px',
@@ -22,6 +23,7 @@ export const darkTheme: DefaultTheme = {
   red: 'tomato',
   checkedColor: '#8b4513',
   white: '#FAFAFA',
+  black: '#2c2c2c',
 };
 
 export const GlobalStyles = createGlobalStyle`
