@@ -8,6 +8,7 @@ const CAFE_FRAGMENT = gql`
     latitude
     longitude
     photos {
+      id
       url
     }
     description
@@ -173,6 +174,7 @@ gql`
 		$categories: [CategoryInput]
 		$latitude:Float
 		$longitude:Float
+		$deleteIds:[Int]
 	) {
 		editCafe(
 			id: $id
@@ -183,6 +185,7 @@ gql`
 			categories: $categories
 			latitude:$latitude
 			longitude:$longitude
+			deleteIds:$deleteIds
 		) {
 			ok
 			error

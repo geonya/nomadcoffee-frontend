@@ -1,3 +1,6 @@
+// Add Cafe Page
+// - [ ] Photo Upload Box Implements
+
 import { useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -15,53 +18,27 @@ import { AnimatePresence, motion } from 'framer-motion';
 import DaumPostcodeEmbed, { type Address } from 'react-daum-postcode';
 import { boxVariants } from '../libs/animationVariant';
 import { getCoords } from '../libs/getCoords';
+import { IPhotoObjArr, UpdateCafeFormValues } from '../types';
+import PhotoUPloadBox from '../components/PhotoUploadBox';
 
-interface AddFormValues {
-  name: string;
-  address: string;
-  description: string;
-  files: FileList;
-  result: string;
-}
 interface CategoryAddFormValues {
   name: string;
 }
 
 const Add = () => {
+  const navigation = useNavigate();
+
+  // state
+  const [photosPreview, setPhotosPreview] = useState<IPhotoObjArr[]>([]);
+  const [addressModal, setAddressModal] = useState(false);
+  const [photoIndex, setPhotoIndex] = useState(0);
+  const [uploadFileList, setUploadFileList] = useState<
+    Array<File> | null | undefined
+  >(null);
   const [categoryList, setCategoryList] = useState<string[]>([]);
   const [pickCategories, setPickCategories] = useState<string[]>([]);
   const [addCategoryModal, setAddCategoryModal] = useState(false);
-  const [photosPreview, setPhotosPreview] = useState<string[]>([]);
-  const [addressModal, setAddressModal] = useState(false);
-  const [photoIndex, setPhotoIndex] = useState(0);
-  const navigation = useNavigate();
-  const {
-    register,
-    handleSubmit,
-    setError,
-    setValue,
-    formState: { errors },
-    watch,
-  } = useForm<AddFormValues>();
-  const filesWatch = watch('files');
-  const {
-    register: categoryRegister,
-    handleSubmit: categoryHandleSubmit,
-    setValue: categorySetValue,
-  } = useForm<CategoryAddFormValues>();
 
-  const onCategorySubmitValid: SubmitHandler<CategoryAddFormValues> = (
-    data
-  ) => {
-    if (!categoryList.includes(data.name)) {
-      setCategoryList((prev) => [...prev, data.name]);
-      setPickCategories((prev) => [...prev, data.name]);
-    } else {
-      setPickCategories((prev) => [...prev, data.name]);
-    }
-    categorySetValue('name', '');
-    setAddCategoryModal(false);
-  };
   const [createCafe, { loading }] = useCreateCafeMutation({
     onCompleted: (data) => {
       if (!data.createCafe) return;
@@ -92,14 +69,56 @@ const Add = () => {
     },
   });
 
-  const onSubmitValid: SubmitHandler<AddFormValues> = async (data) => {
+  useSeeCategoriesQuery({
+    onCompleted: (data) => {
+      if (!data.seeCategories) return;
+      data?.seeCategories?.map((category) =>
+        setCategoryList((prev) => (category ? [...prev, category.name] : prev))
+      );
+    },
+  });
+
+  // Add Cafe form
+  const {
+    register,
+    handleSubmit,
+    setError,
+    setValue,
+    formState: { errors },
+    watch,
+  } = useForm<UpdateCafeFormValues>();
+
+  // upload file tracking
+  const filesWatch = watch('files');
+
+  // category react hook form
+  const {
+    register: categoryRegister,
+    handleSubmit: categoryHandleSubmit,
+    setValue: categorySetValue,
+  } = useForm<CategoryAddFormValues>({
+    mode: 'onChange',
+  });
+
+  const onValid = async (data: UpdateCafeFormValues) => {
     if (loading) return;
+
     let coords = null;
-    const files = Array.from(data.files);
+    let files = null;
+
+    if (uploadFileList && uploadFileList.length > 0) {
+      files = uploadFileList;
+    }
+
+    // category : {name:string, slug:string}
     const categories = pickCategories.map((name) => createCategoryObj(name));
+
+    // address
     if (data.address) {
       coords = await getCoords(data.address);
     }
+
+    // Create cafe trigger Fn
     createCafe({
       variables: {
         ...data,
@@ -111,30 +130,35 @@ const Add = () => {
     });
   };
 
-  useSeeCategoriesQuery({
-    onCompleted: (data) => {
-      if (!data.seeCategories) return;
-      data?.seeCategories?.map((category) =>
-        setCategoryList((prev) => (category ? [...prev, category.name] : prev))
-      );
-    },
-  });
+  // category submit valid
+  const onCategorySubmitValid: SubmitHandler<CategoryAddFormValues> = (
+    data
+  ) => {
+    if (!categoryList.includes(data.name)) {
+      setCategoryList((prev) => [...prev, data.name]);
+      setPickCategories((prev) => [...prev, data.name]);
+    } else {
+      setPickCategories((prev) => [...prev, data.name]);
+    }
+    categorySetValue('name', '');
+    setAddCategoryModal(false);
+  };
+
+  // cafe upload photo file setting
   useEffect(() => {
     if (filesWatch && filesWatch.length > 0) {
       if (filesWatch.length > 10) {
-        alert('사진 업로드는 9장까지만 가능합니다.');
+        alert('Can not upload file more than 10');
         return;
       }
       const filesArray = Array.from(filesWatch);
-      const urlsArray = filesArray.map((file) => URL.createObjectURL(file));
+      const urlsArray = filesArray.map((file) => ({
+        url: URL.createObjectURL(file),
+      }));
       setPhotosPreview((prev) => [...prev, ...urlsArray]);
+      setUploadFileList(Array.from(filesArray));
     }
   }, [filesWatch]);
-
-  const daumPostcodeComplete = (data: Address) => {
-    setValue('address', data.address);
-    setAddressModal(false);
-  };
 
   return (
     <Layout>
@@ -157,102 +181,22 @@ const Add = () => {
                 }}
                 exit={{ scale: 0, opacity: 0 }}
               >
-                <DaumPostcodeEmbed onComplete={daumPostcodeComplete} />
+                <DaumPostcodeEmbed
+                  onComplete={(data: Address) => {
+                    setValue('address', data.address);
+                    setAddressModal(false);
+                  }}
+                />
               </AddressModal>
             </>
           ) : null}
         </AnimatePresence>
-        <CafeForm onSubmit={handleSubmit(onSubmitValid)}>
-          <PhotoInputLabel>
-            <AnimatePresence>
-              {photosPreview && photosPreview.length > 0 ? (
-                <PhotosReivewRow>
-                  {photosPreview.map((photo, i) =>
-                    i === photoIndex ? (
-                      <PhotoReview
-                        variants={boxVariants}
-                        initial='initial'
-                        animate='animate'
-                        exit='exit'
-                        photo={photo}
-                        key={photo}
-                      >
-                        {photoIndex > 0 && (
-                          <PrevBtn
-                            onClick={() =>
-                              setPhotoIndex((prev) =>
-                                prev === 0 ? photosPreview.length - 1 : prev - 1
-                              )
-                            }
-                          >
-                            <svg
-                              fill='gray'
-                              viewBox='0 0 20 20'
-                              xmlns='http://www.w3.org/2000/svg'
-                            >
-                              <path
-                                fillRule='evenodd'
-                                d='M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z'
-                                clipRule='evenodd'
-                              ></path>
-                            </svg>
-                          </PrevBtn>
-                        )}
-                        {photosPreview.length > 1 && (
-                          <NextBtn
-                            onClick={() =>
-                              setPhotoIndex((prev) =>
-                                prev === photosPreview.length - 1 ? 0 : prev + 1
-                              )
-                            }
-                          >
-                            <svg
-                              fill='gray'
-                              viewBox='0 0 20 20'
-                              xmlns='http://www.w3.org/2000/svg'
-                            >
-                              <path
-                                fillRule='evenodd'
-                                d='M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z'
-                                clipRule='evenodd'
-                              ></path>
-                            </svg>
-                          </NextBtn>
-                        )}
-                      </PhotoReview>
-                    ) : null
-                  )}
-                  {photosPreview.length > 1 && (
-                    <SliderDots>
-                      {photosPreview.map((_, i) => (
-                        <SliderDot selected={photoIndex === i} key={i} />
-                      ))}
-                    </SliderDots>
-                  )}
-                </PhotosReivewRow>
-              ) : (
-                <div>
-                  <svg
-                    fill='white'
-                    viewBox='0 0 20 20'
-                    xmlns='http://www.w3.org/2000/svg'
-                  >
-                    <path
-                      fillRule='evenodd'
-                      d='M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z'
-                      clipRule='evenodd'
-                    ></path>
-                  </svg>
-                </div>
-              )}
-            </AnimatePresence>
-            <input
-              type='file'
-              accept='image/*'
-              {...register('files', { required: 'You need to upload Photo' })}
-              multiple
-            />
-          </PhotoInputLabel>
+        <CafeForm onSubmit={handleSubmit(onValid)}>
+          <PhotoUPloadBox
+            photosPreview={photosPreview}
+            setPhotosPreview={setPhotosPreview}
+            register={register}
+          />
           <Input
             type='text'
             placeholder='Name'
@@ -395,8 +339,7 @@ const CategoryItem = styled.span<{ picked: boolean }>`
   padding: 7px;
   background-color: ${(props) =>
     props.picked ? props.theme.checkedColor : props.theme.pointColor};
-  color: ${(props) =>
-    props.picked ? props.theme.bgColor : props.theme.fontColor};
+  color: ${(props) => (props.picked ? props.theme.white : props.theme.black)};
   border-radius: 10px;
   margin-right: 10px;
   margin-bottom: 10px;
@@ -449,84 +392,6 @@ const CategoryAddModalBtn = styled.button`
   height: 30px;
   background-color: ${(props) => props.theme.pointColor};
   border-radius: 50%;
-`;
-
-const PhotoInputLabel = styled.label`
-  border-radius: 10px;
-  cursor: pointer;
-  width: 100%;
-  height: 200px;
-  background-color: rgba(0, 0, 0, 0.25);
-  display: grid;
-  place-content: center;
-  margin-bottom: 20px;
-  svg {
-    width: 80px;
-    height: 80px;
-  }
-  input {
-    display: none;
-  }
-`;
-const PhotosReivewRow = styled(motion.div)`
-  width: 100%;
-  height: 100%;
-  position: relative;
-`;
-const PhotoReview = styled(motion.div)<{ photo: string }>`
-  width: 100%;
-  height: 100%;
-  border-radius: 10px;
-  background-image: url(${(props) => props.photo});
-  background-size: cover;
-  background-position: center center;
-  height: 200px;
-  cursor: pointer;
-  position: relative;
-`;
-const PrevBtn = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 10px;
-  transform: translate(0, -50%);
-  width: 30px;
-  height: 30px;
-  background-color: rgba(255, 255, 255, 0.5);
-  border-radius: 50%;
-  svg {
-    fill: ${(props) => props.theme.checkedColor};
-  }
-`;
-const NextBtn = styled.div`
-  position: absolute;
-  top: 50%;
-  right: 10px;
-  transform: translate(0, -50%);
-  width: 30px;
-  height: 30px;
-  background-color: rgba(255, 255, 255, 0.5);
-  border-radius: 50%;
-  svg {
-    fill: ${(props) => props.theme.checkedColor};
-  }
-`;
-const SliderDots = styled.div`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-const SliderDot = styled.div<{ selected: boolean }>`
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  margin-right: 5px;
-  background-color: ${(props) =>
-    props.selected ? 'rgba(255, 255, 255, 1)' : 'rgba(255, 255, 255, 0.5)'};
 `;
 const AddressModal = styled(motion.div)`
   position: absolute;

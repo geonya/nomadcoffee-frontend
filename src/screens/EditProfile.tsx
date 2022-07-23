@@ -29,8 +29,8 @@ export default function EditProfile() {
     formState: { errors },
   } = useForm<EditFormValues>({ mode: 'onChange' });
   const [avatarPhoto, setAvatarPhoto] = useState('');
-  const fileWatch = watch('file');
 
+  const fileWatch = watch('file');
   const [editProfileMutation, { loading }] = useEditProfileMutation();
 
   const onValid = (data: EditFormValues) => {

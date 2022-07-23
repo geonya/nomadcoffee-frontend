@@ -46,6 +46,9 @@
 - [x] Category -> Cafes List
 - [x] Menu Modal using framer-motion
 - [ ] Edit Cafe Page 220722
-- 메인 페이지로 갈 때마다 매번 user / cafe location coords 를 fetching 해야 하나 ?
-- [ ] Comment
+  - [ ] Photo Add or Delete
+  - [ ] Cache Update Check
+  - [ ] Category rendering bug fix
+  - [ ] File Upload Box Layout Refactoring
+- [ ] Comment Section
 - [ ] Deploy 🚀

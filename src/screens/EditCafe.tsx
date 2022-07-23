@@ -1,3 +1,7 @@
+// Edit Cafe Page
+// - [ ] category list duplicate rendering bug fix
+// - [ ] Showing Error to user
+
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import DaumPostcodeEmbed, { Address } from 'react-daum-postcode';
@@ -7,32 +11,35 @@ import styled from 'styled-components';
 import SubmitButton from '../components/buttons/SubmitButton';
 import { Input } from '../components/Input';
 import Layout from '../components/Layout';
+import PhotoUPloadBox from '../components/PhotoUploadBox';
 import { createCategoryObj } from '../components/sharedFunc';
 import { useEditCafeMutation, useSeeCafeQuery } from '../generated/graphql';
-import { boxVariants } from '../libs/animationVariant';
 import { getCoords } from '../libs/getCoords';
+import { IPhotoObjArr, UpdateCafeFormValues } from '../types';
 
-interface EditFormValues {
-  name: string;
-  address: string;
-  description: string;
-  files: FileList;
-  result: string;
-}
 interface CategoryAddFormValues {
   name: string;
 }
 
 export default function EditCafe() {
   const param = useParams();
+
+  //state
+  const [photosPreview, setPhotosPreview] = useState<IPhotoObjArr[]>([]);
+  const [addressModal, setAddressModal] = useState(false);
+  const [deleteIds, setDeleteIds] = useState<number[]>([]);
+  const [uploadFileList, setUploadFileList] = useState<
+    Array<File> | null | undefined
+  >(null);
   const [categoryList, setCategoryList] = useState<string[]>([]);
   const [pickCategories, setPickCategories] = useState<string[]>([]);
   const [addCategoryModal, setAddCategoryModal] = useState(false);
-  const [photosPreview, setPhotosPreview] = useState<string[]>([]);
-  const [addressModal, setAddressModal] = useState(false);
-  const [photoIndex, setPhotoIndex] = useState(0);
-  const [uploadFileList, setUploadFileList] = useState<FileList | null>(null);
-  const { data } = useSeeCafeQuery({ variables: { cafeId: +param?.id! } });
+
+  // fetching
+  const { data } = useSeeCafeQuery({
+    variables: { cafeId: +param.id?.toString()! },
+  });
+  //
   const [editCafeFn, { data: editCafeResult, loading }] = useEditCafeMutation({
     onCompleted: (data) => {
       if (!editCafeResult?.editCafe) return;
@@ -51,13 +58,7 @@ export default function EditCafe() {
           editCafe: { cafe },
         },
       } = result;
-      if (cafe?.id) {
-        cache.modify({
-          id: `ROOT_QUERY`,
-          fields: {
-            seeCafes: (prev) => [cafe, ...prev],
-          },
-        });
+      if (cafe) {
         cache.modify({
           id: `Cafe:${cafe.id}`,
           fields: {
@@ -70,6 +71,8 @@ export default function EditCafe() {
       }
     },
   });
+
+  // Edit form
   const {
     register,
     handleSubmit,
@@ -77,7 +80,7 @@ export default function EditCafe() {
     setValue,
     formState: { errors },
     watch,
-  } = useForm<EditFormValues>({
+  } = useForm<UpdateCafeFormValues>({
     mode: 'onChange',
     defaultValues: {
       name: data?.seeCafe?.name!,
@@ -85,24 +88,34 @@ export default function EditCafe() {
       description: data?.seeCafe?.description!,
     },
   });
+
+  // upload file tracking
   const filesWatch = watch('files');
+
+  // Category form
   const {
     register: categoryRegister,
     handleSubmit: categoryHandleSubmit,
     setValue: categorySetValue,
   } = useForm<CategoryAddFormValues>();
-  const onValid = async (data: EditFormValues) => {
+  const onValid = async (data: UpdateCafeFormValues) => {
     if (loading) return;
-    if (!uploadFileList) return;
+
     let coords = null;
     let files = null;
-    if (uploadFileList) {
-      files = Array.from(uploadFileList);
+
+    if (uploadFileList && uploadFileList.length > 0) {
+      files = uploadFileList;
     }
+    // category : {name:string, slug:string}
     const categories = pickCategories.map((name) => createCategoryObj(name));
+
+    // addrees
     if (data.address) {
       coords = await getCoords(data.address);
     }
+
+    // Update Trigger Fn
     editCafeFn({
       variables: {
         id: +param?.id!,
@@ -111,9 +124,12 @@ export default function EditCafe() {
         longitude: coords?.longitude,
         ...(categories && { categories }),
         ...(files && { files }),
+        ...(deleteIds?.length > 0 && { deleteIds }),
       },
     });
   };
+
+  // category submit valid
   const onCategorySubmitValid = (data: CategoryAddFormValues) => {
     if (!categoryList.includes(data.name)) {
       setCategoryList((prev) => [...prev, data.name]);
@@ -125,35 +141,29 @@ export default function EditCafe() {
     setAddCategoryModal(false);
   };
 
-  const daumPostcodeComplete = (data: Address) => {
-    setValue('address', data.address);
-    setAddressModal(false);
-  };
-
-  const onPhotoDelete = (i: number) => {
-    setPhotosPreview((prev) => [
-      ...prev.slice(0, i),
-      ...prev.slice(i + 1, prev.length),
-    ]);
-  };
+  // Cafe Photos Mounting
   useEffect(() => {
     if (data?.seeCafe?.photos) {
-      const urlArr = data.seeCafe.photos.map((photo) => photo?.url || '');
-      if (urlArr && urlArr?.length > 0) setPhotosPreview(urlArr);
+      const photoObjArr = data.seeCafe.photos.map((photo) => ({
+        id: photo?.id,
+        url: photo?.url,
+      }));
+      if (photoObjArr?.length > 0) setPhotosPreview(photoObjArr);
     }
   }, [data, setPhotosPreview]);
 
+  // Cafe Categories Mounting
   useEffect(() => {
     if (data?.seeCafe?.categories) {
-      for (const category of data.seeCafe.categories) {
-        setCategoryList((prev) => (category ? [...prev, category.name] : prev));
-        setPickCategories((prev) =>
-          category ? [...prev, category.name] : prev
-        );
-      }
+      const prevCategoriesNameArray = data.seeCafe.categories.map((category) =>
+        category ? category.name : ''
+      );
+      setCategoryList(prevCategoriesNameArray);
+      setPickCategories(prevCategoriesNameArray);
     }
   }, [data, setCategoryList]);
 
+  // cafe upload photo file setting
   useEffect(() => {
     if (filesWatch && filesWatch.length > 0) {
       if (filesWatch.length > 10) {
@@ -161,129 +171,30 @@ export default function EditCafe() {
         return;
       }
       const filesArray = Array.from(filesWatch);
-      const urlsArray = filesArray.map((file) => URL.createObjectURL(file));
+      const urlsArray = filesArray.map((file) => ({
+        url: URL.createObjectURL(file),
+      }));
       setPhotosPreview((prev) => [...prev, ...urlsArray]);
-      setUploadFileList(filesWatch);
+      setUploadFileList(filesArray);
     }
   }, [filesWatch]);
+
   useEffect(() => {
     setValue('name', data?.seeCafe?.name!);
     setValue('address', data?.seeCafe?.address!);
     setValue('description', data?.seeCafe?.description!);
   }, [data, setValue]);
 
-  const makeUploadBox = (photosPreview: string[]) => {
-    const PhotosArr = photosPreview.map((photo, i) => (
-      <PhotoReview
-        variants={boxVariants}
-        initial='initial'
-        animate='animate'
-        exit='exit'
-        photo={photo}
-        key={i}
-      >
-        <PhotoDeleteBtn onClick={() => onPhotoDelete(i)}>
-          <svg
-            fill='none'
-            stroke='currentColor'
-            viewBox='0 0 24 24'
-            xmlns='http://www.w3.org/2000/svg'
-          >
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              strokeWidth='2'
-              d='M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z'
-            ></path>
-          </svg>
-        </PhotoDeleteBtn>
-      </PhotoReview>
-    ));
-    const addBtnBox = (
-      <PhotoInputContainer
-        variants={boxVariants}
-        initial='initial'
-        animate='animate'
-        exit='exit'
-      >
-        <PhotoInputLabel
-          initial={{ scale: 1 }}
-          whileHover={{ scale: 1.2, backgroundColor: 'rgba(255,255,255,0.5)' }}
-        >
-          <motion.svg
-            fill='white'
-            viewBox='0 0 20 20'
-            xmlns='http://www.w3.org/2000/svg'
-          >
-            <path
-              fillRule='evenodd'
-              d='M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z'
-              clipRule='evenodd'
-            ></path>
-          </motion.svg>
-          <input
-            type='file'
-            accept='image/*'
-            {...register('files')}
-            multiple
-            hidden
-          />
-        </PhotoInputLabel>
-      </PhotoInputContainer>
-    );
-    const addBtnArr = [...PhotosArr, addBtnBox];
-    return addBtnArr[photoIndex];
-  };
-
   return (
     <Layout>
       <Wrapper>
         <CafeForm onSubmit={handleSubmit(onValid)}>
-          <PhotoUploadBox>
-            {photoIndex > 0 && (
-              <PrevBtn
-                onClick={() =>
-                  setPhotoIndex((prev) =>
-                    prev === 0 ? photosPreview.length - 1 : prev - 1
-                  )
-                }
-              >
-                <svg
-                  fill='gray'
-                  viewBox='0 0 20 20'
-                  xmlns='http://www.w3.org/2000/svg'
-                >
-                  <path
-                    fillRule='evenodd'
-                    d='M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z'
-                    clipRule='evenodd'
-                  ></path>
-                </svg>
-              </PrevBtn>
-            )}
-            {photosPreview.length > 0 && (
-              <NextBtn
-                onClick={() => {
-                  setPhotoIndex((prev) =>
-                    prev === photosPreview.length ? 0 : prev + 1
-                  );
-                }}
-              >
-                <svg
-                  fill='gray'
-                  viewBox='0 0 20 20'
-                  xmlns='http://www.w3.org/2000/svg'
-                >
-                  <path
-                    fillRule='evenodd'
-                    d='M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z'
-                    clipRule='evenodd'
-                  ></path>
-                </svg>
-              </NextBtn>
-            )}
-            {makeUploadBox(photosPreview)}
-          </PhotoUploadBox>
+          <PhotoUPloadBox
+            photosPreview={photosPreview}
+            setPhotosPreview={setPhotosPreview}
+            setDeleteIds={setDeleteIds}
+            register={register}
+          />
           <Input type='text' placeholder='Name' {...register('name')} />
           <div style={{ position: 'relative', width: '100%' }}>
             <Input
@@ -401,7 +312,12 @@ export default function EditCafe() {
                 }}
                 exit={{ scale: 0, opacity: 0 }}
               >
-                <DaumPostcodeEmbed onComplete={daumPostcodeComplete} />
+                <DaumPostcodeEmbed
+                  onComplete={(data: Address) => {
+                    setValue('address', data.address);
+                    setAddressModal(false);
+                  }}
+                />
               </AddressModal>
             </>
           ) : null}
@@ -438,8 +354,7 @@ const CategoryItem = styled.span<{ picked: boolean }>`
   padding: 7px;
   background-color: ${(props) =>
     props.picked ? props.theme.checkedColor : props.theme.pointColor};
-  color: ${(props) =>
-    props.picked ? props.theme.fontColor : props.theme.bgColor};
+  color: ${(props) => (props.picked ? props.theme.white : props.theme.black)};
   border-radius: 10px;
   margin-right: 10px;
   margin-bottom: 10px;
@@ -495,85 +410,6 @@ const CategoryAddModalBtn = styled.button`
   border-radius: 50%;
 `;
 
-const PhotoInputContainer = styled(motion.div)`
-  cursor: pointer;
-  width: 100%;
-  height: 200px;
-  background-color: rgba(255, 255, 255, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 10px;
-  margin-bottom: 10px;
-
-  input {
-    display: tnone;
-  }
-`;
-const PhotoInputLabel = styled(motion.label)`
-  cursor: pointer;
-  padding: 10px;
-  border-radius: 50%;
-  svg {
-    width: 100px;
-    height: 100px;
-  }
-`;
-const PhotosReivewRow = styled(motion.div)`
-  width: 100%;
-  position: relative;
-  margin-bottom: 10px;
-`;
-const PhotoReview = styled(motion.div)<{ photo: string }>`
-  border-radius: 10px;
-  background-image: url(${(props) => props.photo});
-  background-size: cover;
-  background-position: center center;
-  height: 200px;
-  position: relative;
-`;
-const PrevBtn = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 10px;
-  transform: translate(0, -50%);
-  width: 30px;
-  height: 30px;
-  background-color: rgba(255, 255, 255, 0.5);
-  border-radius: 50%;
-  z-index: 999;
-  cursor: pointer;
-`;
-const NextBtn = styled.div`
-  cursor: pointer;
-  position: absolute;
-  top: 50%;
-  right: 10px;
-  transform: translate(0, -50%);
-  width: 30px;
-  height: 30px;
-  background-color: rgba(255, 255, 255, 0.5);
-  border-radius: 50%;
-  z-index: 999;
-`;
-const SliderDots = styled.div`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-const SliderDot = styled.div<{ selected: boolean }>`
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  margin-right: 5px;
-  background-color: ${(props) =>
-    props.selected ? 'rgba(255, 255, 255, 1)' : 'rgba(255, 255, 255, 0.5)'};
-`;
 const AddressModal = styled(motion.div)`
   position: absolute;
   top: 200px;
@@ -591,24 +427,5 @@ const AddressModalBtn = styled.div`
   color: ${(props) => props.theme.fontColor};
   border-radius: 10px;
   margin-right: 10px;
-  margin-bottom: 10px;
-`;
-const PhotoDeleteBtn = styled.div`
-  cursor: pointer;
-  z-index: 100;
-  position: absolute;
-  left: 10px;
-  top: 10px;
-  svg {
-    stroke: ${(props) => props.theme.red};
-    width: 20px;
-    height: 20px;
-  }
-`;
-
-const PhotoUploadBox = styled.div`
-  width: 100%;
-  height: 200px;
-  position: relative;
   margin-bottom: 10px;
 `;

@@ -22,3 +22,16 @@ export type CafeType = Array<{
   } | null> | null;
   user: { __typename?: 'User'; username: string; avatarUrl?: string | null };
 } | null>;
+
+interface UpdateCafeFormValues {
+  name: string;
+  address: string;
+  description: string;
+  files: FileList;
+  result: string;
+}
+
+interface IPhotoObjArr {
+  id?: number;
+  url?: string;
+}
