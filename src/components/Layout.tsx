@@ -149,7 +149,7 @@ const Layout = ({
             <Menu
               initial={{ opacity: 0 }}
               animate={{
-                opacity: 1,
+                opacity: 0.9,
                 transition: { duration: 0.5, type: 'tween' },
               }}
               exit={{ opacity: 0 }}

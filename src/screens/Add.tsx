@@ -1,7 +1,4 @@
-// Add Cafe Page
-// - [x] Photo Upload Box Implements 220723
-
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -19,6 +16,7 @@ import DaumPostcodeEmbed, { type Address } from 'react-daum-postcode';
 import { getCoords } from '../libs/getCoords';
 import { IPhotoObjArr, UpdateCafeFormValues } from '../types';
 import PhotoUPloadBox from '../components/PhotoUploadBox';
+import FormError from '../components/FormError';
 
 interface CategoryAddFormValues {
   name: string;
@@ -82,10 +80,9 @@ const Add = () => {
     handleSubmit,
     setError,
     setValue,
-    formState: { errors },
+    formState: { errors, dirtyFields },
     watch,
-  } = useForm<UpdateCafeFormValues>();
-
+  } = useForm<UpdateCafeFormValues>({ mode: 'onChange' });
   // upload file tracking
   const filesWatch = watch('files');
 
@@ -94,8 +91,14 @@ const Add = () => {
     register: categoryRegister,
     handleSubmit: categoryHandleSubmit,
     setValue: categorySetValue,
+    formState: { errors: categoryErrors },
   } = useForm<CategoryAddFormValues>({
     mode: 'onChange',
+  });
+  const categoryInputRef = useRef<HTMLInputElement | null>(null);
+  const { ref, ...categoryRest } = categoryRegister('name', {
+    required: true,
+    minLength: { value: 2, message: '2자 이상 입력해주세요.' },
   });
 
   const onValid = async (data: UpdateCafeFormValues) => {
@@ -142,6 +145,13 @@ const Add = () => {
     setAddCategoryModal(false);
   };
 
+  // category input auto focusing
+  useEffect(() => {
+    if (categoryInputRef.current && addCategoryModal) {
+      categoryInputRef.current.focus();
+    }
+  }, [addCategoryModal, categoryInputRef]);
+
   // cafe upload photo file setting
   useEffect(() => {
     if (filesWatch && filesWatch.length > 0) {
@@ -159,6 +169,14 @@ const Add = () => {
       setUploadFileList(Array.from(filesArray));
     }
   }, [filesWatch]);
+
+  // address input showing modal when focusing
+  useEffect(() => {
+    if (dirtyFields.address) {
+      setAddressModal(true);
+      dirtyFields.address = false;
+    }
+  }, [dirtyFields, dirtyFields.address]);
 
   return (
     <Layout>
@@ -201,15 +219,20 @@ const Add = () => {
           <Input
             type='text'
             placeholder='Name'
-            {...register('name', { required: true })}
+            {...register('name', {
+              required: true,
+              minLength: { value: 2, message: '2자 이상 입력해주세요.' },
+            })}
           />
+          <FormError message={errors.name?.message} />
           <div style={{ position: 'relative', width: '100%' }}>
             <Input
               type='text'
               placeholder='Address'
-              {...register('address', { required: true })}
+              {...register('address')}
               onClick={() => setAddressModal(true)}
             />
+            <FormError message={errors.address?.message} />
             <AddressModalBtn onClick={() => setAddressModal(true)}>
               주소 찾기
             </AddressModalBtn>
@@ -217,8 +240,12 @@ const Add = () => {
           <Input
             type='text'
             placeholder='Description'
-            {...register('description', { required: true })}
+            {...register('description', {
+              required: true,
+              minLength: { value: 2, message: '2자 이상 입력해주세요.' },
+            })}
           />
+          <FormError message={errors.description?.message} />
           <CategoryListBox>
             <CategoryList>
               {categoryList.map((name, i) => (
@@ -256,7 +283,7 @@ const Add = () => {
             </CategoryList>
           </CategoryListBox>
           <SubmitButton type='submit' value={loading ? 'Loading...' : 'Add'} />
-          <span>{errors.result?.message}</span>
+          <FormError message={errors.result?.message} />
         </CafeForm>
         <AnimatePresence>
           {addCategoryModal ? (
@@ -277,11 +304,19 @@ const Add = () => {
                 }}
                 exit={{ scale: 0, opacity: 0 }}
               >
-                <input
-                  {...categoryRegister('name', { required: true })}
-                  type='text'
-                  placeholder='Category Name'
-                />
+                <div>
+                  <input
+                    {...categoryRest}
+                    name='name'
+                    ref={(e) => {
+                      ref(e);
+                      categoryInputRef.current = e;
+                    }}
+                    type='text'
+                    placeholder='Category Name'
+                  />
+                  <FormError message={categoryErrors.name?.message} />
+                </div>
                 <CategoryAddModalBtn>
                   <svg
                     fill='white'

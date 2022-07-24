@@ -54,6 +54,6 @@
 - [x] Add page : Photo Upload Box Implements
 - [ ] Comment Section
   - [x] model 만들기
-  - [ ] graphql 정의
+  - [x] graphql 정의
 - [ ] Form Validation Check
 - [ ] Deploy 🚀

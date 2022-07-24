@@ -5,11 +5,13 @@ import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import Avatar from '../components/Avatar';
 import SubmitButton from '../components/buttons/SubmitButton';
+import FormError from '../components/FormError';
 import { Input } from '../components/Input';
 import Layout from '../components/Layout';
 import Loading from '../components/Loading';
 import {
   useCreateCommentMutation,
+  useFindCommentQuery,
   useSeeCafeQuery,
   useToggleLikeMutation,
 } from '../generated/graphql';
@@ -59,7 +61,12 @@ export default function Cafe() {
   };
   //
 
-  // comment mutation
+  // comment query & mutation
+  const { data: commentData } = useFindCommentQuery({
+    variables: {
+      cafeId: data?.seeCafe?.id! || +cafeId?.toString()!,
+    },
+  });
   const [inputShowing, setInputShowing] = useState(true);
   const [commentMutation, { loading: commentLoading }] =
     useCreateCommentMutation({
@@ -72,17 +79,34 @@ export default function Cafe() {
           id: `Cafe:${data?.seeCafe?.id}`,
           fields: {
             // TODO cache upadte
-            comments: (prev) => prev,
+            comments: (prev) => {
+              const filteredPrev = prev.filter((comment: any) => {
+                if (comment.user['__ref']) {
+                  return !comment.user['__ref']?.includes(
+                    myData?.seeMyProfile.username
+                  );
+                } else {
+                  return comment.user.id !== myData?.seeMyProfile.id;
+                }
+              });
+              return [result.data?.createComment?.comment, ...filteredPrev];
+            },
           },
         });
       },
     });
 
   const [inputRating, setInputRating] = useState(0);
-  const { register, handleSubmit, setValue } = useForm<CommentFormValues>({
+  const [averageRating, setAverageRating] = useState(0);
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<CommentFormValues>({
     mode: 'onChange',
   });
-  const onValid = ({ comment }: CommentFormValues) => {
+  const onCommentFormValid = ({ comment }: CommentFormValues) => {
     if (!commentLoading)
       commentMutation({
         variables: {
@@ -91,9 +115,16 @@ export default function Cafe() {
           rating: inputRating,
         },
       });
-    setValue('comment', '');
-    setInputRating(0);
   };
+
+  useEffect(() => {
+    if (commentData?.findComment?.comment) {
+      setValue('comment', commentData?.findComment?.comment?.caption);
+      setInputRating(commentData.findComment?.comment?.rating);
+      setInputShowing(false);
+    }
+  }, [commentData, setValue]);
+  //
 
   const cafeContentBoxRef = useRef<HTMLDivElement | null>(null);
   useLayoutEffect(() => {
@@ -123,6 +154,19 @@ export default function Cafe() {
     });
   }, [data?.seeCafe?.address]);
 
+  // rating calcuration
+  useLayoutEffect(() => {
+    if (data?.seeCafe?.comments) {
+      const commentsCount = data?.seeCafe?.comments?.length;
+      if (commentsCount > 0) {
+        let ratingSum = 0;
+        data?.seeCafe?.comments.map(
+          (comment) => (ratingSum += comment?.rating || 0)
+        );
+        setAverageRating(ratingSum / commentsCount);
+      }
+    }
+  }, [data]);
   return (
     <Layout hasHeader={false}>
       <Wrapper>
@@ -148,7 +192,7 @@ export default function Cafe() {
               <CafeTitleBox>
                 <div>
                   <CafeTitleStars>
-                    <span>★</span> <span>4.6</span>
+                    <span>★</span> <span>{averageRating || 0}</span>
                   </CafeTitleStars>
                   <CafeTitle>{data?.seeCafe?.name}</CafeTitle>
                 </div>
@@ -247,36 +291,44 @@ export default function Cafe() {
             <Loading />
           )}
         </PhotosGridContainer>
+
         <CommentContainer>
-          <CommentForm onSubmit={handleSubmit(onValid)}>
-            <CommentInputStarsBox>
-              <span onClick={() => setInputRating(1)}>
-                {inputRating >= 1 ? '★' : '☆'}
-              </span>
-              <span onClick={() => setInputRating(2)}>
-                {inputRating >= 2 ? '★' : '☆'}
-              </span>
-              <span onClick={() => setInputRating(3)}>
-                {inputRating >= 3 ? '★' : '☆'}
-              </span>
-              <span onClick={() => setInputRating(4)}>
-                {inputRating >= 4 ? '★' : '☆'}
-              </span>
-              <span onClick={() => setInputRating(5)}>
-                {inputRating === 5 ? '★' : '☆'}
-              </span>
-            </CommentInputStarsBox>
-            <CommentInputBox>
-              <Input
-                type='text'
-                {...register('comment', {
-                  required: true,
-                  minLength: { value: 22, message: '22자까지만 적어주세요.' },
-                })}
-              />
-              <SubmitButton type='submit' value='Write' />
-            </CommentInputBox>
-          </CommentForm>
+          <CommentTitle>
+            Comments ({data?.seeCafe?.comments?.length || 0})
+          </CommentTitle>
+          {inputShowing && (
+            <CommentForm onSubmit={handleSubmit(onCommentFormValid)}>
+              <CommentInputStarsBox>
+                <span onClick={() => setInputRating(1)}>
+                  {inputRating >= 1 ? '★' : '☆'}
+                </span>
+                <span onClick={() => setInputRating(2)}>
+                  {inputRating >= 2 ? '★' : '☆'}
+                </span>
+                <span onClick={() => setInputRating(3)}>
+                  {inputRating >= 3 ? '★' : '☆'}
+                </span>
+                <span onClick={() => setInputRating(4)}>
+                  {inputRating >= 4 ? '★' : '☆'}
+                </span>
+                <span onClick={() => setInputRating(5)}>
+                  {inputRating === 5 ? '★' : '☆'}
+                </span>
+              </CommentInputStarsBox>
+              <CommentInputBox>
+                <Input
+                  type='text'
+                  {...register('comment', {
+                    required: true,
+                    maxLength: { value: 22, message: '22자까지만 적어주세요.' },
+                  })}
+                />
+                <SubmitButton type='submit' value='Write' />
+              </CommentInputBox>
+              <FormError message={errors.comment?.message} />
+            </CommentForm>
+          )}
+
           <CommentsList>
             {data?.seeCafe?.comments?.map((comment, i) => (
               <Comment key={i}>
@@ -299,17 +351,15 @@ export default function Cafe() {
                 </CommentStarsBox>
                 <CommentContentBox>
                   <CommentCreatorBox>
-                    <Avatar size={20} />
-                    <CommentCreator>
-                      {data?.seeCafe?.user.username}
-                    </CommentCreator>
+                    <Avatar source={comment?.user?.avatarUrl || ''} size={30} />
+                    <CommentCreator>{comment?.user?.username}</CommentCreator>
                   </CommentCreatorBox>
                   <CommentTextBox>
                     <CommentText>{comment?.caption}</CommentText>
                   </CommentTextBox>
                   {myData?.seeMyProfile.id === comment?.user?.id && (
                     <CommentBtnBox>
-                      <CommentBtn>
+                      <CommentBtn onClick={() => setInputShowing(true)}>
                         <svg
                           fill='none'
                           stroke='currentColor'
@@ -503,7 +553,10 @@ const HeaderBtn = styled.button`
   top: 10px;
   left: 10px;
   z-index: 2;
+
   svg {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
     width: 30px;
     height: 30px;
   }
@@ -529,8 +582,13 @@ const CafeTitleBox = styled.div`
 `;
 
 const CommentContainer = styled.div`
-  margin-top: 20px;
+  margin-top: 34px;
   width: 80%;
+`;
+const CommentTitle = styled.h2`
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 13px;
 `;
 
 const CommentForm = styled.form`
@@ -576,11 +634,11 @@ const CommentInputBox = styled.div`
   }
 `;
 const CommentStarsBox = styled.div`
-  width: 60px;
+  width: 65px;
   display: grid;
   grid-auto-flow: column;
   span {
-    font-size: 12px;
+    font-size: 13.5px;
     color: ${(props) => props.theme.pointColor};
   }
 `;

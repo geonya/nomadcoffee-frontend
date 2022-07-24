@@ -255,7 +255,11 @@ gql`
 		createComment(caption:$caption, rating:$rating, cafeId:$cafeId) {
 			ok
 			error
+			comment {
+				...CommentFragment
+			}
 		}
+		${COMMENT_FRAGMENT}
 	}
 	mutation DeleteComment($id:Int!) {
 		deleteComment(id:$id) {

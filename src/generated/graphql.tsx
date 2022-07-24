@@ -68,6 +68,13 @@ export type Comment = {
   user?: Maybe<User>;
 };
 
+export type CreateCommentResponse = {
+  __typename?: 'CreateCommentResponse';
+  comment?: Maybe<Comment>;
+  error?: Maybe<Scalars['String']>;
+  ok: Scalars['Boolean'];
+};
+
 export type DeleteCafeResult = {
   __typename?: 'DeleteCafeResult';
   error?: Maybe<Scalars['String']>;
@@ -109,7 +116,7 @@ export type Mutation = {
   createAccount?: Maybe<MutationResponse>;
   createCafe: CreateCafeResult;
   createCategory: MutationResponse;
-  createComment?: Maybe<MutationResponse>;
+  createComment?: Maybe<CreateCommentResponse>;
   deleteCafe?: Maybe<DeleteCafeResult>;
   deleteComment?: Maybe<MutationResponse>;
   editCafe: EditCafeResponse;
@@ -469,7 +476,7 @@ export type CreateCommentMutationVariables = Exact<{
 }>;
 
 
-export type CreateCommentMutation = { __typename?: 'Mutation', createComment?: { __typename?: 'MutationResponse', ok: boolean, error?: string | null } | null };
+export type CreateCommentMutation = { __typename?: 'Mutation', createComment?: { __typename?: 'CreateCommentResponse', ok: boolean, error?: string | null, comment?: { __typename?: 'Comment', caption: string, rating: number, user?: { __typename?: 'User', id: number, username: string, avatarUrl?: string | null } | null } | null } | null };
 
 export type DeleteCommentMutationVariables = Exact<{
   id: Scalars['Int'];
@@ -1242,9 +1249,12 @@ export const CreateCommentDocument = gql`
   createComment(caption: $caption, rating: $rating, cafeId: $cafeId) {
     ok
     error
+    comment {
+      ...CommentFragment
+    }
   }
 }
-    `;
+    ${CommentFragmentFragmentDoc}`;
 export type CreateCommentMutationFn = Apollo.MutationFunction<CreateCommentMutation, CreateCommentMutationVariables>;
 
 /**

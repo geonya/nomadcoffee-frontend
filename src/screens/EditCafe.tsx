@@ -1,9 +1,8 @@
 // Edit Cafe Page
-// - [ ] category list duplicate rendering bug fix
-// - [ ] Showing Error to user
+// - [ ] validation
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import DaumPostcodeEmbed, { Address } from 'react-daum-postcode';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -21,6 +20,7 @@ import {
 } from '../generated/graphql';
 import { getCoords } from '../libs/getCoords';
 import { IPhotoObjArr, UpdateCafeFormValues } from '../types';
+import FormError from '../components/FormError';
 
 interface CategoryAddFormValues {
   name: string;
@@ -29,6 +29,7 @@ interface CategoryAddFormValues {
 export default function EditCafe() {
   const param = useParams();
   const navigate = useNavigate();
+
   //state
   const [photosPreview, setPhotosPreview] = useState<IPhotoObjArr[]>([]);
   const [addressModal, setAddressModal] = useState(false);
@@ -39,6 +40,7 @@ export default function EditCafe() {
   const [categoryList, setCategoryList] = useState<string[]>([]);
   const [pickCategories, setPickCategories] = useState<string[]>([]);
   const [addCategoryModal, setAddCategoryModal] = useState(false);
+  const [addDeleteModal, setAddDeleteModal] = useState(false);
 
   // fetching
   const { data } = useSeeCafeQuery({
@@ -125,7 +127,7 @@ export default function EditCafe() {
     handleSubmit,
     setError,
     setValue,
-    formState: { errors },
+    formState: { errors, dirtyFields },
     watch,
   } = useForm<UpdateCafeFormValues>({
     mode: 'onChange',
@@ -144,7 +146,14 @@ export default function EditCafe() {
     register: categoryRegister,
     handleSubmit: categoryHandleSubmit,
     setValue: categorySetValue,
-  } = useForm<CategoryAddFormValues>();
+    formState: { errors: categoryErrors },
+  } = useForm<CategoryAddFormValues>({ mode: 'onChange' });
+  const categoryInputRef = useRef<HTMLInputElement | null>(null);
+  const { ref, ...categoryRest } = categoryRegister('name', {
+    required: true,
+    minLength: { value: 2, message: '2자 이상 입력해주세요.' },
+  });
+
   const onValid = async (data: UpdateCafeFormValues) => {
     if (loading) return;
 
@@ -189,6 +198,10 @@ export default function EditCafe() {
   };
 
   const onClickDeleteCafe = () => {
+    setAddDeleteModal(true);
+  };
+  const onDeleteBtnClick = () => {
+    if (deleteLoading) return;
     deleteCafeFn({
       variables: { id: data?.seeCafe?.id || +param.id?.toString()! },
     });
@@ -239,6 +252,21 @@ export default function EditCafe() {
     setValue('description', data?.seeCafe?.description!);
   }, [data, setValue]);
 
+  // category input auto focusing
+  useEffect(() => {
+    if (categoryInputRef.current && addCategoryModal) {
+      categoryInputRef.current.focus();
+    }
+  }, [addCategoryModal, categoryInputRef]);
+
+  // address input showing modal when focusing
+  useEffect(() => {
+    if (dirtyFields.address) {
+      setAddressModal(true);
+      dirtyFields.address = false;
+    }
+  }, [dirtyFields, dirtyFields.address]);
+
   return (
     <Layout>
       <Wrapper>
@@ -250,7 +278,15 @@ export default function EditCafe() {
             setUploadFileList={setUploadFileList}
             register={register}
           />
-          <Input type='text' placeholder='Name' {...register('name')} />
+          <Input
+            type='text'
+            placeholder='Name'
+            {...register('name', {
+              required: true,
+              minLength: { value: 2, message: '2자 이상 입력해주세요.' },
+            })}
+          />
+          <FormError message={errors.name?.message} />
           <div style={{ position: 'relative', width: '100%' }}>
             <Input
               type='text'
@@ -265,8 +301,12 @@ export default function EditCafe() {
           <Input
             type='text'
             placeholder='Description'
-            {...register('description')}
+            {...register('description', {
+              required: true,
+              minLength: { value: 2, message: '2자 이상 입력해주세요.' },
+            })}
           />
+          <FormError message={errors.description?.message} />
           <CategoryListBox>
             <CategoryList>
               {categoryList.map((name, i) => (
@@ -330,11 +370,18 @@ export default function EditCafe() {
                 }}
                 exit={{ scale: 0, opacity: 0 }}
               >
-                <input
-                  {...categoryRegister('name', { required: true })}
-                  type='text'
-                  placeholder='Category Name'
-                />
+                <div>
+                  <input
+                    {...categoryRest}
+                    name='name'
+                    ref={(e) => {
+                      ref(e);
+                      categoryInputRef.current = e;
+                    }}
+                    placeholder='Category Name'
+                  />
+                  <FormError message={categoryErrors.name?.message} />
+                </div>
                 <CategoryAddModalBtn>
                   <svg
                     fill='white'
@@ -376,6 +423,32 @@ export default function EditCafe() {
                   }}
                 />
               </AddressModal>
+            </>
+          ) : null}
+          {addDeleteModal ? (
+            <>
+              <ModalBackground
+                onClick={() => setAddDeleteModal(false)}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1, transition: { type: 'tween' } }}
+                exit={{ opacity: 0 }}
+              />
+              <DeleteModalBox
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{
+                  scale: 1,
+                  opacity: 0.9,
+                  transition: { type: 'tween' },
+                }}
+                exit={{ scale: 0, opacity: 0 }}
+              >
+                <DeleteModalBtn red onClick={() => onDeleteBtnClick()}>
+                  {deleteLoading ? 'Loading...' : 'Delete'}
+                </DeleteModalBtn>
+                <DeleteModalBtn onClick={() => setAddDeleteModal(false)}>
+                  Cancel
+                </DeleteModalBtn>
+              </DeleteModalBox>
             </>
           ) : null}
         </AnimatePresence>
@@ -449,6 +522,36 @@ const CategoryAddModal = styled(motion.form)`
     padding: 5px;
     color: ${(props) => props.theme.black};
   }
+`;
+
+const DeleteModalBox = styled(motion.div)`
+  position: absolute;
+  top: 40%;
+  left: 0;
+  right: 0;
+  margin: auto auto;
+  border-radius: 20px;
+  width: 200px;
+  height: 100px;
+  background-color: ${(props) => props.theme.checkedColor};
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  z-index: 999;
+  padding: 10px;
+  grid-gap: 10px;
+  align-items: center;
+`;
+
+const DeleteModalBtn = styled.button<{ red?: boolean }>`
+  cursor: pointer;
+  width: 100%;
+  border-radius: 3px;
+  background-color: ${(props) =>
+    props.red ? props.theme.red : props.theme.pointColor};
+  color: ${(props) => props.theme.white};
+  text-align: center;
+  padding: 10px;
+  font-weight: 600;
 `;
 const CategoryAddModalBtn = styled.button`
   cursor: pointer;
