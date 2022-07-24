@@ -135,9 +135,11 @@ export default function Home() {
       </Container>
     </Layout>
   ) : (
-    <LoadingContainer>
-      <Loading />
-    </LoadingContainer>
+    <Layout>
+      <LoadingContainer>
+        <Loading />
+      </LoadingContainer>
+    </Layout>
   );
 }
 const Top = styled.div`
