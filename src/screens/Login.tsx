@@ -46,7 +46,10 @@ export default function Login() {
   };
   return (
     <AuthLayout>
-      <AuthTitle>{state?.message || 'Welcome to Nomad Coffee'}</AuthTitle>
+      <AuthTitle>
+        <p>{state?.message}</p>
+        Welcome to Nomad Coffee
+      </AuthTitle>
       <AuthForm onSubmit={handleSubmit(onValid)}>
         <AuthInput
           {...register('username', {

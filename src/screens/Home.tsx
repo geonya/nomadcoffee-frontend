@@ -18,6 +18,7 @@ export default function Home() {
   const [closestCafeIndex, setClosestCafeIndex] = useState<null | number>(null);
   const calculateDistance = useCalculateDistance({ data });
 
+  console.log(data);
   useEffect(() => {
     (async () => {
       if (!data?.seeCafes) return;
@@ -60,7 +61,9 @@ export default function Home() {
             </TopLocation>
           </TopTitle>
           <TopCharacter>
-            <TopCharacterImg src='https://nomadcoffeee.s3.ap-northeast-2.amazonaws.com/photos/cafe-character.png' />
+            <TopCharacterImg
+              src={process.env.PUBLIC_URL + '/img/cafe-character.png'}
+            />
           </TopCharacter>
           <Link
             to={`/cafe/${
@@ -256,6 +259,7 @@ const AddBtn = styled.button`
   svg {
     color: white;
   }
+  z-index: 999;
 `;
 const Container = styled.div`
   width: 100%;

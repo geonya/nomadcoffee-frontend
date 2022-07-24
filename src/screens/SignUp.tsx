@@ -48,7 +48,7 @@ export default function SignUp() {
       const signUpState: SignUpState = {
         username,
         password,
-        message: `Hello, ${name} Welcome to Nomad Coffee ! `,
+        message: `Hello, ${name}`,
       };
       navigate(routes.home, { state: signUpState });
     },
