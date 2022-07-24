@@ -27,6 +27,6 @@ const AvatarCircle = styled.div<{ size: number }>`
   display: grid;
   place-content: center;
   span {
-    font-size: 50px;
+    font-size: ${(props) => `${props.size}px`};
   }
 `;
