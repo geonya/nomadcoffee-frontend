@@ -3,7 +3,6 @@ import { ClipLoader } from 'react-spinners';
 import styled from 'styled-components';
 import { useSeeCafeQuery, useToggleLikeMutation } from '../generated/graphql';
 import Avatar from './Avatar';
-import Loading from './Loading';
 
 interface CafeBoxProps {
   __typename?: 'Cafe';
@@ -37,7 +36,7 @@ export default function CafeBox({
 }: CafeBoxProps) {
   const navigate = useNavigate();
   const { data, loading } = useSeeCafeQuery({ variables: { cafeId: id! } });
-  const [toggleLikeMutation, { loading: likeLoading }] = useToggleLikeMutation({
+  const [toggleLikeMutation] = useToggleLikeMutation({
     update: (cache, result) => {
       cache.modify({
         id: `Cafe:${id}`,

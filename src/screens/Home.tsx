@@ -11,7 +11,7 @@ import CafesContainer from '../components/CafesContainer';
 
 export default function Home() {
   const navigation = useNavigate();
-  const { data, loading, fetchMore } = useSeeCafesQuery({
+  const { data, loading } = useSeeCafesQuery({
     variables: { offset: 0 },
   });
   const [distanceArray, setDistanceArray] = useState<number[]>([]);
@@ -117,12 +117,7 @@ export default function Home() {
           </Link>
         </Top>
         {data && data.seeCafes ? (
-          <CafesContainer
-            cafes={data.seeCafes}
-            loading={loading}
-            fetchMore={fetchMore}
-            distanceArray={distanceArray}
-          />
+          <CafesContainer cafes={data.seeCafes} distanceArray={distanceArray} />
         ) : (
           <Loading />
         )}
