@@ -17,46 +17,25 @@ export default function CafesContainer({
   fetchMore,
   distanceArray,
 }: CafesContainerProps) {
-  const [fetchLoading, setFetchLoading] = useState(true);
-  const onLoadMore = () => {
-    setFetchLoading(true);
-    fetchMore({
-      variables: {
-        offset: cafes?.length,
-      },
-    });
-    setFetchLoading(false);
-  };
+  // const [fetchLoading, setFetchLoading] = useState(true);
+  // const onLoadMore = () => {
+  //   setFetchLoading(true);
+  //   fetchMore({
+  //     variables: {
+  //       offset: cafes?.length,
+  //     },
+  //   });
+  //   setFetchLoading(false);
+  // };
   return (
     <Container>
-      {!loading && cafes && (
-        <InfiniteScroll
-          dataLength={cafes.length}
-          next={onLoadMore}
-          hasMore={fetchLoading}
-          scrollThreshold={0.9}
-          loader={
-            <div
-              style={{
-                width: '100%',
-                display: 'grid',
-                placeContent: 'center',
-              }}
-            >
-              <Loading />
-            </div>
-          }
-          scrollableTarget='container'
-        >
-          {cafes.map((cafe, i) => (
-            <CafeBox
-              {...cafe}
-              key={i}
-              distance={distanceArray && distanceArray[i]}
-            />
-          ))}
-        </InfiniteScroll>
-      )}
+      {cafes.map((cafe, i) => (
+        <CafeBox
+          {...cafe}
+          key={i}
+          distance={distanceArray && distanceArray[i]}
+        />
+      ))}
     </Container>
   );
 }
