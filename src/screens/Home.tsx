@@ -33,9 +33,8 @@ export default function Home() {
       const minDistanceIndex = distanceArray.indexOf(minDistance);
       setClosestCafeIndex(minDistanceIndex);
     })();
-  }, [data?.seeCafes, calculateDistance]);
-  if (!data || !data.seeCafes) return <Loading />;
-  return (
+  }, [data, calculateDistance]);
+  return !loading ? (
     <Layout needMenu={true}>
       <Container id='container'>
         <Top>
@@ -55,7 +54,9 @@ export default function Home() {
                   clipRule='evenodd'
                 ></path>
               </svg>
-              <span>{distanceArray.length} cafes near you</span>
+              <span>
+                {distanceArray.filter((km) => km < 100).length} cafes near you
+              </span>
             </TopLocation>
           </TopTitle>
           <TopCharacter>
@@ -84,26 +85,28 @@ export default function Home() {
                     : data?.seeCafes![0]?.name}
                 </MainCafeTitle>
                 <MainCafeLocation>
-                  <svg
-                    xmlns='http://www.w3.org/2000/svg'
-                    height='24px'
-                    viewBox='0 0 24 24'
-                    width='24px'
-                  >
-                    <path d='M0 0h24v24H0V0z' fill='none' />
-                    <path d='M21 3L3 10.53v.98l6.84 2.65L12.48 21h.98L21 3z' />
-                  </svg>
                   {closestCafeIndex !== null &&
                   distanceArray[closestCafeIndex] !== undefined ? (
-                    <span>
-                      {distanceArray[closestCafeIndex] < 0.009
-                        ? 0 + ' m'
-                        : distanceArray[closestCafeIndex] < 0.1
-                        ? distanceArray[closestCafeIndex]
-                            ?.toString()
-                            ?.substring(4, 6) + ' m'
-                        : distanceArray[closestCafeIndex]?.toFixed(1) + ' km'}
-                    </span>
+                    <>
+                      <svg
+                        xmlns='http://www.w3.org/2000/svg'
+                        height='24px'
+                        viewBox='0 0 24 24'
+                        width='24px'
+                      >
+                        <path d='M0 0h24v24H0V0z' fill='none' />
+                        <path d='M21 3L3 10.53v.98l6.84 2.65L12.48 21h.98L21 3z' />
+                      </svg>
+                      <span>
+                        {distanceArray[closestCafeIndex] < 0.009
+                          ? 0 + ' m'
+                          : distanceArray[closestCafeIndex] < 0.1
+                          ? distanceArray[closestCafeIndex]
+                              ?.toString()
+                              ?.substring(4, 6) + ' m'
+                          : distanceArray[closestCafeIndex]?.toFixed(1) + ' km'}
+                      </span>
+                    </>
                   ) : (
                     <ClipLoader size={12} />
                   )}
@@ -137,11 +140,15 @@ export default function Home() {
         </AddBtn>
       </Container>
     </Layout>
+  ) : (
+    <Layout>
+      <Loading />
+    </Layout>
   );
 }
 const Top = styled.div`
   width: 100%;
-  padding: 30px 30px;
+  padding: 30px 25px;
   padding-bottom: 60px;
   display: flex;
   align-items: center;

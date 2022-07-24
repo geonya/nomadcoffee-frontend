@@ -34,4 +34,5 @@ interface UpdateCafeFormValues {
 interface IPhotoObjArr {
   id?: number;
   url?: string;
+  key?: number;
 }

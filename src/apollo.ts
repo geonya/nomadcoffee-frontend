@@ -68,21 +68,7 @@ export const client = new ApolloClient({
       User: {
         keyFields: (obj) => `User:${obj.username}`,
       },
-      Cafe: {
-        keyFields: (obj) => `Cafe:${obj.id}`,
-        fields: {
-          photos: {
-            merge(existing, incoming) {
-              return incoming;
-            },
-          },
-          categories: {
-            merge(existing, incoming) {
-              return incoming;
-            },
-          },
-        },
-      },
+      Cafe: { keyFields: (obj) => `Cafe:${obj.id}` },
     },
   }),
 });

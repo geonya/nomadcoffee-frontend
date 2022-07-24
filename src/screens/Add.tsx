@@ -1,5 +1,5 @@
 // Add Cafe Page
-// - [ ] Photo Upload Box Implements
+// - [x] Photo Upload Box Implements 220723
 
 import { useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
@@ -8,7 +8,7 @@ import styled from 'styled-components';
 import SubmitButton from '../components/buttons/SubmitButton';
 import { Input } from '../components/Input';
 import Layout from '../components/Layout';
-import { createCategoryObj } from '../components/sharedFunc';
+import { createCategoryObj } from '../libs/sharedFunc';
 import {
   useCreateCafeMutation,
   useSeeCategoriesQuery,
@@ -16,7 +16,6 @@ import {
 import { routes } from '../routes';
 import { AnimatePresence, motion } from 'framer-motion';
 import DaumPostcodeEmbed, { type Address } from 'react-daum-postcode';
-import { boxVariants } from '../libs/animationVariant';
 import { getCoords } from '../libs/getCoords';
 import { IPhotoObjArr, UpdateCafeFormValues } from '../types';
 import PhotoUPloadBox from '../components/PhotoUploadBox';
@@ -31,7 +30,6 @@ const Add = () => {
   // state
   const [photosPreview, setPhotosPreview] = useState<IPhotoObjArr[]>([]);
   const [addressModal, setAddressModal] = useState(false);
-  const [photoIndex, setPhotoIndex] = useState(0);
   const [uploadFileList, setUploadFileList] = useState<
     Array<File> | null | undefined
   >(null);
@@ -154,6 +152,8 @@ const Add = () => {
       const filesArray = Array.from(filesWatch);
       const urlsArray = filesArray.map((file) => ({
         url: URL.createObjectURL(file),
+        // for identifying file on preview and deleting
+        key: file.lastModified,
       }));
       setPhotosPreview((prev) => [...prev, ...urlsArray]);
       setUploadFileList(Array.from(filesArray));
@@ -195,6 +195,7 @@ const Add = () => {
           <PhotoUPloadBox
             photosPreview={photosPreview}
             setPhotosPreview={setPhotosPreview}
+            setUploadFileList={setUploadFileList}
             register={register}
           />
           <Input
@@ -254,10 +255,7 @@ const Add = () => {
               </CategoryAddButton>
             </CategoryList>
           </CategoryListBox>
-          <SubmitButton
-            type='submit'
-            value={loading ? 'Loading...' : 'Submit'}
-          />
+          <SubmitButton type='submit' value={loading ? 'Loading...' : 'Add'} />
           <span>{errors.result?.message}</span>
         </CafeForm>
         <AnimatePresence>
@@ -379,6 +377,7 @@ const CategoryAddModal = styled(motion.form)`
   align-items: center;
   z-index: 101;
   input {
+    color: ${(props) => props.theme.black};
     width: 100%;
     padding: 5px;
   }

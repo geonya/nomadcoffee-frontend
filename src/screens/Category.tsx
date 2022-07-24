@@ -22,14 +22,18 @@ const Category = () => {
 
   return (
     <Layout>
-      <Title>#{slug}</Title>
-      {cafes ? <CafesPhotoGridContainer cafes={cafes} /> : <NotFound />}
+      <Wrapper>
+        <Title>#{slug}</Title>
+        {cafes ? <CafesPhotoGridContainer cafes={cafes} /> : <NotFound />}
+      </Wrapper>
     </Layout>
   );
 };
 
 export default Category;
-
+const Wrapper = styled.div`
+  padding: 0 10px;
+`;
 const Title = styled.h2`
   text-align: center;
   font-weight: 600;

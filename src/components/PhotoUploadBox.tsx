@@ -9,28 +9,36 @@ interface PhotoUPloadBoxProps {
   photosPreview: IPhotoObjArr[];
   setPhotosPreview: Dispatch<React.SetStateAction<IPhotoObjArr[]>>;
   register: UseFormRegister<UpdateCafeFormValues>;
+  setUploadFileList?: Dispatch<
+    React.SetStateAction<Array<File> | null | undefined>
+  >;
   setDeleteIds?: Dispatch<React.SetStateAction<number[]>>;
 }
 
 export default function PhotoUPloadBox({
   photosPreview,
   setPhotosPreview,
+  setUploadFileList,
   setDeleteIds,
   register,
 }: PhotoUPloadBoxProps) {
   //Showing Photo in Slider with Index
   const [photoIndex, setPhotoIndex] = useState(0);
 
-  const onPhotoDelete = (i: number, id: number) => {
+  const onPhotoDelete = (i: number, id?: number, key?: number) => {
     setPhotosPreview((prev) => [
       ...prev.slice(0, i),
       ...prev.slice(i + 1, prev.length),
     ]);
-    if (setDeleteIds) {
+    if (setUploadFileList && key) {
+      setUploadFileList((prev) =>
+        prev?.filter((file) => file.lastModified !== key)
+      );
+    }
+    if (setDeleteIds && id) {
       setDeleteIds((prev) => [...prev, id]);
     }
   };
-
   const makeUploadBox = (photosPreview: IPhotoObjArr[]) => {
     const PhotosArr = photosPreview.map((obj, i) => (
       <PhotoReview
@@ -41,7 +49,7 @@ export default function PhotoUPloadBox({
         photo={obj.url!}
         key={i}
       >
-        <PhotoDeleteBtn onClick={() => onPhotoDelete(i, obj.id!)}>
+        <PhotoDeleteBtn onClick={() => onPhotoDelete(i, obj.id, obj.key)}>
           <svg
             fill='none'
             stroke='currentColor'
@@ -162,7 +170,7 @@ const PhotoInputContainer = styled(motion.div)`
   cursor: pointer;
   width: 100%;
   height: 200px;
-  background-color: ${(props) => props.theme.white};
+  background-color: ${(props) => props.theme.borderColor};
   display: flex;
   justify-content: center;
   align-items: center;

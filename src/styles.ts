@@ -39,6 +39,9 @@ export const GlobalStyles = createGlobalStyle`
   ::-webkit-scrollbar {
     display: none;
   }
+  * {
+  box-sizing: border-box;
+  }
   a {
     text-decoration: none;
     color:inherit;
@@ -47,12 +50,10 @@ export const GlobalStyles = createGlobalStyle`
   button {
     all:unset;
     cursor: pointer;
+    box-sizing: border-box;
   }
   input {
-      all:unset;
-      box-sizing: border-box;
-    }
-  * {
-  box-sizing: border-box;
+    all:unset;
+    box-sizing: border-box;
   }
 `;

@@ -6,14 +6,19 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import DaumPostcodeEmbed, { Address } from 'react-daum-postcode';
 import { useForm } from 'react-hook-form';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
+import RedButton from '../components/buttons/RedButton';
 import SubmitButton from '../components/buttons/SubmitButton';
 import { Input } from '../components/Input';
 import Layout from '../components/Layout';
 import PhotoUPloadBox from '../components/PhotoUploadBox';
-import { createCategoryObj } from '../components/sharedFunc';
-import { useEditCafeMutation, useSeeCafeQuery } from '../generated/graphql';
+import { createCategoryObj } from '../libs/sharedFunc';
+import {
+  useDeleteCafeMutation,
+  useEditCafeMutation,
+  useSeeCafeQuery,
+} from '../generated/graphql';
 import { getCoords } from '../libs/getCoords';
 import { IPhotoObjArr, UpdateCafeFormValues } from '../types';
 
@@ -23,7 +28,7 @@ interface CategoryAddFormValues {
 
 export default function EditCafe() {
   const param = useParams();
-
+  const navigate = useNavigate();
   //state
   const [photosPreview, setPhotosPreview] = useState<IPhotoObjArr[]>([]);
   const [addressModal, setAddressModal] = useState(false);
@@ -66,6 +71,48 @@ export default function EditCafe() {
             description: () => cafe.description,
             categories: () => cafe.categories,
             files: () => cafe.photos,
+          },
+        });
+      }
+    },
+  });
+
+  // Delete Cafe Fn
+
+  const [deleteCafeFn, { loading: deleteLoading }] = useDeleteCafeMutation({
+    onCompleted: (data) => {
+      if (!data.deleteCafe) return;
+      const {
+        deleteCafe: { ok, error },
+      } = data;
+      if (!ok) {
+        setError('result', { message: error! });
+        return;
+      }
+      navigate('/');
+    },
+    update: (cache, result) => {
+      if (!result.data?.deleteCafe) return;
+      const {
+        data: {
+          deleteCafe: { ok, id },
+        },
+      } = result;
+      if (ok) {
+        cache.modify({
+          id: `ROOT_QUERY`,
+          fields: {
+            seeCafes: (prev) => {
+              const result = prev.filter((r: { __ref: string; id: number }) => {
+                if (r.__ref) {
+                  return !r['__ref']?.includes(id + '');
+                }
+                if (r.id) {
+                  return r.id !== id;
+                }
+                return result;
+              });
+            },
           },
         });
       }
@@ -115,7 +162,7 @@ export default function EditCafe() {
       coords = await getCoords(data.address);
     }
 
-    // Update Trigger Fn
+    // Update Trigger Fn`
     editCafeFn({
       variables: {
         id: +param?.id!,
@@ -139,6 +186,12 @@ export default function EditCafe() {
     }
     categorySetValue('name', '');
     setAddCategoryModal(false);
+  };
+
+  const onClickDeleteCafe = () => {
+    deleteCafeFn({
+      variables: { id: data?.seeCafe?.id || +param.id?.toString()! },
+    });
   };
 
   // Cafe Photos Mounting
@@ -173,6 +226,7 @@ export default function EditCafe() {
       const filesArray = Array.from(filesWatch);
       const urlsArray = filesArray.map((file) => ({
         url: URL.createObjectURL(file),
+        key: file.lastModified,
       }));
       setPhotosPreview((prev) => [...prev, ...urlsArray]);
       setUploadFileList(filesArray);
@@ -193,6 +247,7 @@ export default function EditCafe() {
             photosPreview={photosPreview}
             setPhotosPreview={setPhotosPreview}
             setDeleteIds={setDeleteIds}
+            setUploadFileList={setUploadFileList}
             register={register}
           />
           <Input type='text' placeholder='Name' {...register('name')} />
@@ -250,10 +305,12 @@ export default function EditCafe() {
           </CategoryListBox>
           <SubmitButton
             type='submit'
-            value={loading ? 'Loading...' : 'Submit'}
+            value={loading || deleteLoading ? 'Loading...' : 'Upadte'}
           />
           <span>{errors.result?.message}</span>
         </CafeForm>
+        <RedButton onClick={onClickDeleteCafe}>Delete Cafe</RedButton>
+
         <AnimatePresence>
           {addCategoryModal ? (
             <>
@@ -329,13 +386,7 @@ export default function EditCafe() {
 const Wrapper = styled.div`
   padding: 0 10px;
 `;
-const CafeForm = styled.form`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-`;
+const CafeForm = styled.form``;
 
 const CategoryListBox = styled.div`
   margin: 20px 0;

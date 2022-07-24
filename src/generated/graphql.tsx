@@ -20,6 +20,7 @@ export type Cafe = {
   __typename?: 'Cafe';
   address?: Maybe<Scalars['String']>;
   categories?: Maybe<Array<Maybe<Category>>>;
+  comments?: Maybe<Array<Maybe<Comment>>>;
   countLikes: Scalars['Int'];
   createdAt: Scalars['String'];
   description?: Maybe<Scalars['String']>;
@@ -29,6 +30,7 @@ export type Cafe = {
   longitude?: Maybe<Scalars['Float']>;
   name: Scalars['String'];
   photos?: Maybe<Array<Maybe<CafePhoto>>>;
+  totalRating?: Maybe<Scalars['Float']>;
   updatedAt: Scalars['String'];
   user: User;
 };
@@ -55,9 +57,34 @@ export type CategoryInput = {
   name: Scalars['String'];
 };
 
+export type Comment = {
+  __typename?: 'Comment';
+  cafe?: Maybe<Cafe>;
+  caption: Scalars['String'];
+  createdAt: Scalars['String'];
+  id: Scalars['Int'];
+  rating: Scalars['Int'];
+  updatedAt: Scalars['String'];
+  user?: Maybe<User>;
+};
+
+export type DeleteCafeResult = {
+  __typename?: 'DeleteCafeResult';
+  error?: Maybe<Scalars['String']>;
+  id?: Maybe<Scalars['Int']>;
+  ok: Scalars['Boolean'];
+};
+
 export type EditCafeResponse = {
   __typename?: 'EditCafeResponse';
   cafe?: Maybe<Cafe>;
+  error?: Maybe<Scalars['String']>;
+  ok: Scalars['Boolean'];
+};
+
+export type FindCommentReponse = {
+  __typename?: 'FindCommentReponse';
+  comment?: Maybe<Comment>;
   error?: Maybe<Scalars['String']>;
   ok: Scalars['Boolean'];
 };
@@ -82,7 +109,9 @@ export type Mutation = {
   createAccount?: Maybe<MutationResponse>;
   createCafe: CreateCafeResult;
   createCategory: MutationResponse;
-  deleteCafe: MutationResponse;
+  createComment?: Maybe<MutationResponse>;
+  deleteCafe?: Maybe<DeleteCafeResult>;
+  deleteComment?: Maybe<MutationResponse>;
   editCafe: EditCafeResponse;
   editProfile?: Maybe<MutationResponse>;
   followUser?: Maybe<MutationResponse>;
@@ -117,7 +146,19 @@ export type MutationCreateCategoryArgs = {
 };
 
 
+export type MutationCreateCommentArgs = {
+  cafeId: Scalars['Int'];
+  caption: Scalars['String'];
+  rating: Scalars['Int'];
+};
+
+
 export type MutationDeleteCafeArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type MutationDeleteCommentArgs = {
   id: Scalars['Int'];
 };
 
@@ -179,6 +220,7 @@ export type MutationResponse = {
 
 export type Query = {
   __typename?: 'Query';
+  findComment?: Maybe<FindCommentReponse>;
   searchCafes?: Maybe<Array<Maybe<Cafe>>>;
   searchUsers?: Maybe<SearchUserResult>;
   seeCafe?: Maybe<Cafe>;
@@ -187,6 +229,11 @@ export type Query = {
   seeCategory?: Maybe<Array<Maybe<Cafe>>>;
   seeMyProfile: User;
   seeUser?: Maybe<SeeUserResult>;
+};
+
+
+export type QueryFindCommentArgs = {
+  cafeId: Scalars['Int'];
 };
 
 
@@ -267,6 +314,8 @@ export type CafeFragmentFragment = { __typename?: 'Cafe', id: number, name: stri
 
 export type UserFragmentFragment = { __typename?: 'User', id: number, username: string, name: string, avatarUrl?: string | null, email: string, address?: string | null, isMe?: boolean | null, isFollowing?: boolean | null, countCafes: number, givenLikes: number, totalFollowing: number, totalFollowers: number };
 
+export type CommentFragmentFragment = { __typename?: 'Comment', caption: string, rating: number, user?: { __typename?: 'User', id: number, username: string, avatarUrl?: string | null } | null };
+
 export type SeeCafesQueryVariables = Exact<{
   offset: Scalars['Int'];
 }>;
@@ -279,7 +328,7 @@ export type SeeCafeQueryVariables = Exact<{
 }>;
 
 
-export type SeeCafeQuery = { __typename?: 'Query', seeCafe?: { __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', id: number, url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string, slug: string } | null> | null, user: { __typename?: 'User', id: number, username: string, avatarUrl?: string | null } } | null };
+export type SeeCafeQuery = { __typename?: 'Query', seeCafe?: { __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, comments?: Array<{ __typename?: 'Comment', caption: string, rating: number, user?: { __typename?: 'User', id: number, username: string, avatarUrl?: string | null } | null } | null> | null, photos?: Array<{ __typename?: 'CafePhoto', id: number, url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string, slug: string } | null> | null, user: { __typename?: 'User', id: number, username: string, avatarUrl?: string | null } } | null };
 
 export type SeeMyProfileQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -311,6 +360,13 @@ export type SearchCafesQueryVariables = Exact<{
 
 
 export type SearchCafesQuery = { __typename?: 'Query', searchCafes?: Array<{ __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', id: number, url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string, slug: string } | null> | null, user: { __typename?: 'User', id: number, username: string, avatarUrl?: string | null } } | null> | null };
+
+export type FindCommentQueryVariables = Exact<{
+  cafeId: Scalars['Int'];
+}>;
+
+
+export type FindCommentQuery = { __typename?: 'Query', findComment?: { __typename?: 'FindCommentReponse', ok: boolean, error?: string | null, comment?: { __typename?: 'Comment', caption: string, rating: number, user?: { __typename?: 'User', id: number, username: string, avatarUrl?: string | null } | null } | null } | null };
 
 export type LoginMutationVariables = Exact<{
   username: Scalars['String'];
@@ -372,11 +428,11 @@ export type EditCafeMutationVariables = Exact<{
 export type EditCafeMutation = { __typename?: 'Mutation', editCafe: { __typename?: 'EditCafeResponse', ok: boolean, error?: string | null, cafe?: { __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', id: number, url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string, slug: string } | null> | null, user: { __typename?: 'User', id: number, username: string, avatarUrl?: string | null } } | null } };
 
 export type DeleteCafeMutationVariables = Exact<{
-  cafeId: Scalars['Int'];
+  id: Scalars['Int'];
 }>;
 
 
-export type DeleteCafeMutation = { __typename?: 'Mutation', deleteCafe: { __typename?: 'MutationResponse', ok: boolean, error?: string | null } };
+export type DeleteCafeMutation = { __typename?: 'Mutation', deleteCafe?: { __typename?: 'DeleteCafeResult', ok: boolean, error?: string | null, id?: number | null } | null };
 
 export type CreateCategoryMutationVariables = Exact<{
   name: Scalars['String'];
@@ -405,6 +461,22 @@ export type UnfollowUserMutationVariables = Exact<{
 
 
 export type UnfollowUserMutation = { __typename?: 'Mutation', unfollowUser?: { __typename?: 'MutationResponse', ok: boolean, error?: string | null } | null };
+
+export type CreateCommentMutationVariables = Exact<{
+  caption: Scalars['String'];
+  rating: Scalars['Int'];
+  cafeId: Scalars['Int'];
+}>;
+
+
+export type CreateCommentMutation = { __typename?: 'Mutation', createComment?: { __typename?: 'MutationResponse', ok: boolean, error?: string | null } | null };
+
+export type DeleteCommentMutationVariables = Exact<{
+  id: Scalars['Int'];
+}>;
+
+
+export type DeleteCommentMutation = { __typename?: 'Mutation', deleteComment?: { __typename?: 'MutationResponse', ok: boolean, error?: string | null } | null };
 
 export const CafeFragmentFragmentDoc = gql`
     fragment CafeFragment on Cafe {
@@ -447,6 +519,17 @@ export const UserFragmentFragmentDoc = gql`
   totalFollowers
 }
     `;
+export const CommentFragmentFragmentDoc = gql`
+    fragment CommentFragment on Comment {
+  caption
+  rating
+  user {
+    id
+    username
+    avatarUrl
+  }
+}
+    `;
 export const SeeCafesDocument = gql`
     query SeeCafes($offset: Int!) {
   seeCafes(offset: $offset) {
@@ -486,9 +569,13 @@ export const SeeCafeDocument = gql`
     query SeeCafe($cafeId: Int!) {
   seeCafe(id: $cafeId) {
     ...CafeFragment
+    comments {
+      ...CommentFragment
+    }
   }
 }
-    ${CafeFragmentFragmentDoc}`;
+    ${CafeFragmentFragmentDoc}
+${CommentFragmentFragmentDoc}`;
 
 /**
  * __useSeeCafeQuery__
@@ -708,6 +795,45 @@ export function useSearchCafesLazyQuery(baseOptions?: Apollo.LazyQueryHookOption
 export type SearchCafesQueryHookResult = ReturnType<typeof useSearchCafesQuery>;
 export type SearchCafesLazyQueryHookResult = ReturnType<typeof useSearchCafesLazyQuery>;
 export type SearchCafesQueryResult = Apollo.QueryResult<SearchCafesQuery, SearchCafesQueryVariables>;
+export const FindCommentDocument = gql`
+    query FindComment($cafeId: Int!) {
+  findComment(cafeId: $cafeId) {
+    ok
+    error
+    comment {
+      ...CommentFragment
+    }
+  }
+}
+    ${CommentFragmentFragmentDoc}`;
+
+/**
+ * __useFindCommentQuery__
+ *
+ * To run a query within a React component, call `useFindCommentQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFindCommentQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useFindCommentQuery({
+ *   variables: {
+ *      cafeId: // value for 'cafeId'
+ *   },
+ * });
+ */
+export function useFindCommentQuery(baseOptions: Apollo.QueryHookOptions<FindCommentQuery, FindCommentQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<FindCommentQuery, FindCommentQueryVariables>(FindCommentDocument, options);
+      }
+export function useFindCommentLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<FindCommentQuery, FindCommentQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<FindCommentQuery, FindCommentQueryVariables>(FindCommentDocument, options);
+        }
+export type FindCommentQueryHookResult = ReturnType<typeof useFindCommentQuery>;
+export type FindCommentLazyQueryHookResult = ReturnType<typeof useFindCommentLazyQuery>;
+export type FindCommentQueryResult = Apollo.QueryResult<FindCommentQuery, FindCommentQueryVariables>;
 export const LoginDocument = gql`
     mutation Login($username: String!, $password: String!) {
   login(username: $username, password: $password) {
@@ -941,10 +1067,11 @@ export type EditCafeMutationHookResult = ReturnType<typeof useEditCafeMutation>;
 export type EditCafeMutationResult = Apollo.MutationResult<EditCafeMutation>;
 export type EditCafeMutationOptions = Apollo.BaseMutationOptions<EditCafeMutation, EditCafeMutationVariables>;
 export const DeleteCafeDocument = gql`
-    mutation DeleteCafe($cafeId: Int!) {
-  deleteCafe(id: $cafeId) {
+    mutation DeleteCafe($id: Int!) {
+  deleteCafe(id: $id) {
     ok
     error
+    id
   }
 }
     `;
@@ -963,7 +1090,7 @@ export type DeleteCafeMutationFn = Apollo.MutationFunction<DeleteCafeMutation, D
  * @example
  * const [deleteCafeMutation, { data, loading, error }] = useDeleteCafeMutation({
  *   variables: {
- *      cafeId: // value for 'cafeId'
+ *      id: // value for 'id'
  *   },
  * });
  */
@@ -1110,3 +1237,73 @@ export function useUnfollowUserMutation(baseOptions?: Apollo.MutationHookOptions
 export type UnfollowUserMutationHookResult = ReturnType<typeof useUnfollowUserMutation>;
 export type UnfollowUserMutationResult = Apollo.MutationResult<UnfollowUserMutation>;
 export type UnfollowUserMutationOptions = Apollo.BaseMutationOptions<UnfollowUserMutation, UnfollowUserMutationVariables>;
+export const CreateCommentDocument = gql`
+    mutation CreateComment($caption: String!, $rating: Int!, $cafeId: Int!) {
+  createComment(caption: $caption, rating: $rating, cafeId: $cafeId) {
+    ok
+    error
+  }
+}
+    `;
+export type CreateCommentMutationFn = Apollo.MutationFunction<CreateCommentMutation, CreateCommentMutationVariables>;
+
+/**
+ * __useCreateCommentMutation__
+ *
+ * To run a mutation, you first call `useCreateCommentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCommentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCommentMutation, { data, loading, error }] = useCreateCommentMutation({
+ *   variables: {
+ *      caption: // value for 'caption'
+ *      rating: // value for 'rating'
+ *      cafeId: // value for 'cafeId'
+ *   },
+ * });
+ */
+export function useCreateCommentMutation(baseOptions?: Apollo.MutationHookOptions<CreateCommentMutation, CreateCommentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateCommentMutation, CreateCommentMutationVariables>(CreateCommentDocument, options);
+      }
+export type CreateCommentMutationHookResult = ReturnType<typeof useCreateCommentMutation>;
+export type CreateCommentMutationResult = Apollo.MutationResult<CreateCommentMutation>;
+export type CreateCommentMutationOptions = Apollo.BaseMutationOptions<CreateCommentMutation, CreateCommentMutationVariables>;
+export const DeleteCommentDocument = gql`
+    mutation DeleteComment($id: Int!) {
+  deleteComment(id: $id) {
+    ok
+    error
+  }
+}
+    `;
+export type DeleteCommentMutationFn = Apollo.MutationFunction<DeleteCommentMutation, DeleteCommentMutationVariables>;
+
+/**
+ * __useDeleteCommentMutation__
+ *
+ * To run a mutation, you first call `useDeleteCommentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteCommentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteCommentMutation, { data, loading, error }] = useDeleteCommentMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteCommentMutation(baseOptions?: Apollo.MutationHookOptions<DeleteCommentMutation, DeleteCommentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteCommentMutation, DeleteCommentMutationVariables>(DeleteCommentDocument, options);
+      }
+export type DeleteCommentMutationHookResult = ReturnType<typeof useDeleteCommentMutation>;
+export type DeleteCommentMutationResult = Apollo.MutationResult<DeleteCommentMutation>;
+export type DeleteCommentMutationOptions = Apollo.BaseMutationOptions<DeleteCommentMutation, DeleteCommentMutationVariables>;

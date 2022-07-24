@@ -45,10 +45,15 @@
 - [x] Search Page
 - [x] Category -> Cafes List
 - [x] Menu Modal using framer-motion
-- [ ] Edit Cafe Page 220722
-  - [ ] Photo Add or Delete
-  - [ ] Cache Update Check
-  - [ ] Category rendering bug fix
-  - [ ] File Upload Box Layout Refactoring
+- [x] Edit Cafe Page 220722
+  - [x] Photo Add or Delete
+  - [x] Delete Cafe
+  - [x] Cache Update Check
+  - [x] Category rendering bug fix
+  - [x] File Upload Box Layout Refactoring
+- [x] Add page : Photo Upload Box Implements
 - [ ] Comment Section
+  - [x] model 만들기
+  - [ ] graphql 정의
+- [ ] Form Validation Check
 - [ ] Deploy 🚀

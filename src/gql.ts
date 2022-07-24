@@ -42,6 +42,17 @@ const USER_FRAGMENT = gql`
     totalFollowers
   }
 `;
+const COMMENT_FRAGMENT = gql`
+  fragment CommentFragment on Comment {
+    caption
+    rating
+    user {
+      id
+      username
+      avatarUrl
+    }
+  }
+`;
 
 // query
 
@@ -55,8 +66,12 @@ gql`
 	query SeeCafe($cafeId: Int!) {
 		seeCafe(id: $cafeId) {
 			...CafeFragment
+			comments {
+				...CommentFragment
+			}
 		}
 		${CAFE_FRAGMENT}
+		${COMMENT_FRAGMENT}
 	}
 	query SeeMyProfile {
 		seeMyProfile {
@@ -105,6 +120,16 @@ gql`
 			...CafeFragment
 		}
 		${CAFE_FRAGMENT}
+	}
+	query FindComment($cafeId:Int!) {
+		findComment(cafeId:$cafeId) {
+			ok
+			error
+			comment {
+				...CommentFragment
+			}
+		}
+		${COMMENT_FRAGMENT}
 	}
 `;
 
@@ -195,10 +220,11 @@ gql`
 		}
 		${CAFE_FRAGMENT}
 	}
-	mutation DeleteCafe($cafeId: Int!) {
-		deleteCafe(id: $cafeId) {
+	mutation DeleteCafe($id: Int!) {
+		deleteCafe(id: $id) {
 			ok
 			error
+			id
 		}
 	}
 	mutation CreateCategory($name: String!) {
@@ -224,5 +250,17 @@ gql`
 			ok
 			error
   	}
+	}
+	mutation CreateComment($caption:String!, $rating:Int! ,$cafeId:Int!) {
+		createComment(caption:$caption, rating:$rating, cafeId:$cafeId) {
+			ok
+			error
+		}
+	}
+	mutation DeleteComment($id:Int!) {
+		deleteComment(id:$id) {
+			ok
+			error
+		}
 	}
 `;
