@@ -11,9 +11,7 @@ import CafesContainer from '../components/CafesContainer';
 
 export default function Home() {
   const navigation = useNavigate();
-  const { data, loading } = useSeeCafesQuery({
-    variables: { offset: 0 },
-  });
+  const { data, loading } = useSeeCafesQuery({});
   const [distanceArray, setDistanceArray] = useState<number[]>([]);
   const [closestCafeIndex, setClosestCafeIndex] = useState<null | number>(null);
   const calculateDistance = useCalculateDistance({ data });

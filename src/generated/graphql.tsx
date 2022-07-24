@@ -30,7 +30,6 @@ export type Cafe = {
   longitude?: Maybe<Scalars['Float']>;
   name: Scalars['String'];
   photos?: Maybe<Array<Maybe<CafePhoto>>>;
-  totalRating?: Maybe<Scalars['Float']>;
   updatedAt: Scalars['String'];
   user: User;
 };
@@ -260,11 +259,6 @@ export type QuerySeeCafeArgs = {
 };
 
 
-export type QuerySeeCafesArgs = {
-  offset: Scalars['Int'];
-};
-
-
 export type QuerySeeCategoryArgs = {
   slug: Scalars['String'];
 };
@@ -323,9 +317,7 @@ export type UserFragmentFragment = { __typename?: 'User', id: number, username: 
 
 export type CommentFragmentFragment = { __typename?: 'Comment', caption: string, rating: number, user?: { __typename?: 'User', id: number, username: string, avatarUrl?: string | null } | null };
 
-export type SeeCafesQueryVariables = Exact<{
-  offset: Scalars['Int'];
-}>;
+export type SeeCafesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type SeeCafesQuery = { __typename?: 'Query', seeCafes?: Array<{ __typename?: 'Cafe', id: number, name: string, address?: string | null, latitude?: number | null, longitude?: number | null, description?: string | null, countLikes: number, isLiked: boolean, photos?: Array<{ __typename?: 'CafePhoto', id: number, url: string } | null> | null, categories?: Array<{ __typename?: 'Category', name: string, slug: string } | null> | null, user: { __typename?: 'User', id: number, username: string, avatarUrl?: string | null } } | null> | null };
@@ -538,8 +530,8 @@ export const CommentFragmentFragmentDoc = gql`
 }
     `;
 export const SeeCafesDocument = gql`
-    query SeeCafes($offset: Int!) {
-  seeCafes(offset: $offset) {
+    query SeeCafes {
+  seeCafes {
     ...CafeFragment
   }
 }
@@ -557,11 +549,10 @@ export const SeeCafesDocument = gql`
  * @example
  * const { data, loading, error } = useSeeCafesQuery({
  *   variables: {
- *      offset: // value for 'offset'
  *   },
  * });
  */
-export function useSeeCafesQuery(baseOptions: Apollo.QueryHookOptions<SeeCafesQuery, SeeCafesQueryVariables>) {
+export function useSeeCafesQuery(baseOptions?: Apollo.QueryHookOptions<SeeCafesQuery, SeeCafesQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<SeeCafesQuery, SeeCafesQueryVariables>(SeeCafesDocument, options);
       }

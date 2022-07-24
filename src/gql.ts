@@ -57,8 +57,8 @@ const COMMENT_FRAGMENT = gql`
 // query
 
 gql`
-	query SeeCafes($offset: Int!) {
-		seeCafes(offset: $offset) {
+	query SeeCafes {
+		seeCafes {
 			...CafeFragment
 		}
 		${CAFE_FRAGMENT}
