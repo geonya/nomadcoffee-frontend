@@ -12,6 +12,7 @@ import {
 import { useApolloClient } from '@apollo/client';
 import { useSeeMe } from '../hooks/useSeeMe';
 import CafesPhotoGridContainer from '../components/CafesPhotoGridContainer';
+import Loading from '../components/Loading';
 
 interface ProfileBtn {
   isMe?: boolean | null;
@@ -91,7 +92,7 @@ export default function Profile() {
     <Layout>
       {!data || !data.seeUser || !data.seeUser.user ? (
         <Container>
-          <h1>User Not Found</h1>
+          <Loading />
         </Container>
       ) : (
         <Container>
