@@ -17,8 +17,6 @@ export default function Home() {
   const [distanceArray, setDistanceArray] = useState<number[]>([]);
   const [closestCafeIndex, setClosestCafeIndex] = useState<null | number>(null);
   const calculateDistance = useCalculateDistance({ data });
-
-  console.log(data);
   useEffect(() => {
     (async () => {
       if (!data?.seeCafes) return;
@@ -144,9 +142,9 @@ export default function Home() {
       </Container>
     </Layout>
   ) : (
-    <Layout>
+    <LoadingContainer>
       <Loading />
-    </Layout>
+    </LoadingContainer>
   );
 }
 const Top = styled.div`
@@ -265,4 +263,11 @@ const Container = styled.div`
   width: 100%;
   height: 100%;
   overflow-y: auto;
+`;
+
+const LoadingContainer = styled.div`
+  width: 100%;
+  height: 80vh;
+  display: grid;
+  place-content: center;
 `;
